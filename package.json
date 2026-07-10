@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@react-pdf/renderer": "^4.5.1",
