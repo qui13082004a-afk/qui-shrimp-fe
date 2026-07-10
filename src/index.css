@@ -1,0 +1,20 @@
+:root {
+  --primary: #004077;
+  --primary-light: #e0f2fe;
+  --primary-hover: #0284c7;
+  --primary-border-hover: #bae6fd;
+}
+
+button,
+.btn,
+a[class*="btn"] {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover,
+.btn:hover,
+a[class*="btn"]:hover {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+  border-color: var(--primary-border-hover);
+}

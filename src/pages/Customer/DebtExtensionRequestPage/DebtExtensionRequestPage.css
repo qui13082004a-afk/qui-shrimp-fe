@@ -1,0 +1,189 @@
+.debt-extension-page {
+  min-height: calc(100vh - 72px);
+  background: #f4f7fb;
+  padding: 32px 48px 70px;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+}
+
+.debt-extension-back {
+  border: none;
+  background: #ffffff;
+  color: #0a4f8f;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(15, 35, 56, 0.06);
+}
+
+.debt-extension-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 28px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.debt-extension-card,
+.debt-extension-preview {
+  background: #ffffff;
+  border: 1px solid #dfe7f1;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(15, 35, 56, 0.06);
+}
+
+.debt-extension-card {
+  padding: 32px;
+}
+
+.debt-extension-header span {
+  color: #0a4f8f;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.debt-extension-header h1 {
+  margin: 8px 0;
+  color: #102033;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.debt-extension-header p {
+  color: #64748b;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.debt-extension-form {
+  display: grid;
+  gap: 22px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 9px;
+  color: #263548;
+  font-weight: 700;
+}
+
+.form-group select,
+.input-icon input,
+.textarea-icon textarea {
+  width: 100%;
+  border: 1px solid #dbe4f2;
+  background: #f8fbff;
+  border-radius: 12px;
+  outline: none;
+  font-size: 15px;
+  color: #263548;
+}
+
+.form-group select {
+  height: 50px;
+  padding: 0 14px;
+}
+
+.input-icon,
+.textarea-icon {
+  position: relative;
+}
+
+.input-icon svg,
+.textarea-icon svg {
+  position: absolute;
+  left: 14px;
+  top: 15px;
+  color: #0a4f8f;
+}
+
+.input-icon input {
+  height: 50px;
+  padding: 0 14px 0 44px;
+}
+
+.textarea-icon textarea {
+  resize: vertical;
+  padding: 14px 14px 14px 44px;
+  line-height: 1.5;
+}
+
+.debt-extension-submit {
+  height: 52px;
+  border: none;
+  border-radius: 12px;
+  background: #0a4f8f;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.debt-extension-submit:hover {
+  background: #083f73;
+}
+
+.debt-extension-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.debt-extension-preview {
+  padding: 26px;
+  height: fit-content;
+  position: sticky;
+  top: 90px;
+}
+
+.debt-extension-preview h2 {
+  margin: 0 0 20px;
+  color: #102033;
+  font-size: 22px;
+}
+
+.debt-extension-preview div {
+  padding: 14px 0;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.debt-extension-preview span {
+  display: block;
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.debt-extension-preview strong {
+  color: #102033;
+  font-size: 16px;
+}
+
+.preview-empty {
+  color: #64748b;
+  background: #f8fbff;
+  padding: 18px;
+  border-radius: 12px;
+}
+
+@media (max-width: 900px) {
+  .debt-extension-page {
+    padding: 24px;
+  }
+
+  .debt-extension-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .debt-extension-preview {
+    position: static;
+  }
+}

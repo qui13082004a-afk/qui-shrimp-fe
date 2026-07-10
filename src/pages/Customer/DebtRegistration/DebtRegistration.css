@@ -1,0 +1,138 @@
+/* ── MULTI-STEP PROFILE MODAL LAYOUT ── */
+.profile-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.profile-modal-container {
+  background: #ffffff;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: profileModalOpen 0.25s ease-out;
+}
+
+@keyframes profileModalOpen {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Thanh Tiến Trình Các Bước */
+.profile-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+.step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  line-height: 32px;
+  text-align: center;
+  position: relative;
+}
+.step-dot.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+.step-dot span {
+  position: absolute;
+  top: 38px;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+}
+.step-dot.active span {
+  color: #0284c7;
+  font-weight: 600;
+}
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 16px;
+}
+
+/* Nội dung bước */
+.profile-step-body h3 { margin: 0 0 6px 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+.step-desc { margin: 0 0 24px 0; font-size: 13px; color: #64748b; }
+
+/* Upload CCCD */
+.cccd-upload-row { display: flex; gap: 16px; margin-bottom: 24px; }
+.cccd-box { flex: 1; height: 140px; border: 2px dashed #cbd5e1; border-radius: 12px; overflow: hidden; background: #f8fafc; }
+.cccd-box:hover { border-color: #0284c7; background: #f0f9ff; }
+.cccd-label { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; gap: 8px; color: #64748b; }
+.cccd-label img { width: 100%; height: 100%; object-fit: cover; }
+.cccd-label span { font-size: 12px; font-weight: 600; }
+
+/* Máy quét khuôn mặt */
+.face-scan-wrapper { display: flex; justify-content: center; margin: 32px 0; }
+.face-scanner-circle {
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 3px solid #cbd5e1;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.face-scanner-circle.scanning { border-color: #0284c7; }
+.scan-laser {
+  position: absolute;
+  width: 100%; height: 4px;
+  background: #0284c7;
+  animation: laserMove 2s infinite ease-in-out;
+  box-shadow: 0 0 8px #0284c7;
+}
+@keyframes laserMove {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+/* Đề xuất & Gửi */
+.verified-success-badge {
+  background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;
+  padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+}
+.profile-input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
+.profile-input-group label { font-size: 13px; font-weight: 600; color: #475569; }
+.profile-input-group textarea {
+  width: 100%; height: 100px; padding: 12px;
+  border: 1px solid #cbd5e1; border-radius: 8px;
+  font-size: 14px; font-family: inherit; resize: none; box-sizing: border-box;
+}
+.profile-input-group textarea:focus { outline: none; border-color: #0284c7; }
+
+/* Hệ thống nút điều khiển */
+.profile-modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+.btn-profile-cancel {
+  padding: 10px 20px; background: #f1f5f9; border: none; border-radius: 8px;
+  color: #475569; font-weight: 600; cursor: pointer; font-size: 13px;
+}
+.btn-profile-next, .btn-profile-submit {
+  padding: 10px 24px; background: #004077; border: none; border-radius: 8px;
+  color: white; font-weight: 600; cursor: pointer; font-size: 13px;
+}
+.btn-profile-next:disabled { background: #cbd5e1; cursor: not-allowed; }
+.btn-profile-next:not(:disabled):hover, .btn-profile-submit:hover { background: #002d54; }

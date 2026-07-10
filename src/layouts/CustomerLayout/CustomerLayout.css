@@ -1,0 +1,12 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Giữ khung ứng dụng bằng đúng chiều cao màn hình */
+  overflow: hidden; /* Không cho toàn bộ trang cuộn */
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto; /* Chỉ cho phép khu vực nội dung ở giữa được cuộn */
+  background-color: #f8fafc; /* Màu nền xám/xanh nhẹ tôn khối sản phẩm */
+}

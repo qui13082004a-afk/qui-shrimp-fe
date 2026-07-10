@@ -1,0 +1,340 @@
+.admin-delivery-page {
+  color: #172033;
+}
+
+.admin-delivery-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.admin-delivery-alert button {
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.admin-delivery-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.admin-delivery-stat-card {
+  background: #ffffff;
+  border: 1px solid #e6edf5;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+.admin-delivery-stat-card span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.admin-delivery-stat-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.admin-delivery-stat-card p {
+  margin: 0;
+  color: #8492a6;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.admin-delivery-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.admin-delivery-card__top {
+  padding: 22px 24px 10px;
+}
+
+.admin-delivery-card__top h2 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 850;
+}
+
+.admin-delivery-card__top p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-delivery-toolbar {
+  padding: 14px 24px 20px;
+  border-bottom: 1px solid #edf2f7;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.admin-delivery-toolbar input,
+.admin-delivery-toolbar select {
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 1px solid #dbe4ef;
+  background: #f8fafc;
+  color: #172033;
+  font-size: 14px;
+  padding: 0 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.admin-delivery-toolbar input:focus,
+.admin-delivery-toolbar select:focus {
+  border-color: #0f75bc;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(15, 117, 188, 0.12);
+}
+
+.admin-delivery-table th {
+  white-space: nowrap;
+}
+
+.admin-delivery-table td {
+  vertical-align: middle;
+}
+
+.admin-delivery-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-delivery-actions button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #dbe4ef;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.admin-delivery-actions button:hover {
+  border-color: #0f75bc;
+  color: #0f75bc;
+  background: #f0f8ff;
+}
+
+.admin-delivery-empty {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-badge.delivery-cho_giao {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.admin-badge.delivery-dang_giao {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.admin-badge.delivery-giao_thanh_cong {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.admin-badge.delivery-giao_that_bai {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.admin-delivery-modal {
+  width: min(640px, calc(100vw - 32px));
+}
+
+.admin-delivery-detail-modal {
+  width: min(900px, calc(100vw - 32px));
+}
+
+.admin-delivery-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-delivery-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-delivery-form input,
+.admin-delivery-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dbe4ef;
+  background: #f8fafc;
+  border-radius: 14px;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.admin-delivery-form input {
+  height: 44px;
+  padding: 0 13px;
+}
+
+.admin-delivery-form textarea {
+  min-height: 100px;
+  resize: vertical;
+  padding: 13px;
+  line-height: 1.55;
+}
+
+.admin-delivery-form input:focus,
+.admin-delivery-form textarea:focus {
+  border-color: #0f75bc;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(15, 117, 188, 0.12);
+}
+
+.admin-delivery-form__full {
+  grid-column: 1 / -1;
+}
+
+.admin-delivery-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-delivery-detail-grid div {
+  padding: 14px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+}
+
+.admin-delivery-detail-grid span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.admin-delivery-detail-grid strong {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.admin-delivery-detail-grid__full {
+  grid-column: 1 / -1;
+}
+
+.admin-delivery-files {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.admin-delivery-files a {
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.admin-delivery-files a:hover {
+  background: #dbeafe;
+}
+
+@media (max-width: 1100px) {
+  .admin-delivery-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-delivery-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-delivery-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-delivery-card__top {
+    padding: 18px 16px 8px;
+  }
+
+  .admin-delivery-toolbar {
+    padding: 12px 16px 16px;
+  }
+
+  .admin-delivery-form,
+  .admin-delivery-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-delivery-form__full,
+  .admin-delivery-detail-grid__full {
+    grid-column: auto;
+  }
+}.admin-delivery-form input,
+.admin-delivery-form select,
+.admin-delivery-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dbe4ef;
+  background: #f8fafc;
+  border-radius: 14px;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.admin-delivery-form input,
+.admin-delivery-form select {
+  height: 44px;
+  padding: 0 13px;
+}

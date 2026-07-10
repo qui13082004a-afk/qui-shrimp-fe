@@ -1,0 +1,68 @@
+.admin-page {
+  width: 100%;
+}
+
+.admin-page__header {
+  background: #ffffff;
+  border: 1px solid #dbe6f1;
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(15, 70, 100, 0.06);
+}
+
+.admin-page__eyebrow {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0084ad;
+}
+
+.admin-page__header h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 850;
+  color: #063f66;
+}
+
+.admin-page__header p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #6a7888;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.admin-stat-card {
+  background: #ffffff;
+  border: 1px solid #dbe6f1;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(15, 70, 100, 0.06);
+}
+
+.admin-stat-card span {
+  display: block;
+  font-size: 13px;
+  color: #6f7d8d;
+  font-weight: 700;
+}
+
+.admin-stat-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 28px;
+  color: #064a78;
+}
+
+.admin-stat-card p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #7b8a9a;
+}

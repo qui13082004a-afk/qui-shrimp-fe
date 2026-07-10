@@ -1,0 +1,321 @@
+.admin-page__header--between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-primary-btn,
+.admin-secondary-btn {
+  height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.admin-primary-btn {
+  background: linear-gradient(135deg, #006d9c, #0098bd);
+  color: #fff;
+}
+
+.admin-secondary-btn {
+  background: #edf4f8;
+  color: #40546a;
+}
+
+.admin-card {
+  background: #fff;
+  border: 1px solid #dce9f4;
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 18px 45px rgba(9, 60, 94, 0.08);
+  min-width: 0;
+}
+
+.admin-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.admin-toolbar input,
+.admin-toolbar select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #c9dceb;
+  border-radius: 16px;
+  padding: 13px 15px;
+  outline: none;
+  font-size: 15px;
+  color: #17364f;
+  background: #fbfdff;
+}
+
+.admin-toolbar input:focus,
+.admin-toolbar select:focus {
+  border-color: #0088b5;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 136, 181, 0.11);
+}
+
+.admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 18px;
+  border: 1px solid #e2edf6;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.admin-table th {
+  background: #f5f9fd;
+  color: #40536a;
+  font-size: 13px;
+  font-weight: 850;
+  text-align: left;
+  padding: 15px 16px;
+  border-bottom: 1px solid #e2edf6;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 18px 16px;
+  border-bottom: 1px solid #eef3f8;
+  color: #26384a;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table td strong {
+  display: block;
+  color: #053f66;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.admin-table td span {
+  display: block;
+  margin-top: 4px;
+  color: #7b8a9a;
+  font-size: 13px;
+}
+
+.admin-badge {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px !important;
+  font-weight: 850;
+  margin: 0 !important;
+}
+
+.admin-badge.hoat_dong {
+  color: #067748;
+  background: #e4f8ef;
+}
+
+.admin-badge.ngung_hop_tac {
+  color: #996100;
+  background: #fff3d8;
+}
+
+.admin-badge.tam_khoa {
+  color: #a73535;
+  background: #fde7e7;
+}
+
+.merchant-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.merchant-actions button {
+  height: 34px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 12px;
+  background: #eef6fb;
+  color: #00658f;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.merchant-actions button:hover {
+  background: #dff0f8;
+}
+
+.merchant-actions button.danger {
+  background: #fff0ef;
+  color: #c4372c;
+}
+
+.merchant-actions button.danger:hover {
+  background: #ffe3e0;
+}
+
+.admin-alert {
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border-radius: 16px;
+  background: #e8f6fc;
+  color: #06547c;
+  border: 1px solid #bee2f1;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 35, 52, 0.48);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.admin-modal {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.22);
+  padding: 24px;
+  animation: modalPop 0.18s ease;
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.admin-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.admin-modal__header h2 {
+  margin: 0;
+  color: #063f66;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.admin-modal__header p {
+  margin: 6px 0 0;
+  color: #718093;
+  font-size: 14px;
+}
+
+.admin-modal__close {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #eef4f8;
+  color: #40546a;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.merchant-modal-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #34475c;
+}
+
+.merchant-modal-form input,
+.merchant-modal-form select,
+.merchant-modal-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  border: 1px solid #c9dceb;
+  border-radius: 16px;
+  padding: 13px 15px;
+  outline: none;
+  font-size: 15px;
+  color: #17364f;
+  background: #fbfdff;
+}
+
+.merchant-modal-form input:focus,
+.merchant-modal-form select:focus,
+.merchant-modal-form textarea:focus {
+  border-color: #0088b5;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 136, 181, 0.11);
+}
+
+.merchant-modal-form textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.merchant-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.merchant-modal-grid__full {
+  grid-column: 1 / -1;
+}
+
+.admin-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+@media (max-width: 720px) {
+  .admin-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .merchant-modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-page__header--between {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,342 @@
+/* =========================================================
+   TỔNG QUAN CONTAINER TRANG GIỎ HÀNG
+   ========================================================= */
+.cart-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Tiêu đề Header Giỏ hàng */
+.cart-header-title {
+  margin-bottom: 32px;
+}
+.cart-header-title h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #034078;
+  margin: 0 0 8px 0;
+}
+.cart-header-title p {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0;
+}
+.highlight-count {
+  color: #034078;
+  font-weight: 700;
+}
+
+/* Layout chia đôi dạng cột lưới */
+.cart-main-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.cart-left-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.cart-right-section {
+  flex: 1;
+  position: sticky;
+  top: 24px;
+}
+
+/* Danh sách Card vật tư trong giỏ hàng */
+.cart-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cart-item-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+}
+.item-card__image {
+  width: 90px;
+  height: 90px;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  padding: 4px;
+}
+.item-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.item-card__info {
+  flex: 1;
+  padding: 0 24px;
+}
+.item-card__info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+.item-card__badge {
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+.price-current {
+  font-size: 18px;
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* =========================================================
+   BỘ ĐẾM SỐ LƯỢNG (CĂN GIỮA ĐỒNG BỘ VỚI NÚT XÓA)
+   ========================================================= */
+.item-card__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Xếp hàng dọc ngay ngắn ở chính giữa */
+  justify-content: center;
+  gap: 14px;
+  min-width: 120px;
+}
+
+.cart-qty-controls {
+  display: flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+.cart-qty-controls button {
+  width: 32px;
+  height: 32px;
+  background: #f8fafc;
+  border: none !important;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #475569;
+  transition: background 0.15s ease;
+}
+.cart-qty-controls button:hover {
+  background: #e2e8f0;
+}
+.cart-qty-controls input {
+  width: 40px;
+  text-align: center;
+  border: none;
+  border-left: 1px solid #cbd5e1;
+  border-right: 1px solid #cbd5e1;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+/* =========================================================
+   CẤU HÌNH NÚT XÓA CHUẨN: HOVER RA KHỐI NỀN XANH NHẠT NHẸ NHÀNG
+   ========================================================= */
+.cart-btn-remove {
+  background: transparent !important; /* Luôn giữ nền trong suốt ở trạng thái tĩnh */
+  border: none !important;
+  color: #ef4444 !important; /* Mặc định chữ và icon giữ màu đỏ nổi bật */
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center; /* Căn icon thẳng hàng dọc với chữ */
+  justify-content: center; /* Căn nội dung nằm chính giữa nút */
+  gap: 6px;
+  
+  /* Tạo khoảng đệm vừa vặn bọc quanh cụm chữ Xóa */
+  padding: 6px 14px; 
+  border-radius: 8px; /* Bo góc mềm mại cho khối nền khi hover */
+  transition: all 0.25s ease; /* Chuyển động xuất hiện mượt mà */
+}
+
+/* Hiệu ứng hover tạo khối nền xanh nhạt tinh tế */
+.cart-btn-remove:hover {
+  background-color: #f0f7ff !important; /* Khối bao quanh màu xanh lam nhạt dịu mắt */
+  color: #dc2626 !important; /* Chữ đỏ đậm lên một chút để tăng độ sắc nét */
+  opacity: 1 !important; /* Đảm bảo chữ rõ ràng 100% */
+}
+
+/* =========================================================
+   THÈ CAM KẾT CHẤT LƯỢNG (TRUST BADGES)
+   ========================================================= */
+.cart-trust-badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+.trust-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eff6ff;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+}
+.badge-icon {
+  color: #1d4ed8;
+  flex-shrink: 0;
+}
+.trust-badge-card h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 0 0 2px 0;
+}
+.trust-badge-card p {
+  font-size: 11px;
+  color: #60a5fa;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* =========================================================
+   KHỐI TÓM TẮT ĐƠN HÀNG (BÊN PHẢI)
+   ========================================================= */
+.checkout-summary-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+.checkout-summary-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 20px 0;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 14px;
+}
+.free-shipping {
+  color: #16a34a;
+  font-weight: 700;
+}
+.discount-amount {
+  color: #ef4444;
+  font-weight: 700;
+}
+.summary-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 16px 0;
+}
+.total-row {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 24px;
+}
+.total-price {
+  font-size: 24px;
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* Nhập mã ưu đãi Coupon */
+.promo-code-box {
+  margin-bottom: 24px;
+}
+.promo-code-box label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  display: block;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.promo-input-group {
+  display: flex;
+  gap: 8px;
+}
+.promo-input-group input {
+  flex: 1;
+  height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  outline: none;
+}
+.btn-apply-promo {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-apply-promo:hover {
+  background: #dbeafe;
+}
+
+/* Nút Tiến hành thanh toán chính */
+.btn-proceed-checkout {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #034078 0%, #002855 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14 rgba(3, 64, 120, 0.2);
+  transition: all 0.2s ease;
+}
+.btn-proceed-checkout:hover {
+  box-shadow: 0 6px 20px rgba(3, 64, 120, 0.3);
+  filter: brightness(1.1);
+}
+.technical-support-text {
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 16px 0 0 0;
+}
+
+/* Trạng thái giỏ trống */
+.cart-empty-state {
+  text-align: center;
+  padding: 80px 24px;
+  color: #64748b;
+  font-size: 16px;
+}
+.cart-empty-state button {
+  background: #034078;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-top: 16px;
+  cursor: pointer;
+}

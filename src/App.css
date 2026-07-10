@@ -1,0 +1,9 @@
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+:root {
+  --primary: #0A4F8F;
+  --primary-hover: #D6EBFB;
+  --primary-hover-text: #0A4F8F;
+}

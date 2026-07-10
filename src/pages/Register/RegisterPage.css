@@ -1,0 +1,299 @@
+.register-page {
+  min-height: 100vh;
+  position: relative;
+  background: #0b3550;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px;
+  overflow: hidden;
+}
+
+.register-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/shrimp-farm.jpg");
+  background-size: cover;
+  background-position: center;
+  filter: blur(1px);
+  transform: scale(1.03);
+}
+
+.register-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 37, 58, 0.22);
+}
+
+.register-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1120px;
+  min-height: 660px;
+  display: grid;
+  grid-template-columns: 0.9fr 1fr;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.28);
+}
+
+.register-left {
+  background: linear-gradient(
+      rgba(0, 79, 131, 0.86),
+      rgba(0, 79, 131, 0.86)
+    ),
+    url("/shrimp-farm.jpg");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.register-left h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 22px;
+}
+
+.left-desc {
+  max-width: 360px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #e5edf4;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 80px;
+}
+
+.feature-item {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feature-item h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.feature-item p {
+  color: #d7e4ee;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.left-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  padding-top: 28px;
+  color: #c9d8e4;
+  font-size: 13px;
+}
+
+.register-right {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 46px;
+  display: flex;
+  align-items: center;
+}
+
+.register-form-box {
+  width: 100%;
+}
+
+.register-form-box h2 {
+  color: #004f83;
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.form-desc {
+  color: #5f6673;
+  font-size: 16px;
+}
+
+.short-line {
+  width: 66px;
+  height: 5px;
+  background: linear-gradient(to right, #004f83 50%, #dbeafe 50%);
+  border-radius: 999px;
+  margin: 26px 0 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  margin-bottom: 7px;
+}
+
+.input-box {
+  height: 50px;
+  border: 1px solid #c7d1df;
+  border-radius: 7px;
+  background: white;
+  display: flex;
+  align-items: center;
+  padding: 0 13px;
+  position: relative;
+}
+
+.input-box svg {
+  color: #64748b;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.input-box input,
+.input-box select {
+  border: none;
+  outline: none;
+  width: 100%;
+  background: transparent;
+  color: #64748b;
+  font-size: 15px;
+  appearance: none;
+}
+
+.input-box input::placeholder {
+  color: #6b7280;
+}
+
+.select-icon {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  margin-right: 0 !important;
+}
+
+.agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 4px 0 24px;
+}
+
+.agree input {
+  margin-top: 4px;
+  width: 16px;
+  height: 16px;
+}
+
+.agree a {
+  color: #004f83;
+  font-weight: 600;
+}
+
+.register-btn {
+  width: 100%;
+  height: 56px;
+  background: #004f83;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-size: 17px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-shadow: 0 10px 22px rgba(0, 79, 131, 0.28);
+}
+
+.register-btn:hover {
+  background: #003e68;
+}
+
+.note {
+  text-align: center;
+  color: #7b8190;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.bottom-line {
+  height: 1px;
+  background: #d1d5db;
+  margin: 52px 0 24px;
+}
+
+.login-link {
+  text-align: center;
+  color: #5f6673;
+  font-size: 16px;
+}
+
+.login-link a {
+  color: #004f83;
+  font-weight: 800;
+}
+
+.extra-links {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  color: #7b8190;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .register-page {
+    padding: 24px;
+  }
+
+  .register-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .register-left {
+    display: none;
+  }
+
+  .register-right {
+    padding: 32px 22px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

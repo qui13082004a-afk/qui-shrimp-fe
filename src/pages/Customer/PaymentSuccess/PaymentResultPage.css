@@ -1,0 +1,219 @@
+/* =========================================================
+   PAYMENT RESULT PAGE
+   Dùng cho trang kết quả thanh toán: /payment-result
+   ========================================================= */
+.payment-result-page {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 18px;
+  background:
+    radial-gradient(circle at top left, rgba(3, 64, 120, 0.10), transparent 32%),
+    linear-gradient(180deg, #f8fbff 0%, #f3f7fb 100%);
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  color: #0f172a;
+}
+
+.payment-result-card {
+  width: 100%;
+  max-width: 680px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #dbe7f3;
+  border-radius: 24px;
+  padding: 42px 36px 34px;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+}
+
+.payment-result-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 7px;
+  background: linear-gradient(90deg, #034078, #0ea5e9);
+}
+
+.payment-result-card.success::before {
+  background: linear-gradient(90deg, #059669, #22c55e);
+}
+
+.payment-result-card.pending::before,
+.payment-result-card.loading::before {
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+}
+
+.payment-result-card.failed::before {
+  background: linear-gradient(90deg, #dc2626, #fb7185);
+}
+
+.result-icon {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #034078;
+  box-shadow: inset 0 0 0 10px rgba(255, 255, 255, 0.65);
+}
+
+.payment-result-card.success .result-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.payment-result-card.pending .result-icon,
+.payment-result-card.loading .result-icon {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.payment-result-card.failed .result-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.result-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #034078;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+}
+
+.payment-result-card h1 {
+  margin: 14px 0 10px;
+  color: #033b70;
+  font-size: 30px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.payment-result-card p {
+  max-width: 540px;
+  margin: 0 auto;
+  color: #64748b;
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.result-order-box {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 30px 0 28px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.result-order-box > div {
+  min-height: 78px;
+  padding: 15px 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+}
+
+.result-order-box span {
+  display: block;
+  margin-bottom: 7px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.result-order-box strong {
+  display: block;
+  color: #034078;
+  font-size: 14.5px;
+  font-weight: 900;
+  word-break: break-word;
+}
+
+.result-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.result-actions button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.result-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+}
+
+.result-actions .primary {
+  background: #034078;
+  color: #ffffff;
+}
+
+.result-actions .primary:hover {
+  background: #02315d;
+}
+
+.result-actions .secondary {
+  background: #ffffff;
+  color: #034078;
+  border-color: #cbd5e1;
+}
+
+.result-actions .secondary:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+@media (max-width: 720px) {
+  .payment-result-page {
+    padding: 34px 14px;
+  }
+
+  .payment-result-card {
+    padding: 36px 20px 28px;
+    border-radius: 20px;
+  }
+
+  .payment-result-card h1 {
+    font-size: 24px;
+  }
+
+  .result-order-box {
+    grid-template-columns: 1fr;
+  }
+
+  .result-actions {
+    flex-direction: column;
+  }
+
+  .result-actions button {
+    width: 100%;
+  }
+}

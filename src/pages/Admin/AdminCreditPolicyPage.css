@@ -1,0 +1,390 @@
+.credit-policy-page {
+  color: #172033;
+}
+
+.credit-policy-add-btn {
+  white-space: nowrap;
+}
+
+.credit-policy-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.credit-policy-alert button {
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.credit-policy-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.credit-policy-stat-card {
+  background: #ffffff;
+  border: 1px solid #e6edf5;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+.credit-policy-stat-card span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.credit-policy-stat-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.credit-policy-stat-card p {
+  margin: 0;
+  color: #8492a6;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.credit-policy-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.credit-policy-card__top {
+  padding: 22px 24px 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.credit-policy-card__top h2 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 850;
+}
+
+.credit-policy-card__top p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.credit-policy-toolbar {
+  padding: 14px 24px 20px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.credit-policy-toolbar input,
+.credit-policy-toolbar select {
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid #dbe4ef;
+  background: #f8fafc;
+  color: #172033;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.credit-policy-toolbar input:focus,
+.credit-policy-toolbar select:focus {
+  border-color: #0f75bc;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(15, 117, 188, 0.12);
+}
+
+.credit-policy-table th {
+  white-space: nowrap;
+}
+
+.credit-policy-table td {
+  vertical-align: middle;
+}
+
+.credit-policy-table td strong {
+  color: #111827;
+}
+
+.credit-policy-table td span {
+  max-width: 360px;
+}
+
+.credit-policy-stage {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.credit-policy-stage.dau_vu {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.credit-policy-stage.giua_vu {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.credit-policy-stage.cuoi_vu {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.credit-policy-stage.ngoai_le {
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.credit-policy-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.credit-policy-actions button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #dbe4ef;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.credit-policy-actions button:hover {
+  border-color: #0f75bc;
+  color: #0f75bc;
+  background: #f0f8ff;
+}
+
+.credit-policy-actions button.danger {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.credit-policy-actions button.danger:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.credit-policy-empty {
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #64748b;
+  text-align: center;
+}
+
+.credit-policy-empty strong {
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.credit-policy-empty span {
+  color: #8492a6;
+  font-size: 14px;
+}
+
+.credit-policy-modal {
+  width: min(860px, calc(100vw - 32px));
+}
+
+.credit-policy-form {
+  padding-top: 4px;
+}
+
+.credit-policy-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.credit-policy-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.credit-policy-form-grid input,
+.credit-policy-form-grid select,
+.credit-policy-form-grid textarea {
+  width: 100%;
+  border: 1px solid #dbe4ef;
+  background: #f8fafc;
+  border-radius: 14px;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.credit-policy-form-grid input,
+.credit-policy-form-grid select {
+  height: 44px;
+  padding: 0 13px;
+}
+
+.credit-policy-form-grid textarea {
+  min-height: 92px;
+  resize: vertical;
+  padding: 13px;
+  line-height: 1.55;
+}
+
+.credit-policy-form-grid input:focus,
+.credit-policy-form-grid select:focus,
+.credit-policy-form-grid textarea:focus {
+  border-color: #0f75bc;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(15, 117, 188, 0.12);
+}
+
+.credit-policy-form-grid__full {
+  grid-column: 1 / -1;
+}
+
+.credit-policy-confirm {
+  width: min(420px, calc(100vw - 32px));
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+}
+
+.credit-policy-confirm__icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #fff1f2;
+  color: #e11d48;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.credit-policy-confirm h2 {
+  margin: 0 0 10px;
+  color: #111827;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.credit-policy-confirm p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.credit-policy-confirm__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.credit-policy-confirm__actions .danger {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.credit-policy-confirm__actions .danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.admin-badge.hoat_dong {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.admin-badge.tam_ngung {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.admin-badge.an {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+@media (max-width: 1100px) {
+  .credit-policy-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .credit-policy-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .credit-policy-toolbar input {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .credit-policy-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .credit-policy-card__top {
+    padding: 18px 16px 8px;
+  }
+
+  .credit-policy-toolbar {
+    padding: 12px 16px 16px;
+    grid-template-columns: 1fr;
+  }
+
+  .credit-policy-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .credit-policy-confirm__actions {
+    flex-direction: column-reverse;
+  }
+
+  .credit-policy-confirm__actions button {
+    width: 100%;
+  }
+}
