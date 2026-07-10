@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, Trash2, BellOff } from "lucide-react";
+import { Check, BellOff } from "lucide-react";
 import { notificationService, type NotificationItem } from "../../../services/notification.service";
 import "./NotificationsPage.css";
 

@@ -90,6 +90,10 @@ export interface CustomerDebtProfile {
   VuNuoi?: CustomerProfileCropSeason;
 }
 
+// Alias để tương thích với các nơi đang import `CustomerProfile`
+// (ví dụ PondsPage.tsx). Giữ nguyên vì đây chính là kiểu hồ sơ công nợ.
+export type CustomerProfile = CustomerDebtProfile;
+
 export interface UpdateCustomerProfilePayload {
   trang_thai_ho_so?: CustomerDebtProfile["trang_thai_ho_so"];
   ly_do_tu_choi?: string | null;
@@ -117,14 +121,14 @@ export const customerProfileService = {
     return res.data;
   },
   getMyCustomerProfiles: async () => {
-  const res = await axiosClient.get("/customer-profiles/my");
-  return res.data;
-},
+    const res = await axiosClient.get("/customer-profiles/my");
+    return res.data;
+  },
 
-createCustomerProfile: async (
-  data: CreateCustomerProfilePayload
-) => {
-  const res = await axiosClient.post("/customer-profiles", data);
-  return res.data;
-},
+  createCustomerProfile: async (
+    data: CreateCustomerProfilePayload
+  ) => {
+    const res = await axiosClient.post("/customer-profiles", data);
+    return res.data;
+  },
 };

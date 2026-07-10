@@ -9,7 +9,6 @@ import {
   Search,
   Truck,
   Wallet,
-  XCircle,
 } from "lucide-react";
 import { cropSeasonService } from "../../../services/cropSeason.service";
 import type { SeasonOrderSummary, SeasonOrderItem } from "../../../services/cropSeason.service";

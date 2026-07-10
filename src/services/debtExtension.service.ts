@@ -55,6 +55,14 @@ export interface DebtExtension {
   nguoi_duyet?: DebtExtensionUser;
 }
 
+export interface CreateDebtExtensionPayload {
+  id_ho_so: number;
+  han_de_xuat: string;
+  ly_do: string;
+  ghi_chu?: string | null;
+  hinh_anh_minh_chung?: string[] | string | null;
+}
+
 export interface ApproveDebtExtensionPayload {
   ghi_chu?: string | null;
 }
@@ -65,6 +73,11 @@ export interface RejectDebtExtensionPayload {
 }
 
 export const debtExtensionService = {
+  createRequest: async (data: CreateDebtExtensionPayload) => {
+    const res = await axiosClient.post("/debt-extensions", data);
+    return res.data;
+  },
+
   getAllDebtExtensions: async () => {
     const res = await axiosClient.get("/debt-extensions/admin");
     return res.data;
