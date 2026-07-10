@@ -1,4 +1,6 @@
+# ===========================
 # Logs
+# ===========================
 logs
 *.log
 npm-debug.log*
@@ -7,18 +9,82 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ===========================
+# Dependencies
+# ===========================
+node_modules/
+jspm_packages/
+.pnpm-store/
+.npm/
+.yarn/
+
+# ===========================
+# Build
+# ===========================
+dist/
+dist-ssr/
+build/
+coverage/
+
+# ===========================
+# Environment
+# ===========================
 .env
-# Editor directories and files
+.env.*
+!.env.example
+
+# ===========================
+# Vite
+# ===========================
+vite.svg
+
+# ===========================
+# Cache
+# ===========================
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+
+# ===========================
+# Local
+# ===========================
+*.local
+
+# ===========================
+# IDE
+# ===========================
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+
+# ===========================
+# Windows
+# ===========================
+Thumbs.db
+Desktop.ini
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# ===========================
+# Mac
+# ===========================
+.AppleDouble
+.LSOverride
+
+# ===========================
+# Temporary
+# ===========================
+tmp/
+temp/
+*.tmp
+
+# ===========================
+# Uploads (nếu có)
+# ===========================
+uploads/
+storage/

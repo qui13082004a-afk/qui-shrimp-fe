@@ -71,6 +71,7 @@ export default function AdminContractPage() {
         useState<CreateContractPayload>(initialCreateForm);
 
     const [previewFile, setPreviewFile] = useState<File | null>(null);
+    const [samplePdfFile, setSamplePdfFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>("");
     const [generatingPreview, setGeneratingPreview] = useState(false);
     const [extraTerms, setExtraTerms] = useState("");
@@ -211,12 +212,14 @@ export default function AdminContractPage() {
         setCancelNote("");
         setRestoreNote("");
         setExtraTerms("");
+        setSamplePdfFile(null);
         clearPreview();
     };
 
     const openCreateModal = () => {
         setCreateForm(initialCreateForm);
         setExtraTerms("");
+        setSamplePdfFile(null);
         clearPreview();
         setShowCreateModal(true);
     };
@@ -297,6 +300,49 @@ export default function AdminContractPage() {
         setUploadImageFile(file);
     };
 
+    const handleChooseSamplePdf = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const isPdf =
+            file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+        if (!isPdf) {
+            setMessage("Hợp đồng mẫu phải là file PDF");
+            event.target.value = "";
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            setMessage("File hợp đồng mẫu không được vượt quá 10MB");
+            event.target.value = "";
+            return;
+        }
+
+        clearPreview();
+        const normalizedFile = file.name.toLowerCase().endsWith(".pdf")
+            ? file
+            : new File([file], `${file.name}.pdf`, { type: "application/pdf" });
+
+        setSamplePdfFile(normalizedFile);
+        setPreviewFile(normalizedFile);
+        setPreviewUrl(URL.createObjectURL(normalizedFile));
+    };
+
+    const downloadLocalPdf = () => {
+        if (!previewFile) return;
+        const url = URL.createObjectURL(previewFile);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = previewFile.name.toLowerCase().endsWith(".pdf")
+            ? previewFile.name
+            : `${previewFile.name}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
+
     const createPdfFileFromProfile = async (
         profile: CustomerDebtProfile,
         terms?: string
@@ -314,21 +360,6 @@ export default function AdminContractPage() {
             />
         ).toBlob();
 
-        const downloadUrl = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = downloadUrl;
-        a.download = `HopDong-${contractCode}.pdf`;
-        a.style.display = "none";
-
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        setTimeout(() => {
-            URL.revokeObjectURL(downloadUrl);
-        }, 1000);
-
         return new File([blob], `HopDong-${contractCode}.pdf`, {
             type: "application/pdf",
         });
@@ -343,6 +374,7 @@ export default function AdminContractPage() {
 
         try {
             setGeneratingPreview(true);
+            setSamplePdfFile(null);
             clearPreview();
 
             const file = await createPdfFileFromProfile(
@@ -376,30 +408,33 @@ export default function AdminContractPage() {
         try {
             setProcessing(true);
 
-            let pdfFile = previewFile;
+            let pdfFile = samplePdfFile || previewFile;
 
             if (!pdfFile) {
                 pdfFile = await handleGeneratePreview(false);
             }
 
-            let uploadedPdfUrl = "";
-
-            if (pdfFile) {
-                const uploadRes = await contractService.uploadContractFile(pdfFile);
-                uploadedPdfUrl =
-                    uploadRes?.data?.url ||
-                    uploadRes?.data?.path ||
-                    uploadRes?.url ||
-                    uploadRes?.path ||
-                    "";
+            if (!pdfFile) {
+                throw new Error("Không thể tạo hoặc lấy file PDF hợp đồng mẫu");
             }
 
-            await contractService.createContract({
+            const uploadedPdfUrl =
+                await contractService.uploadContractFile(pdfFile);
+
+            if (!uploadedPdfUrl) {
+                throw new Error("Không lấy được URL file hợp đồng mẫu");
+            }
+
+            const payload: CreateContractPayload = {
                 id_ho_so: Number(createForm.id_ho_so),
-                file_hop_dong_mau: uploadedPdfUrl || null,
+                file_hop_dong_mau: uploadedPdfUrl,
                 ghi_chu: createForm.ghi_chu || null,
                 dieu_khoan_bo_sung: extraTerms || null,
-            });
+            };
+
+            console.log("PAYLOAD TẠO HỢP ĐỒNG:", payload);
+
+            await contractService.createContract(payload);
 
             setMessage("Tạo hợp đồng thành công");
             closeAllModal();
@@ -536,6 +571,25 @@ export default function AdminContractPage() {
                 {statusLabel[status || ""] || "Không rõ"}
             </span>
         );
+    };
+
+    const handleDownloadTemplate = async (contract: Contract) => {
+        try {
+            setProcessing(true);
+            const blob = await contractService.downloadTemplate(contract.id_hop_dong);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `HopDong-Mau-HD-${contract.id_hop_dong}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error: any) {
+            setMessage(error?.response?.data?.message || "Không thể tải hợp đồng mẫu");
+        } finally {
+            setProcessing(false);
+        }
     };
 
     const renderFileButton = (
@@ -887,9 +941,24 @@ export default function AdminContractPage() {
                                 <div>
                                     <strong>PDF hợp đồng mẫu</strong>
                                     <p>
-                                        File này sẽ lưu vào trường{" "}
-                                        <b>file_hop_dong_mau</b>, tách riêng với file đã ký.
+                                        Có thể tải PDF mẫu có sẵn lên hoặc để hệ thống tự tạo.
+                                        File được lưu riêng tại <b>file_hop_dong_mau</b>.
                                     </p>
+
+                                    <label className="contract-sample-file-input">
+                                        Gắn hợp đồng mẫu có sẵn
+                                        <input
+                                            type="file"
+                                            accept="application/pdf,.pdf"
+                                            onChange={handleChooseSamplePdf}
+                                        />
+                                    </label>
+
+                                    {samplePdfFile && (
+                                        <small>
+                                            Đã chọn: <b>{samplePdfFile.name}</b> ({formatFileSize(samplePdfFile.size)})
+                                        </small>
+                                    )}
                                 </div>
 
                                 <div className="contract-pdf-preview-actions">
@@ -899,18 +968,27 @@ export default function AdminContractPage() {
                                         onClick={() => handleGeneratePreview()}
                                         disabled={generatingPreview || !selectedCreateProfile}
                                     >
-                                        {generatingPreview ? "Đang tạo..." : "Tạo/Xem trước PDF"}
+                                        {generatingPreview ? "Đang tạo..." : "Tự tạo PDF mẫu"}
                                     </button>
 
                                     {previewUrl && (
-                                        <a
-                                            href={previewUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="admin-secondary-btn"
-                                        >
-                                            Mở PDF mẫu
-                                        </a>
+                                        <>
+                                            <a
+                                                href={previewUrl}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="admin-secondary-btn"
+                                            >
+                                                Xem PDF mẫu
+                                            </a>
+                                            <button
+                                                type="button"
+                                                className="admin-secondary-btn"
+                                                onClick={downloadLocalPdf}
+                                            >
+                                                Tải PDF mẫu
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -1034,11 +1112,23 @@ export default function AdminContractPage() {
                                     <p>File được hệ thống tạo trước khi khách ký.</p>
                                 </div>
 
-                                {renderFileButton(
-                                    "Xem PDF mẫu",
-                                    selectedContract.file_hop_dong_mau,
-                                    "pdf"
-                                )}
+                                <div className="contract-pdf-preview-actions">
+                                    {renderFileButton(
+                                        "Xem PDF mẫu",
+                                        selectedContract.file_hop_dong_mau,
+                                        "pdf"
+                                    )}
+                                    {selectedContract.file_hop_dong_mau && (
+                                        <button
+                                            type="button"
+                                            className="admin-secondary-btn"
+                                            onClick={() => handleDownloadTemplate(selectedContract)}
+                                            disabled={processing}
+                                        >
+                                            Tải PDF mẫu
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="contract-file-card">

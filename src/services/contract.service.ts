@@ -92,7 +92,7 @@ const createContract = async (data: CreateContractPayload) => {
  * Upload file PDF mẫu (chưa ký) lên server, trả về URL/path lưu ở file_hop_dong_mau.
  * Dùng khi tạo hợp đồng (AdminContractPage -> handleCreateContract).
  */
-const uploadContractFile = async (file: File) => {
+const uploadContractFile = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -100,11 +100,23 @@ const uploadContractFile = async (file: File) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 
-  return res.data as {
-    data?: { url?: string; path?: string };
-    url?: string;
-    path?: string;
-  };
+  const responseData = res?.data;
+
+  const fileUrl =
+    (typeof responseData?.data === "string" ? responseData.data : "") ||
+    responseData?.data?.url ||
+    responseData?.data?.path ||
+    (typeof responseData === "string" ? responseData : "") ||
+    responseData?.url ||
+    responseData?.path ||
+    "";
+
+  if (!fileUrl) {
+    console.error("Không lấy được URL PDF mẫu:", responseData);
+    throw new Error("Upload PDF thành công nhưng không lấy được URL file");
+  }
+
+  return fileUrl;
 };
 
 /**
@@ -122,7 +134,7 @@ const uploadSignedPdf = async (
   if (meta?.ghi_chu) formData.append("ghi_chu", meta.ghi_chu);
 
   const res = await axiosClient.put(
-    `/hop-dong/${id}/upload-signed-pdf`,
+    `/hop-dong/${id}/upload-pdf`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } }
   );
@@ -184,6 +196,14 @@ async function uploadSignedImage(
   return res.data.data as ContractItem;
 }
 
+const downloadTemplate = async (id: number | string) => {
+  const res = await axiosClient.get(`/hop-dong/${id}/download-template`, {
+    responseType: "blob",
+  });
+
+  return new Blob([res.data], { type: "application/pdf" });
+};
+
 const confirmContract = async (
   id: number | string,
   payload?: { ghi_chu?: string | null }
@@ -228,6 +248,7 @@ export const contractService = {
   uploadContractFile,
   uploadSignedPdf,
   uploadSignedImage,
+  downloadTemplate,
   confirmContract,
   cancelContract,
   restoreContract,
