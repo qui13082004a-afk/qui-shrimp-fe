@@ -4,21 +4,31 @@ import { useNavigate } from "react-router-dom";
 import { pondService } from "../../../services/pond.service";
 import type { PondPayload } from "../../../services/pond.service";
 
-import { customerProfileService } from "../../../services/customerProfile.service";
-import type { CustomerProfile } from "../../../services/customerProfile.service";
+import {
+  customerProfileService,
+} from "../../../services/customerProfile.service";
+import type {
+  CustomerProfile,
+} from "../../../services/customerProfile.service";
 
-import { cropSeasonService } from "../../../services/cropSeason.service";
-import type { CropSeason } from "../../../services/cropSeason.service";
+import {
+  cropSeasonService,
+} from "../../../services/cropSeason.service";
+import type {
+  CropSeason,
+} from "../../../services/cropSeason.service";
 
 import { PondCard } from "./PondCard";
 import type { Pond } from "./PondCard";
 import { PondModal } from "./PondModal";
 import { CropSeasonModal } from "./CropSeasonModal";
 import { PondEmptyState } from "./PondEmptyState";
-import { DebtRegistrationModal } from "../DebtRegistration";
+
+import {
+  DebtRegistrationModal,
+} from "../DebtRegistration";
 
 import "./PondsPage.css";
-
 const PondsPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -30,11 +40,13 @@ const PondsPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
+
   const [errorModal, setErrorModal] = useState({
     open: false,
     title: "",
     message: "",
   });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
 
@@ -44,6 +56,10 @@ const PondsPage: React.FC = () => {
     dia_chi_ao: "",
     loai_hinh_nuoi: "",
     trang_thai_ao: "dang_hoat_dong",
+    id_tinh_thanh: null,
+    id_phuong_xa: null,
+    vi_do: null,
+    kinh_do: null,
   });
 
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
@@ -56,7 +72,6 @@ const PondsPage: React.FC = () => {
   });
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [profileNote, setProfileNote] = useState("");
 
   const getErrorMessage = (error: any) => {
     return (
@@ -66,6 +81,7 @@ const PondsPage: React.FC = () => {
       "Có lỗi xảy ra, vui lòng thử lại."
     );
   };
+
   const showError = (message: string, title = "Có lỗi xảy ra") => {
     setErrorModal({
       open: true,
@@ -95,30 +111,38 @@ const PondsPage: React.FC = () => {
       }
 
       if (pondRes?.success) {
-        const fetchedPonds = pondRes.data || [];
+        const fetchedPonds: Pond[] = pondRes.data || [];
         setPonds(fetchedPonds);
 
         if (fetchedPonds.length > 0) {
-          if (
-            !selectedPond ||
-            !fetchedPonds.some((p: Pond) => p.id_ao === selectedPond.id_ao)
-          ) {
-            setSelectedPond(fetchedPonds[0]);
-          }
+          setSelectedPond((current) => {
+            if (
+              current &&
+              fetchedPonds.some((pond) => pond.id_ao === current.id_ao)
+            ) {
+              return (
+                fetchedPonds.find((pond) => pond.id_ao === current.id_ao) ||
+                fetchedPonds[0]
+              );
+            }
+
+            return fetchedPonds[0];
+          });
         } else {
           setSelectedPond(null);
         }
       }
 
-      const profileRes = await customerProfileService.getMyCustomerProfiles();
+      const profileRes =
+        await customerProfileService.getMyCustomerProfiles();
 
       if (profileRes?.success) {
         setProfiles(profileRes.data || []);
       }
     } catch (error: any) {
       if (
-        error.response?.status === 401 ||
-        error.response?.data?.message === "Vui lòng đăng nhập"
+        error?.response?.status === 401 ||
+        error?.response?.data?.message === "Vui lòng đăng nhập"
       ) {
         setIsUnauthorized(true);
         return;
@@ -132,56 +156,80 @@ const PondsPage: React.FC = () => {
 
   const loadCropSeasons = async (id_ao: number) => {
     try {
-      const res = await cropSeasonService.getCropSeasonsByPond(id_ao);
+      const res =
+        await cropSeasonService.getCropSeasonsByPond(id_ao);
 
-      if (res.success) {
+      if (res?.success) {
         setCropSeasons(res.data || []);
+      } else {
+        setCropSeasons([]);
       }
     } catch (error: any) {
+      setCropSeasons([]);
       showError(getErrorMessage(error));
     }
   };
 
   useEffect(() => {
-    loadInitialData();
+    void loadInitialData();
   }, []);
 
   useEffect(() => {
-    if (selectedPond) {
-      loadCropSeasons(selectedPond.id_ao);
+    if (selectedPond?.id_ao) {
+      void loadCropSeasons(selectedPond.id_ao);
     } else {
       setCropSeasons([]);
     }
-  }, [selectedPond]);
+  }, [selectedPond?.id_ao]);
 
-  const activeCrop = cropSeasons.find((c) => c.trang_thai === "dang_nuoi");
+  const activeCrop =
+    cropSeasons.find(
+      (crop) => crop.trang_thai === "dang_nuoi"
+    ) || null;
 
   const currentProfile = activeCrop
     ? profiles.find(
-      (p) => Number(p.id_vu_nuoi) === Number(activeCrop.id_vu_nuoi)
-    )
+        (profile) =>
+          Number(profile.id_vu_nuoi) ===
+          Number(activeCrop.id_vu_nuoi)
+      ) || null
     : null;
 
   const isDebtApproved =
-    currentProfile?.trang_thai_xac_thuc === "da_xac_thuc" &&
+    currentProfile?.trang_thai_xac_thuc ===
+      "da_xac_thuc" &&
     currentProfile?.duoc_phep_tra_sau === true;
 
   const isWaitingAdmin =
-    currentProfile?.trang_thai_xac_thuc === "da_xac_thuc" &&
+    currentProfile?.trang_thai_xac_thuc ===
+      "da_xac_thuc" &&
     currentProfile?.duoc_phep_tra_sau === false;
 
-  const formatCurrency = (value: number | string | undefined | null) => {
-    return `${Number(value || 0).toLocaleString()}đ`;
+  const formatCurrency = (
+    value: number | string | undefined | null
+  ) => {
+    return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
   };
 
   const getProfileButtonText = () => {
-    if (!currentProfile) return "Thêm hồ sơ trả sau";
+    if (!activeCrop) {
+      return "Cần có vụ nuôi";
+    }
 
-    if (currentProfile.trang_thai_xac_thuc === "that_bai") {
+    if (!currentProfile) {
+      return "Thêm hồ sơ trả sau";
+    }
+
+    if (
+      currentProfile.trang_thai_xac_thuc === "that_bai"
+    ) {
       return "Xác thực lại";
     }
 
-    if (currentProfile.trang_thai_xac_thuc === "chua_xac_thuc") {
+    if (
+      currentProfile.trang_thai_xac_thuc ===
+      "chua_xac_thuc"
+    ) {
       return "Tiếp tục xác thực";
     }
 
@@ -195,11 +243,16 @@ const PondsPage: React.FC = () => {
   const getBannerStatusText = () => {
     if (!currentProfile) return "";
 
-    if (currentProfile.trang_thai_xac_thuc === "that_bai") {
+    if (
+      currentProfile.trang_thai_xac_thuc === "that_bai"
+    ) {
       return "(Xác thực thất bại)";
     }
 
-    if (currentProfile.trang_thai_xac_thuc === "chua_xac_thuc") {
+    if (
+      currentProfile.trang_thai_xac_thuc ===
+      "chua_xac_thuc"
+    ) {
       return "(Chưa xác thực)";
     }
 
@@ -215,18 +268,34 @@ const PondsPage: React.FC = () => {
   };
 
   const handleProfileAction = () => {
+    if (!selectedPond) {
+      showError("Vui lòng chọn ao nuôi trước.");
+      return;
+    }
+
+    if (!activeCrop) {
+      showError(
+        "Ao nuôi này chưa có vụ nuôi đang hoạt động. Vui lòng tạo vụ nuôi trước khi đăng ký mua trả sau."
+      );
+      return;
+    }
+
     if (isDebtApproved) {
       navigate("/store");
       return;
     }
 
     if (isWaitingAdmin) {
-      showError("Hồ sơ đã xác thực. Vui lòng chờ admin duyệt hạn mức trả sau.");
+      showError(
+        "Hồ sơ đã xác thực. Vui lòng chờ Admin duyệt hạn mức trả sau."
+      );
       return;
     }
 
     if (currentProfile?.id_ho_so) {
-      navigate(`/face-verification/${currentProfile.id_ho_so}`);
+      navigate(
+        `/face-verification/${currentProfile.id_ho_so}`
+      );
       return;
     }
 
@@ -234,57 +303,78 @@ const PondsPage: React.FC = () => {
   };
 
   const handleOpenCreate = () => {
-
     setModalMode("create");
+
     setFormData({
       ten_ao: "",
       dien_tich: 0,
       dia_chi_ao: "",
       loai_hinh_nuoi: "",
       trang_thai_ao: "dang_hoat_dong",
+      id_tinh_thanh: null,
+      id_phuong_xa: null,
+      vi_do: null,
+      kinh_do: null,
     });
+
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (pond: Pond) => {
-
-
     setModalMode("edit");
+
     setFormData({
       ten_ao: pond.ten_ao,
       dien_tich: pond.dien_tich,
       dia_chi_ao: pond.dia_chi_ao || "",
       loai_hinh_nuoi: pond.loai_hinh_nuoi || "",
       trang_thai_ao: pond.trang_thai_ao,
+      id_tinh_thanh: pond.id_tinh_thanh || null,
+      id_phuong_xa: pond.id_phuong_xa || null,
+      vi_do: pond.vi_do || null,
+      kinh_do: pond.kinh_do || null,
     });
+
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (
+    event: React.FormEvent
+  ) => {
+    event.preventDefault();
 
     if (submitting) return;
 
     try {
       setSubmitting(true);
 
-
       if (modalMode === "create") {
-        const res = await pondService.createPond(formData);
+        const res =
+          await pondService.createPond(formData);
 
         if (res?.success === false) {
-          showError(res.message || "Tạo ao nuôi thất bại.");
+          showError(
+            res.message || "Tạo ao nuôi thất bại."
+          );
           return;
         }
-      } else if (modalMode === "edit" && selectedPond) {
-        const res = await pondService.updatePond(selectedPond.id_ao, formData);
+      } else if (
+        modalMode === "edit" &&
+        selectedPond
+      ) {
+        const res = await pondService.updatePond(
+          selectedPond.id_ao,
+          formData
+        );
 
         if (res?.success === false) {
-          showError(res.message || "Cập nhật ao nuôi thất bại.");
+          showError(
+            res.message || "Cập nhật ao nuôi thất bại."
+          );
           return;
         }
 
-        if (res.success) {
+        if (res?.success && res.data) {
           setSelectedPond(res.data);
         }
       }
@@ -298,29 +388,35 @@ const PondsPage: React.FC = () => {
     }
   };
 
-  const handleCreateCropSeason = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateCropSeason = async (
+    event: React.FormEvent
+  ) => {
+    event.preventDefault();
 
     if (!selectedPond) {
-      showError("Vui lòng chọn ao nuôi trước khi tạo vụ.");
+      showError(
+        "Vui lòng chọn ao nuôi trước khi tạo vụ."
+      );
       return;
     }
 
     try {
-
-
-      const res = await cropSeasonService.createCropSeason({
-        id_ao: selectedPond.id_ao,
-        ...cropFormData,
-      });
+      const res =
+        await cropSeasonService.createCropSeason({
+          id_ao: selectedPond.id_ao,
+          ...cropFormData,
+        });
 
       if (res?.success === false) {
-        showError(res.message || "Tạo vụ nuôi thất bại.");
+        showError(
+          res.message || "Tạo vụ nuôi thất bại."
+        );
         return;
       }
 
-      if (res.success) {
+      if (res?.success) {
         setIsCropModalOpen(false);
+
         setCropFormData({
           ten_vu_nuoi: "",
           ngay_tha_giong: "",
@@ -336,47 +432,19 @@ const PondsPage: React.FC = () => {
     }
   };
 
-  const handleCreateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDebtRegistrationSuccess = async () => {
+    setIsProfileModalOpen(false);
 
-    if (!selectedPond || !activeCrop) {
-      showError("Vui lòng chọn ao nuôi có vụ nuôi đang hoạt động.");
-      return;
-    }
+    await loadInitialData();
 
-    try {
-
-
-      const res = await customerProfileService.createCustomerProfile({
-        id_ao: selectedPond.id_ao,
-        id_vu_nuoi: activeCrop.id_vu_nuoi,
-        ghi_chu: profileNote,
-      });
-
-      if (res?.success === false) {
-        showError(res.message || "Tạo hồ sơ khách hàng thất bại.");
-        return;
-      }
-
-      if (res.success) {
-        setIsProfileModalOpen(false);
-        setProfileNote("");
-
-        const idHoSo = res.data?.id_ho_so;
-
-        if (idHoSo) {
-          navigate(`/face-verification/${idHoSo}`);
-          return;
-        }
-
-        await loadInitialData();
-      }
-    } catch (error: any) {
-      showError(getErrorMessage(error));
+    if (selectedPond?.id_ao) {
+      await loadCropSeasons(selectedPond.id_ao);
     }
   };
 
-  const handleCloseCrop = async (id_vu_nuoi: number) => {
+  const handleCloseCrop = async (
+    id_vu_nuoi: number
+  ) => {
     const confirmClose = window.confirm(
       "Bạn muốn kết thúc vụ nuôi hiện tại để tiến hành thu hoạch?"
     );
@@ -384,19 +452,22 @@ const PondsPage: React.FC = () => {
     if (!confirmClose) return;
 
     try {
-
-
-
-      const res = await cropSeasonService.updateCropSeason(id_vu_nuoi, {
-        trang_thai: "da_thu_hoach",
-      });
+      const res =
+        await cropSeasonService.updateCropSeason(
+          id_vu_nuoi,
+          {
+            trang_thai: "da_thu_hoach",
+          }
+        );
 
       if (res?.success === false) {
-        showError(res.message || "Kết thúc vụ nuôi thất bại.");
+        showError(
+          res.message || "Kết thúc vụ nuôi thất bại."
+        );
         return;
       }
 
-      if (res.success && selectedPond) {
+      if (res?.success && selectedPond) {
         await loadCropSeasons(selectedPond.id_ao);
       }
     } catch (error: any) {
@@ -405,34 +476,51 @@ const PondsPage: React.FC = () => {
   };
 
   const handleDelete = async (id_ao: number) => {
-    const confirmDelete = window.confirm("Bạn muốn xóa ao này chứ?");
+    const confirmDelete = window.confirm(
+      "Bạn muốn xóa ao này chứ?"
+    );
+
     if (!confirmDelete) return;
 
     try {
-
       const res = await pondService.deletePond(id_ao);
 
       if (res?.success === false) {
-        showError(res.message || "Xóa ao thất bại.", "Không thể xóa ao nuôi");
+        showError(
+          res.message || "Xóa ao thất bại.",
+          "Không thể xóa ao nuôi"
+        );
         return;
       }
 
       setSelectedPond(null);
       await loadInitialData();
     } catch (error: any) {
-      showError(getErrorMessage(error), "Không thể xóa ao nuôi");
+      showError(
+        getErrorMessage(error),
+        "Không thể xóa ao nuôi"
+      );
     }
   };
 
   if (loading) {
-    return <div className="ponds-loading">Đang kết nối hệ thống dữ liệu...</div>;
+    return (
+      <div className="ponds-loading">
+        Đang kết nối hệ thống dữ liệu...
+      </div>
+    );
   }
 
   if (isUnauthorized) {
     return (
       <div className="unauthorized-card">
         <h2>Yêu cầu quyền truy cập</h2>
-        <button onClick={() => navigate("/login")} className="btn-login-redirect">
+
+        <button
+          type="button"
+          onClick={() => navigate("/login")}
+          className="btn-login-redirect"
+        >
           Đăng nhập ngay
         </button>
       </div>
@@ -442,9 +530,9 @@ const PondsPage: React.FC = () => {
   if (ponds.length === 0) {
     return (
       <>
-
-
-        <PondEmptyState onAddClick={handleOpenCreate} />
+        <PondEmptyState
+          onAddClick={handleOpenCreate}
+        />
 
         <PondModal
           isOpen={isModalOpen}
@@ -454,14 +542,39 @@ const PondsPage: React.FC = () => {
           onSubmit={handleSubmit}
           onClose={() => setIsModalOpen(false)}
         />
+
+        {errorModal.open && (
+          <div className="center-error-overlay">
+            <div className="center-error-modal">
+              <button
+                type="button"
+                className="center-error-close"
+                onClick={closeErrorModal}
+                aria-label="Đóng"
+              >
+                ×
+              </button>
+
+              <div className="center-error-icon">×</div>
+              <h2>{errorModal.title}</h2>
+              <p>{errorModal.message}</p>
+
+              <button
+                type="button"
+                className="center-error-btn"
+                onClick={closeErrorModal}
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        )}
       </>
     );
   }
 
   return (
     <div className="ponds-container">
-
-
       <div className="financial-banner">
         <div className="banner-title">
           <h3>Hạn mức công nợ vật tư</h3>
@@ -471,31 +584,40 @@ const PondsPage: React.FC = () => {
               Khả dụng:{" "}
               <strong>
                 {isDebtApproved
-                  ? formatCurrency(currentProfile.dinh_muc_cong_no)
+                  ? formatCurrency(
+                      currentProfile.dinh_muc_cong_no
+                    )
                   : "0đ"}
               </strong>{" "}
               {getBannerStatusText()}
             </span>
           ) : (
-            <p>Hỗ trợ vốn lưu động thanh toán trả sau theo chu kỳ từng vụ nuôi.</p>
+            <p>
+              Hỗ trợ vốn lưu động thanh toán trả sau
+              theo chu kỳ từng vụ nuôi.
+            </p>
           )}
         </div>
 
         <div className="banner-actions-group">
           {isDebtApproved ? (
-            <button onClick={() => navigate("/store")} className="banner-btn">
+            <button
+              type="button"
+              onClick={() => navigate("/store")}
+              className="banner-btn"
+            >
               Đặt vật tư ngay
             </button>
           ) : (
             <button
+              type="button"
               onClick={handleProfileAction}
-              className={isWaitingAdmin ? "banner-btn-secondary" : "banner-btn"}
-              disabled={isWaitingAdmin}
-              style={
+              className={
                 isWaitingAdmin
-                  ? { opacity: 0.75, cursor: "not-allowed" }
-                  : undefined
+                  ? "banner-btn-secondary"
+                  : "banner-btn"
               }
+              disabled={isWaitingAdmin}
             >
               {getProfileButtonText()}
             </button>
@@ -505,9 +627,15 @@ const PondsPage: React.FC = () => {
 
       <div className="ponds-grid">
         <aside className="aside-list">
-          <h2>Danh sách ao nuôi ({ponds.length})</h2>
+          <h2>
+            Danh sách ao nuôi ({ponds.length})
+          </h2>
 
-          <button onClick={handleOpenCreate} className="btn-create-pond">
+          <button
+            type="button"
+            onClick={handleOpenCreate}
+            className="btn-create-pond"
+          >
             + Thêm ao nuôi mới
           </button>
 
@@ -516,8 +644,12 @@ const PondsPage: React.FC = () => {
               <PondCard
                 key={item.id_ao}
                 pond={item}
-                isActive={selectedPond?.id_ao === item.id_ao}
-                hasActiveCrop={item.co_vu_dang_nuoi === true}
+                isActive={
+                  selectedPond?.id_ao === item.id_ao
+                }
+                hasActiveCrop={
+                  item.co_vu_dang_nuoi === true
+                }
                 onClick={() => setSelectedPond(item)}
               />
             ))}
@@ -530,46 +662,67 @@ const PondsPage: React.FC = () => {
               <div className="detail-banner">
                 <img
                   src="https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?q=80&w=1000"
-                  alt="Ao"
+                  alt="Ao nuôi"
                 />
 
                 <div className="action-buttons">
                   <button
-                    onClick={() => handleOpenEdit(selectedPond)}
+                    type="button"
+                    onClick={() =>
+                      handleOpenEdit(selectedPond)
+                    }
                     className="btn-edit"
                   >
-                    <i className="fa-regular fa-pen-to-square"></i> Sửa ao
+                    <i className="fa-regular fa-pen-to-square" />
+                    Sửa ao
                   </button>
 
                   {activeCrop ? (
                     <button
-                      onClick={() => handleCloseCrop(activeCrop.id_vu_nuoi)}
+                      type="button"
+                      onClick={() =>
+                        handleCloseCrop(
+                          activeCrop.id_vu_nuoi
+                        )
+                      }
                       className="btn-close-season"
                     >
-                      <i className="fa-solid fa-circle-stop"></i> Kết thúc vụ
+                      <i className="fa-solid fa-circle-stop" />
+                      Kết thúc vụ
                     </button>
                   ) : (
                     <button
-                      onClick={() => setIsCropModalOpen(true)}
+                      type="button"
+                      onClick={() =>
+                        setIsCropModalOpen(true)
+                      }
                       className="btn-new-season"
                     >
-                      <i className="fa-solid fa-seedling"></i> Thả giống vụ mới
+                      <i className="fa-solid fa-seedling" />
+                      Thả giống vụ mới
                     </button>
                   )}
 
                   <button
-                    onClick={() => handleDelete(selectedPond.id_ao)}
+                    type="button"
+                    onClick={() =>
+                      handleDelete(selectedPond.id_ao)
+                    }
                     className="btn-delete"
                   >
-                    <i className="fa-regular fa-trash-can"></i> Xóa ao
+                    <i className="fa-regular fa-trash-can" />
+                    Xóa ao
                   </button>
                 </div>
 
                 <div className="detail-banner-content">
                   <h1>{selectedPond.ten_ao}</h1>
                   <p>
-                    {selectedPond.dia_chi_ao || "Chưa cập nhật địa chỉ"} | Loài
-                    nuôi: {selectedPond.loai_hinh_nuoi || "Chưa rõ"}
+                    {selectedPond.dia_chi_ao ||
+                      "Chưa cập nhật địa chỉ"}{" "}
+                    | Loài nuôi:{" "}
+                    {selectedPond.loai_hinh_nuoi ||
+                      "Chưa rõ"}
                   </p>
                 </div>
               </div>
@@ -577,7 +730,29 @@ const PondsPage: React.FC = () => {
               <div className="specs-grid">
                 <div className="spec-box">
                   <span>Diện tích</span>
-                  <strong>{Number(selectedPond.dien_tich).toLocaleString()} m²</strong>
+                  <strong>
+                    {Number(
+                      selectedPond.dien_tich
+                    ).toLocaleString("vi-VN")}{" "}
+                    m²
+                  </strong>
+                </div>
+
+                <div className="spec-box">
+                  <span>Vị trí giao hàng</span>
+                  <strong
+                    style={{
+                      fontSize: "13px",
+                      color:
+                        selectedPond.vi_do && selectedPond.kinh_do
+                          ? "#0f766e"
+                          : "#ef4444",
+                    }}
+                  >
+                    {selectedPond.vi_do && selectedPond.kinh_do
+                      ? "Đã có tọa độ"
+                      : "Chưa có tọa độ"}
+                  </strong>
                 </div>
 
                 <div className="spec-box">
@@ -585,10 +760,14 @@ const PondsPage: React.FC = () => {
                   <strong
                     style={{
                       fontSize: "14px",
-                      color: activeCrop ? "#1e3a8a" : "#ef4444",
+                      color: activeCrop
+                        ? "#1e3a8a"
+                        : "#ef4444",
                     }}
                   >
-                    {activeCrop ? activeCrop.ten_vu_nuoi : "AO TRỐNG"}
+                    {activeCrop
+                      ? activeCrop.ten_vu_nuoi
+                      : "AO TRỐNG"}
                   </strong>
                 </div>
 
@@ -596,7 +775,11 @@ const PondsPage: React.FC = () => {
                   <span>Giống thả</span>
                   <strong>
                     {activeCrop?.so_luong_giong
-                      ? `${Number(activeCrop.so_luong_giong).toLocaleString()} con`
+                      ? `${Number(
+                          activeCrop.so_luong_giong
+                        ).toLocaleString(
+                          "vi-VN"
+                        )} con`
                       : "0 con"}
                   </strong>
                 </div>
@@ -604,30 +787,41 @@ const PondsPage: React.FC = () => {
                 <div className="spec-box">
                   <span>Mật độ nuôi</span>
                   <strong>
-                    {activeCrop?.so_luong_giong
+                    {activeCrop?.so_luong_giong &&
+                    Number(selectedPond.dien_tich) > 0
                       ? `${Math.round(
-                        Number(activeCrop.so_luong_giong) /
-                        Number(selectedPond.dien_tich)
-                      )} con/m²`
+                          Number(
+                            activeCrop.so_luong_giong
+                          ) /
+                            Number(
+                              selectedPond.dien_tich
+                            )
+                        )} con/m²`
                       : "0 con/m²"}
                   </strong>
                 </div>
 
                 <div className="spec-box">
                   <span>Ngày thu dự kiến</span>
-                  <strong style={{ fontSize: "13px" }}>
-                    {activeCrop?.ngay_thu_hoach_du_kien || "--/--/----"}
+                  <strong
+                    style={{ fontSize: "13px" }}
+                  >
+                    {activeCrop?.ngay_thu_hoach_du_kien ||
+                      "--/--/----"}
                   </strong>
                 </div>
               </div>
 
               <div className="crop-seasons-section">
                 <h3 className="section-title">
-                  <i className="fa-solid fa-history"></i> Lịch sử các vụ nuôi của ao
+                  <i className="fa-solid fa-history" />
+                  Lịch sử các vụ nuôi của ao
                 </h3>
 
                 {cropSeasons.length === 0 ? (
-                  <p className="no-data-text">Ao nuôi chưa từng có vụ nuôi nào.</p>
+                  <p className="no-data-text">
+                    Ao nuôi chưa từng có vụ nuôi nào.
+                  </p>
                 ) : (
                   <div className="table-wrapper">
                     <table className="custom-table">
@@ -645,36 +839,63 @@ const PondsPage: React.FC = () => {
                       <tbody>
                         {cropSeasons.map((crop) => (
                           <tr key={crop.id_vu_nuoi}>
-                            <td style={{ fontWeight: "700" }}>{crop.ten_vu_nuoi}</td>
-                            <td>{crop.ngay_tha_giong || "Chưa cập nhật"}</td>
+                            <td
+                              style={{
+                                fontWeight: 700,
+                              }}
+                            >
+                              {crop.ten_vu_nuoi}
+                            </td>
+
+                            <td>
+                              {crop.ngay_tha_giong ||
+                                "Chưa cập nhật"}
+                            </td>
+
                             <td>
                               {crop.so_luong_giong
-                                ? `${Number(crop.so_luong_giong).toLocaleString()} con`
+                                ? `${Number(
+                                    crop.so_luong_giong
+                                  ).toLocaleString(
+                                    "vi-VN"
+                                  )} con`
                                 : "--"}
                             </td>
+
                             <td>
                               <span
-                                className={`table-badge ${crop.trang_thai === "dang_nuoi"
+                                className={`table-badge ${
+                                  crop.trang_thai ===
+                                  "dang_nuoi"
                                     ? "badge-green"
-                                    : crop.trang_thai === "da_thu_hoach"
-                                      ? "badge-blue"
-                                      : "badge-red"
-                                  }`}
+                                    : crop.trang_thai ===
+                                      "da_thu_hoach"
+                                    ? "badge-blue"
+                                    : "badge-red"
+                                }`}
                               >
-                                {crop.trang_thai === "dang_nuoi"
+                                {crop.trang_thai ===
+                                "dang_nuoi"
                                   ? "ĐANG NUÔI"
-                                  : crop.trang_thai === "da_thu_hoach"
-                                    ? "ĐÃ THU HOẠCH"
-                                    : "ĐÃ HỦY"}
+                                  : crop.trang_thai ===
+                                    "da_thu_hoach"
+                                  ? "ĐÃ THU HOẠCH"
+                                  : "ĐÃ HỦY"}
                               </span>
                             </td>
-                            <td>{crop.ghi_chu || "-"}</td>
+
+                            <td>
+                              {crop.ghi_chu || "-"}
+                            </td>
+
                             <td>
                               <button
                                 type="button"
                                 className="btn-season-orders"
                                 onClick={() =>
-                                  navigate(`/ponds/crop-seasons/${crop.id_vu_nuoi}/orders`)
+                                  navigate(
+                                    `/ponds/crop-seasons/${crop.id_vu_nuoi}/orders`
+                                  )
                                 }
                               >
                                 Xem mua hàng
@@ -689,7 +910,9 @@ const PondsPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="ponds-no-selected">Vui lòng chọn ao nuôi.</div>
+            <div className="ponds-no-selected">
+              Vui lòng chọn ao nuôi.
+            </div>
           )}
         </main>
       </div>
@@ -712,31 +935,48 @@ const PondsPage: React.FC = () => {
         onClose={() => setIsCropModalOpen(false)}
       />
 
-      {activeCrop && (
+      {selectedPond && activeCrop && (
         <DebtRegistrationModal
           isOpen={isProfileModalOpen}
-          pondName={selectedPond?.ten_ao || ""}
+          pondId={selectedPond.id_ao}
+          cropSeasonId={activeCrop.id_vu_nuoi}
+          pondName={selectedPond.ten_ao}
           cropName={activeCrop.ten_vu_nuoi}
-          note={profileNote}
-          onNoteChange={setProfileNote}
-          onSubmit={handleCreateProfile}
-          onClose={() => setIsProfileModalOpen(false)}
+          defaultPondArea={selectedPond.dien_tich}
+          defaultPondAddress={
+            selectedPond.dia_chi_ao || ""
+          }
+          onClose={() =>
+            setIsProfileModalOpen(false)
+          }
+          onSuccess={
+            handleDebtRegistrationSuccess
+          }
         />
       )}
+
       {errorModal.open && (
         <div className="center-error-overlay">
           <div className="center-error-modal">
-            <button className="center-error-close" onClick={closeErrorModal}>
+            <button
+              type="button"
+              className="center-error-close"
+              onClick={closeErrorModal}
+              aria-label="Đóng"
+            >
               ×
             </button>
 
             <div className="center-error-icon">×</div>
 
             <h2>{errorModal.title}</h2>
-
             <p>{errorModal.message}</p>
 
-            <button className="center-error-btn" onClick={closeErrorModal}>
+            <button
+              type="button"
+              className="center-error-btn"
+              onClick={closeErrorModal}
+            >
               Đóng
             </button>
           </div>

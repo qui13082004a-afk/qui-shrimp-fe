@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import "./AdminLayout.css";
 
 export default function AdminLayout() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -29,7 +30,12 @@ export default function AdminLayout() {
           </div>
 
           <div className="admin-header__actions">
-            <button type="button" className="admin-header__notification" aria-label="Thông báo">
+            <button
+              type="button"
+              className="admin-header__notification"
+              aria-label="Thông báo"
+              onClick={() => navigate("/admin/thong-bao")}
+            >
               <span>🔔</span>
             </button>
 

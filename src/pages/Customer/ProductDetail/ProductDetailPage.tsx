@@ -113,6 +113,9 @@ const ProductDetailPage = () => {
 
   // Khi đã có dữ liệu sản phẩm, tiến hành render bình thường
   const images = getImagesArray(product.hinh_anh);
+  const warehouseStocks = Array.isArray(product.TonKhoSanPhams)
+    ? product.TonKhoSanPhams.filter((stock: any) => Number(stock.so_luong || 0) > 0)
+    : [];
 
   return (
     <div className="product-detail-page">
@@ -161,6 +164,38 @@ const ProductDetailPage = () => {
             <p>🏭 <strong>Xuất xứ:</strong> {product.xuat_xu || "Việt Nam"}</p>
             <p>⏳ <strong>Hạn sử dụng:</strong> {product.han_su_dung ? new Date(product.han_su_dung).toLocaleDateString("vi-VN") : "Xem trên bao bì"}</p>
             <p>🗃️ <strong>Tình trạng kho:</strong> {product.ton_kho > 0 ? `Còn hàng (${product.ton_kho})` : "Tạm hết hàng"}</p>
+          </div>
+
+          <div className="product-warehouse-stock">
+            <div className="product-warehouse-stock__header">
+              <strong>Tồn kho theo kho</strong>
+              <span>{Number(product.ton_kho || 0).toLocaleString("vi-VN")} sản phẩm</span>
+            </div>
+
+            {warehouseStocks.length > 0 ? (
+              <div className="product-warehouse-stock__list">
+                {warehouseStocks.map((stock: any) => (
+                  <div
+                    className="product-warehouse-stock__item"
+                    key={stock.id_ton_kho || `${stock.id_kho_hang}-${stock.so_luong}`}
+                  >
+                    <div>
+                      <strong>
+                        {stock.KhoHang?.ten_kho || `Kho #${stock.id_kho_hang}`}
+                      </strong>
+                      <span>
+                        {stock.KhoHang?.dia_chi || "Chưa cập nhật địa chỉ kho"}
+                      </span>
+                    </div>
+                    <b>{Number(stock.so_luong || 0).toLocaleString("vi-VN")}</b>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="product-warehouse-stock__empty">
+                Chưa có thông tin tồn kho theo từng kho.
+              </p>
+            )}
           </div>
 
           <p className="product-desc-short">

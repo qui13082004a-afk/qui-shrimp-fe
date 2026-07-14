@@ -29,6 +29,13 @@ const statusLabel: Record<string, string> = {
   tam_dung: "Tạm dừng",
 };
 
+const stageOrder: CreditPolicy["giai_doan"][] = [
+  "giai_doan_1",
+  "giai_doan_2",
+  "giai_doan_3",
+  "giai_doan_4",
+];
+
 const formatCurrency = (value?: number | string) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -86,6 +93,44 @@ export default function AdminCreditPolicyPage() {
     });
   }, [policies, keyword, stageFilter, statusFilter]);
 
+  const groupedPolicies = useMemo(() => {
+    const groups = new Map<string, CreditPolicy[]>();
+
+    filteredPolicies.forEach((policy) => {
+      const groupName = policy.ten_chinh_sach.trim();
+      const current = groups.get(groupName) || [];
+      current.push(policy);
+      groups.set(groupName, current);
+    });
+
+    return Array.from(groups.entries()).map(([name, stages]) => {
+      const sortedStages = stages.sort((a, b) => Number(a.tu_ngay) - Number(b.tu_ngay));
+      const activeCount = sortedStages.filter((item) => item.trang_thai === "hoat_dong").length;
+      const maxLimit = sortedStages.reduce((max, item) => {
+        return Math.max(max, Number(item.han_muc_toi_da || 0));
+      }, 0);
+
+      return {
+        name,
+        stages: sortedStages,
+        activeCount,
+        maxLimit,
+        dayRange:
+          sortedStages.length > 0
+            ? `${sortedStages[0].tu_ngay} - ${
+                sortedStages[sortedStages.length - 1].den_ngay
+              } ngày`
+            : "Chưa có",
+      };
+    });
+  }, [filteredPolicies]);
+
+  const policySetNames = useMemo(() => {
+    return Array.from(
+      new Set(policies.map((item) => item.ten_chinh_sach.trim()).filter(Boolean))
+    ).sort((a, b) => a.localeCompare(b, "vi"));
+  }, [policies]);
+
   const stats = useMemo(() => {
     const active = policies.filter(
       (item) => item.trang_thai === "hoat_dong"
@@ -100,7 +145,7 @@ export default function AdminCreditPolicyPage() {
     }, 0);
 
     return {
-      total: policies.length,
+      total: new Set(policies.map((item) => item.ten_chinh_sach.trim())).size,
       active,
       paused,
       maxLimit,
@@ -113,8 +158,19 @@ export default function AdminCreditPolicyPage() {
     setShowModal(false);
   };
 
-  const openCreateModal = () => {
-    setForm(initialForm);
+  const openCreateModal = (policyName = "") => {
+    const existingStages = policies
+      .filter((item) => item.ten_chinh_sach.trim() === policyName.trim())
+      .map((item) => item.giai_doan);
+    const nextStage =
+      stageOrder.find((stage) => !existingStages.includes(stage)) ||
+      initialForm.giai_doan;
+
+    setForm({
+      ...initialForm,
+      ten_chinh_sach: policyName,
+      giai_doan: nextStage,
+    });
     setEditingId(null);
     setShowModal(true);
   };
@@ -152,7 +208,7 @@ export default function AdminCreditPolicyPage() {
 
   const validateForm = () => {
     if (!form.ten_chinh_sach.trim()) {
-      setMessage("Vui lòng nhập tên chính sách");
+      setMessage("Vui lòng nhập tên bộ chính sách");
       return false;
     }
 
@@ -189,10 +245,10 @@ export default function AdminCreditPolicyPage() {
 
       if (editingId) {
         await creditPolicyService.updatePolicy(editingId, form);
-        setMessage("Cập nhật chính sách hạn mức thành công");
+        setMessage("Cập nhật giai đoạn hạn mức thành công");
       } else {
         await creditPolicyService.createPolicy(form);
-        setMessage("Thêm chính sách hạn mức thành công");
+        setMessage("Thêm giai đoạn hạn mức thành công");
       }
 
       resetForm();
@@ -228,11 +284,11 @@ export default function AdminCreditPolicyPage() {
         <div>
           <p className="admin-page__eyebrow">Hạn mức</p>
           <h1>Quản lý chính sách hạn mức</h1>
-          <p>Thiết lập hạn mức tối đa theo từng giai đoạn ngày nuôi.</p>
+          <p>Thiết lập một bộ chính sách gồm nhiều giai đoạn tăng hạn mức theo ngày nuôi.</p>
         </div>
 
-        <button className="admin-primary-btn" onClick={openCreateModal}>
-          + Thêm chính sách
+        <button className="admin-primary-btn" onClick={() => openCreateModal()}>
+          + Thêm giai đoạn
         </button>
       </div>
 
@@ -247,7 +303,7 @@ export default function AdminCreditPolicyPage() {
         <div className="credit-policy-stat-card">
           <span>Tổng chính sách</span>
           <strong>{stats.total}</strong>
-          <p>Chính sách đang có</p>
+          <p>Bộ chính sách đang có</p>
         </div>
 
         <div className="credit-policy-stat-card">
@@ -272,8 +328,8 @@ export default function AdminCreditPolicyPage() {
       <div className="admin-card credit-policy-card">
         <div className="credit-policy-card__top">
           <div>
-            <h2>Danh sách chính sách</h2>
-            <p>Tra cứu, lọc và quản lý chính sách hạn mức theo giai đoạn.</p>
+            <h2>Danh sách bộ chính sách</h2>
+            <p>Mỗi tên chính sách có thể chứa nhiều giai đoạn hạn mức theo ngày nuôi.</p>
           </div>
         </div>
 
@@ -305,7 +361,107 @@ export default function AdminCreditPolicyPage() {
           </select>
         </div>
 
-        <div className="admin-table-wrap">
+        <div className="credit-policy-set-list">
+          {loading ? (
+            <div className="credit-policy-empty">Đang tải dữ liệu...</div>
+          ) : groupedPolicies.length === 0 ? (
+            <div className="credit-policy-empty">
+              <strong>Chưa có chính sách phù hợp</strong>
+              <span>Hãy thêm giai đoạn hoặc thay đổi bộ lọc.</span>
+            </div>
+          ) : (
+            groupedPolicies.map((group) => (
+              <article className="credit-policy-set-card" key={group.name}>
+                <div className="credit-policy-set-card__head">
+                  <div>
+                    <span>Bộ chính sách</span>
+                    <h3>{group.name}</h3>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="credit-policy-set-card__add"
+                    onClick={() => openCreateModal(group.name)}
+                  >
+                    + Thêm giai đoạn
+                  </button>
+                </div>
+
+                <div className="credit-policy-set-card__meta">
+                  <div>
+                    <span>Số giai đoạn</span>
+                    <strong>{group.stages.length}</strong>
+                  </div>
+                  <div>
+                    <span>Đang áp dụng</span>
+                    <strong>{group.activeCount}</strong>
+                  </div>
+                  <div>
+                    <span>Khoảng ngày nuôi</span>
+                    <strong>{group.dayRange}</strong>
+                  </div>
+                  <div>
+                    <span>Hạn mức cao nhất</span>
+                    <strong>{formatCurrency(group.maxLimit)}</strong>
+                  </div>
+                </div>
+
+                <div className="credit-policy-stage-flow">
+                  {group.stages.map((item, index) => (
+                    <section
+                      className={`credit-policy-stage-card ${item.trang_thai}`}
+                      key={item.id_chinh_sach}
+                    >
+                      <div className="credit-policy-stage-card__marker">
+                        {index + 1}
+                      </div>
+
+                      <div className="credit-policy-stage-card__body">
+                        <div className="credit-policy-stage-card__top">
+                          <span className={`credit-policy-stage ${item.giai_doan}`}>
+                            {stageLabel[item.giai_doan] || item.giai_doan}
+                          </span>
+                          <span className={`admin-badge ${item.trang_thai}`}>
+                            {statusLabel[item.trang_thai || ""] || "Chưa rõ"}
+                          </span>
+                        </div>
+
+                        <div className="credit-policy-stage-card__grid">
+                          <div>
+                            <small>Ngày nuôi</small>
+                            <strong>
+                              {item.tu_ngay} - {item.den_ngay} ngày
+                            </strong>
+                          </div>
+                          <div>
+                            <small>Hạn mức tối đa</small>
+                            <strong>{formatCurrency(item.han_muc_toi_da)}</strong>
+                          </div>
+                        </div>
+
+                        <p>{item.ghi_chu || "Chưa có ghi chú cho giai đoạn này."}</p>
+
+                        <div className="credit-policy-actions">
+                          <button type="button" onClick={() => openEditModal(item)}>
+                            Sửa
+                          </button>
+
+                          <button type="button" onClick={() => handleToggleStatus(item)}>
+                            {item.trang_thai === "hoat_dong"
+                              ? "Tạm dừng"
+                              : "Áp dụng"}
+                          </button>
+                        </div>
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+
+        <div className="admin-table-wrap credit-policy-legacy-table">
           <table className="admin-table credit-policy-table">
             <thead>
               <tr>
@@ -325,56 +481,64 @@ export default function AdminCreditPolicyPage() {
                     <div className="credit-policy-empty">Đang tải dữ liệu...</div>
                   </td>
                 </tr>
-              ) : filteredPolicies.length === 0 ? (
+              ) : groupedPolicies.length === 0 ? (
                 <tr>
                   <td colSpan={6}>
                     <div className="credit-policy-empty">
                       <strong>Chưa có chính sách phù hợp</strong>
-                      <span>Hãy thêm chính sách hoặc thay đổi bộ lọc.</span>
+                      <span>Hãy thêm giai đoạn hoặc thay đổi bộ lọc.</span>
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredPolicies.map((item) => (
-                  <tr key={item.id_chinh_sach}>
-                    <td>
-                      <strong>{item.ten_chinh_sach}</strong>
-                      <span>{item.ghi_chu || "Chưa có ghi chú"}</span>
+                groupedPolicies.flatMap((group) => [
+                  <tr className="credit-policy-group-row" key={`group-${group.name}`}>
+                    <td colSpan={6}>
+                      <strong>{group.name}</strong>
+                      <span>{group.stages.length} giai đoạn hạn mức</span>
                     </td>
+                  </tr>,
+                  ...group.stages.map((item) => (
+                    <tr key={item.id_chinh_sach}>
+                      <td>
+                        <strong>Giai đoạn trong bộ chính sách</strong>
+                        <span>{item.ghi_chu || "Chưa có ghi chú"}</span>
+                      </td>
 
-                    <td>
-                      <span className={`credit-policy-stage ${item.giai_doan}`}>
-                        {stageLabel[item.giai_doan] || item.giai_doan}
-                      </span>
-                    </td>
+                      <td>
+                        <span className={`credit-policy-stage ${item.giai_doan}`}>
+                          {stageLabel[item.giai_doan] || item.giai_doan}
+                        </span>
+                      </td>
 
-                    <td>
-                      {item.tu_ngay} - {item.den_ngay} ngày
-                    </td>
+                      <td>
+                        {item.tu_ngay} - {item.den_ngay} ngày
+                      </td>
 
-                    <td>
-                      <strong>{formatCurrency(item.han_muc_toi_da)}</strong>
-                    </td>
+                      <td>
+                        <strong>{formatCurrency(item.han_muc_toi_da)}</strong>
+                      </td>
 
-                    <td>
-                      <span className={`admin-badge ${item.trang_thai}`}>
-                        {statusLabel[item.trang_thai || ""] || "Chưa rõ"}
-                      </span>
-                    </td>
+                      <td>
+                        <span className={`admin-badge ${item.trang_thai}`}>
+                          {statusLabel[item.trang_thai || ""] || "Chưa rõ"}
+                        </span>
+                      </td>
 
-                    <td>
-                      <div className="credit-policy-actions">
-                        <button onClick={() => openEditModal(item)}>Sửa</button>
+                      <td>
+                        <div className="credit-policy-actions">
+                          <button onClick={() => openEditModal(item)}>Sửa</button>
 
-                        <button onClick={() => handleToggleStatus(item)}>
-                          {item.trang_thai === "hoat_dong"
-                            ? "Tạm dừng"
-                            : "Áp dụng"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <button onClick={() => handleToggleStatus(item)}>
+                            {item.trang_thai === "hoat_dong"
+                              ? "Tạm dừng"
+                              : "Áp dụng"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )),
+                ])
               )}
             </tbody>
           </table>
@@ -388,10 +552,10 @@ export default function AdminCreditPolicyPage() {
               <div>
                 <h2>
                   {editingId
-                    ? "Cập nhật chính sách hạn mức"
-                    : "Thêm chính sách hạn mức"}
+                    ? "Cập nhật giai đoạn hạn mức"
+                    : "Thêm giai đoạn hạn mức"}
                 </h2>
-                <p>Thiết lập giai đoạn ngày nuôi và hạn mức tối đa.</p>
+                <p>Dùng cùng tên bộ chính sách để gom các giai đoạn 1, 2, 3, 4 vào chung một nhóm.</p>
               </div>
 
               <button className="admin-modal__close" onClick={resetForm}>
@@ -401,13 +565,62 @@ export default function AdminCreditPolicyPage() {
 
             <form className="credit-policy-form" onSubmit={handleSubmit}>
               <div className="credit-policy-form-grid">
+                {!editingId && policySetNames.length > 0 && (
+                  <label className="credit-policy-form-grid__full">
+                    Chọn bộ chính sách có sẵn
+                    <select
+                      value={
+                        policySetNames.includes(form.ten_chinh_sach.trim())
+                          ? form.ten_chinh_sach
+                          : ""
+                      }
+                      onChange={(event) => {
+                        const policyName = event.target.value;
+
+                        if (!policyName) {
+                          setForm((prev) => ({
+                            ...prev,
+                            ten_chinh_sach: "",
+                            giai_doan: initialForm.giai_doan,
+                          }));
+                          return;
+                        }
+
+                        const existingStages = policies
+                          .filter(
+                            (item) =>
+                              item.ten_chinh_sach.trim() === policyName.trim()
+                          )
+                          .map((item) => item.giai_doan);
+                        const nextStage =
+                          stageOrder.find(
+                            (stage) => !existingStages.includes(stage)
+                          ) || initialForm.giai_doan;
+
+                        setForm((prev) => ({
+                          ...prev,
+                          ten_chinh_sach: policyName,
+                          giai_doan: nextStage,
+                        }));
+                      }}
+                    >
+                      <option value="">Tạo bộ chính sách mới</option>
+                      {policySetNames.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+
                 <label>
-                  Tên chính sách
+                  Tên bộ chính sách
                   <input
                     name="ten_chinh_sach"
                     value={form.ten_chinh_sach}
                     onChange={handleChange}
-                    placeholder="VD: Chính sách giai đoạn 1"
+                    placeholder="VD: Chính sách nuôi tôm 2026"
                   />
                 </label>
 

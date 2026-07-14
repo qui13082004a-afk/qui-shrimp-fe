@@ -18,6 +18,11 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { toastSuccess, toastError } from "../../../utils/notify";
+import {
+  locationService,
+  type Province,
+  type Ward,
+} from "../../../services/location.service";
 import OrderPage from "../Order/OrderPage";
 import "./ProfilePage.css";
 
@@ -83,6 +88,8 @@ type EditForm = {
   so_dien_thoai: string;
   dia_chi: string;
   tinh_thanh: string;
+  id_tinh_thanh: string;
+  id_phuong_xa: string;
 };
 
 type PasswordForm = {
@@ -101,6 +108,32 @@ const roleLabel: Record<UserProfile["vai_tro"], string> = {
   admin: "Quản trị viên",
   khach_hang: "Khách hàng",
   nhan_vien_giao_hang: "Nhân viên giao hàng",
+};
+
+const normalizeText = (value = "") =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const buildAddress = (
+  detail: string,
+  provinceId: string,
+  wardId: string,
+  provinces: Province[],
+  wards: Ward[]
+) => {
+  const province = provinces.find(
+    (item) => String(item.id_tinh_thanh) === String(provinceId)
+  );
+  const ward = wards.find(
+    (item) => String(item.id_phuong_xa) === String(wardId)
+  );
+
+  return [detail.trim(), ward?.ten_xa, province?.ten_tinh]
+    .filter(Boolean)
+    .join(", ");
 };
 
 const LoadingScreen = () => (
@@ -240,6 +273,10 @@ const InfoCard = ({
 const InfoTab = ({
   profile,
   editForm,
+  provinces,
+  wards,
+  loadingProvinces,
+  loadingWards,
   isEditing,
   submitting,
   onEdit,
@@ -249,6 +286,10 @@ const InfoTab = ({
 }: {
   profile: UserProfile | null;
   editForm: EditForm;
+  provinces: Province[];
+  wards: Ward[];
+  loadingProvinces: boolean;
+  loadingWards: boolean;
   isEditing: boolean;
   submitting: boolean;
   onEdit: () => void;
@@ -304,20 +345,57 @@ const InfoTab = ({
 
           <div className="form-group">
             <label className="form-label">Tỉnh / Thành phố vùng nuôi</label>
-            <input
-              type="text"
-              value={editForm.tinh_thanh}
+            <select
+              value={editForm.id_tinh_thanh}
+              onChange={(e) => {
+                const province = provinces.find(
+                  (item) => String(item.id_tinh_thanh) === e.target.value
+                );
+                onChangeForm({
+                  ...editForm,
+                  id_tinh_thanh: e.target.value,
+                  id_phuong_xa: "",
+                  tinh_thanh: province?.ten_tinh || "",
+                });
+              }}
+              required
+              disabled={loadingProvinces}
+              className="form-input"
+            >
+              <option value="">Chọn tỉnh/thành</option>
+              {provinces.map((province) => (
+                <option
+                  key={province.id_tinh_thanh}
+                  value={province.id_tinh_thanh}
+                >
+                  {province.ten_tinh}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Xã / Phường</label>
+            <select
+              value={editForm.id_phuong_xa}
               onChange={(e) =>
-                onChangeForm({ ...editForm, tinh_thanh: e.target.value })
+                onChangeForm({ ...editForm, id_phuong_xa: e.target.value })
               }
               required
-              placeholder="Cà Mau, Bạc Liêu, Sóc Trăng..."
+              disabled={!editForm.id_tinh_thanh || loadingWards}
               className="form-input"
-            />
+            >
+              <option value="">Chọn xã/phường</option>
+              {wards.map((ward) => (
+                <option key={ward.id_phuong_xa} value={ward.id_phuong_xa}>
+                  {ward.ten_xa}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group form-span-2">
-            <label className="form-label">Địa chỉ nhà / Đầm ao chi tiết</label>
+            <label className="form-label">Số nhà, đường, ấp/khu vực cụ thể</label>
             <textarea
               value={editForm.dia_chi}
               onChange={(e) =>
@@ -325,6 +403,7 @@ const InfoTab = ({
               }
               required
               rows={3}
+              placeholder="Ví dụ: 456 Đường..., Ấp 7..."
               className="form-textarea no-resize"
             />
           </div>
@@ -662,6 +741,10 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [ponds, setPonds] = useState<Pond[]>([]);
   const [creditProfiles, setCreditProfiles] = useState<CreditProfile[]>([]);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [loadingWards, setLoadingWards] = useState(false);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editForm, setEditForm] = useState<EditForm>({
@@ -669,6 +752,8 @@ export default function ProfilePage() {
     so_dien_thoai: "",
     dia_chi: "",
     tinh_thanh: "",
+    id_tinh_thanh: "",
+    id_phuong_xa: "",
   });
 
   const [passwordForm, setPasswordForm] = useState<PasswordForm>({
@@ -685,7 +770,61 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchProfileData();
+    fetchProvinces();
   }, []);
+
+  useEffect(() => {
+    if (!editForm.id_tinh_thanh) {
+      setWards([]);
+      return;
+    }
+
+    fetchWards(editForm.id_tinh_thanh);
+  }, [editForm.id_tinh_thanh]);
+
+  useEffect(() => {
+    if (!profile?.tinh_thanh || editForm.id_tinh_thanh || provinces.length === 0) {
+      return;
+    }
+
+    const matchedProvince = provinces.find(
+      (province) =>
+        normalizeText(province.ten_tinh) === normalizeText(profile.tinh_thanh)
+    );
+
+    if (matchedProvince) {
+      setEditForm((prev) => ({
+        ...prev,
+        id_tinh_thanh: String(matchedProvince.id_tinh_thanh),
+        tinh_thanh: matchedProvince.ten_tinh,
+      }));
+    }
+  }, [profile?.tinh_thanh, editForm.id_tinh_thanh, provinces]);
+
+  const fetchProvinces = async () => {
+    try {
+      setLoadingProvinces(true);
+      const result = await locationService.getProvinces();
+      setProvinces(result.data || []);
+    } catch (error) {
+      toastError("Không tải được danh sách tỉnh/thành.");
+    } finally {
+      setLoadingProvinces(false);
+    }
+  };
+
+  const fetchWards = async (provinceId: string) => {
+    try {
+      setLoadingWards(true);
+      const result = await locationService.getWardsByProvince(provinceId);
+      setWards(result.data || []);
+    } catch (error) {
+      setWards([]);
+      toastError("Không tải được danh sách xã/phường.");
+    } finally {
+      setLoadingWards(false);
+    }
+  };
 
   const fetchProfileData = async () => {
     try {
@@ -702,6 +841,8 @@ export default function ProfilePage() {
           so_dien_thoai: userData.so_dien_thoai || "",
           dia_chi: userData.dia_chi || "",
           tinh_thanh: userData.tinh_thanh || "",
+          id_tinh_thanh: "",
+          id_phuong_xa: "",
         });
       } else {
         throw new Error("Không thể lấy thông tin phản hồi từ máy chủ.");
@@ -736,11 +877,25 @@ export default function ProfilePage() {
     setSubmitting(true);
 
     try {
-      const response = await api.put("/auth/update-profile", editForm);
+      const fullAddress = buildAddress(
+        editForm.dia_chi,
+        editForm.id_tinh_thanh,
+        editForm.id_phuong_xa,
+        provinces,
+        wards
+      );
+      const payload = {
+        ho_ten: editForm.ho_ten,
+        so_dien_thoai: editForm.so_dien_thoai,
+        tinh_thanh: editForm.tinh_thanh,
+        dia_chi: fullAddress || editForm.dia_chi,
+      };
+
+      const response = await api.put("/auth/update-profile", payload);
 
       if (response.data && response.data.success) {
         toastSuccess("Cập nhật thông tin cá nhân thành công!");
-        setProfile((prev) => (prev ? { ...prev, ...editForm } : null));
+        setProfile((prev) => (prev ? { ...prev, ...payload } : null));
         setIsEditing(false);
       }
     } catch (err: any) {
@@ -839,6 +994,8 @@ export default function ProfilePage() {
       so_dien_thoai: profile?.so_dien_thoai || "",
       dia_chi: profile?.dia_chi || "",
       tinh_thanh: profile?.tinh_thanh || "",
+      id_tinh_thanh: editForm.id_tinh_thanh,
+      id_phuong_xa: editForm.id_phuong_xa,
     });
   };
 
@@ -860,6 +1017,10 @@ export default function ProfilePage() {
             <InfoTab
               profile={profile}
               editForm={editForm}
+              provinces={provinces}
+              wards={wards}
+              loadingProvinces={loadingProvinces}
+              loadingWards={loadingWards}
               isEditing={isEditing}
               submitting={submitting}
               onEdit={() => setIsEditing(true)}

@@ -74,6 +74,8 @@ export type StaffCustomerProfile = {
     trang_thai?: string;
     ghi_chu?: string;
   };
+
+  ChinhSachHanMuc?: LimitPolicy | null;
 };
 
 export type CreateLimitProposalPayload = {

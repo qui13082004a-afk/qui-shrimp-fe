@@ -32,6 +32,9 @@ import DebtExtensionRequestPage from "../pages/Customer/DebtExtensionRequestPage
 import DebtHistoryPage from "../pages/Customer/Debt/DebtHistoryPage";
 import SeasonOrderHistoryPage from "../pages/Customer/Ponds/SeasonOrderHistoryPage";
 import NotificationsPage from "../pages/Customer/notifications/NotificationsPage";
+import DeliveryDashboardPage from "../pages/Delivery/DeliveryDashboardPage";
+import DeliveryOrdersPage from "../pages/Delivery/DeliveryOrdersPage";
+import DeliveryOrderDetailPage from "../pages/Delivery/DeliveryOrderDetailPage";
 
 import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
 import AdminCreditPolicyPage from "../pages/Admin/AdminCreditPolicyPage";
@@ -44,6 +47,10 @@ import AdminThreePartyAgreementPage from "../pages/Admin/AdminThreePartyAgreemen
 import AdminComingSoonPage from "../pages/Admin/AdminComingSoonPage";
 import AdminUserManagementPage from "../pages/Admin/AdminUserManagementPage";
 import AdminDeliveryPage from "../pages/Admin/AdminDeliveryPage";
+import AdminShippingConfigPage from "../pages/Admin/AdminShippingConfigPage";
+import AdminCategoryPage from "../pages/Admin/AdminCategoryPage";
+import AdminProductPage from "../pages/Admin/AdminProductPage";
+import AdminOrderPage from "../pages/Admin/AdminOrderPage";
 
 import StaffAssessmentProfilePage from "../pages/StaffLimit/StaffAssessmentProfilePage";
 import StaffLimitProposalPage from "../pages/StaffLimit/StaffLimitProposalPage";
@@ -163,14 +170,15 @@ export default function AppRoutes() {
           element={<AdminComingSoonPage title="Nhân viên định mức" />}
         />
 
-        <Route path="danh-muc" element={<AdminComingSoonPage title="Quản lý danh mục" />} />
-        <Route path="san-pham" element={<AdminComingSoonPage title="Quản lý sản phẩm" />} />
-        <Route path="don-hang" element={<AdminComingSoonPage title="Quản lý đơn hàng" />} />
+        <Route path="danh-muc" element={<AdminCategoryPage />} />
+        <Route path="san-pham" element={<AdminProductPage />} />
+        <Route path="don-hang" element={<AdminOrderPage />} />
         <Route path="giao-hang" element={<AdminDeliveryPage />} />
+        <Route path="khu-vuc-van-chuyen" element={<AdminShippingConfigPage />} />
 
         <Route path="blog" element={<AdminComingSoonPage title="Quản lý blog" />} />
         <Route path="binh-luan" element={<AdminComingSoonPage title="Quản lý bình luận" />} />
-        <Route path="thong-bao" element={<AdminComingSoonPage title="Quản lý thông báo" />} />
+        <Route path="thong-bao" element={<NotificationsPage />} />
       </Route>
 
       <Route
@@ -189,7 +197,49 @@ export default function AppRoutes() {
         <Route path="ho-so-tham-dinh" element={<StaffAssessmentProfilePage />} />
         <Route path="phieu-de-xuat" element={<StaffLimitProposalPage />} />
            <Route path="hop-dong" element={<StaffContractPage />} />
+        <Route path="thong-bao" element={<NotificationsPage />} />
       </Route>
+
+      <Route
+        path="/delivery"
+        element={
+          <RoleRoute allowedRoles={["nhan_vien_giao_hang"]}>
+            <DeliveryDashboardPage />
+          </RoleRoute>
+        }
+      />
+      <Route
+        path="/delivery/orders"
+        element={
+          <RoleRoute allowedRoles={["nhan_vien_giao_hang"]}>
+            <DeliveryOrdersPage />
+          </RoleRoute>
+        }
+      />
+      <Route
+        path="/delivery/orders/:id"
+        element={
+          <RoleRoute allowedRoles={["nhan_vien_giao_hang"]}>
+            <DeliveryOrderDetailPage />
+          </RoleRoute>
+        }
+      />
+      <Route
+        path="/delivery/history"
+        element={
+          <RoleRoute allowedRoles={["nhan_vien_giao_hang"]}>
+            <DeliveryOrdersPage />
+          </RoleRoute>
+        }
+      />
+      <Route
+        path="/delivery/notifications"
+        element={
+          <RoleRoute allowedRoles={["nhan_vien_giao_hang"]}>
+            <NotificationsPage />
+          </RoleRoute>
+        }
+      />
     </Routes>
   );
 }

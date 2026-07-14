@@ -9,6 +9,23 @@ export interface Pond {
   loai_hinh_nuoi?: string;
   trang_thai_ao: 'dang_hoat_dong' | 'tam_ngung';
   ghi_chu?: string;
+  id_tinh_thanh?: number | null;
+  id_phuong_xa?: number | null;
+  vi_do?: number | string | null;
+  kinh_do?: number | string | null;
+  TinhThanh?: {
+    id_tinh_thanh: number;
+    ma_tinh: string;
+    ten_tinh: string;
+  } | null;
+  PhuongXa?: {
+    id_phuong_xa: number;
+    ma_xa: string;
+    ten_xa: string;
+    cap_xa: string;
+    vi_do_trung_tam?: number | string | null;
+    kinh_do_trung_tam?: number | string | null;
+  } | null;
   ngay_tao: string;
 }
 
@@ -20,6 +37,10 @@ export interface PondPayload {
   loai_hinh_nuoi?: string;
   trang_thai_ao?: string;
   ghi_chu?: string;
+  id_tinh_thanh?: number | string | null;
+  id_phuong_xa?: number | string | null;
+  vi_do?: number | string | null;
+  kinh_do?: number | string | null;
 }
 
 export interface ApiResponse<T> {

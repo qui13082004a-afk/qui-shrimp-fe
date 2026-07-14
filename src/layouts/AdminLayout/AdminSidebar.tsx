@@ -76,6 +76,11 @@ const menuGroups = [
         path: "/admin/giao-hang",
         icon: "🚚",
       },
+      {
+        label: "Khu vực & vận chuyển",
+        path: "/admin/khu-vuc-van-chuyen",
+        icon: "📍",
+      },
     ],
   },
   {

@@ -33,6 +33,9 @@ const NotificationsPage = () => {
       case "thanh_toan": return "💰";
       case "giao_hang": return "🚚";
       case "ao_nuoi": return "🦐";
+      case "cong_no": return "💰";
+      case "ho_so": return "📋";
+      case "kho_hang": return "📦";
       default: return "🔔";
     }
   };

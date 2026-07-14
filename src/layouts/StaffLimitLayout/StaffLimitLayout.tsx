@@ -19,6 +19,8 @@ const getNotificationIcon = (type: NotificationType) => {
     giao_hang: "🚚",
     ao_nuoi: "🌱",
     cong_no: "💰",
+    ho_so: "📋",
+    kho_hang: "📦",
     he_thong: "🔔",
   };
 

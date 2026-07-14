@@ -8,6 +8,21 @@ export interface Pond {
   loai_hinh_nuoi?: string;
   trang_thai_ao: "dang_hoat_dong" | "tam_ngung";
   ghi_chu?: string;
+  id_tinh_thanh?: number | null;
+  id_phuong_xa?: number | null;
+  vi_do?: number | string | null;
+  kinh_do?: number | string | null;
+  TinhThanh?: {
+    id_tinh_thanh: number;
+    ma_tinh: string;
+    ten_tinh: string;
+  } | null;
+  PhuongXa?: {
+    id_phuong_xa: number;
+    ma_xa: string;
+    ten_xa: string;
+    cap_xa: string;
+  } | null;
   ngay_tao: string;
   co_vu_dang_nuoi?: boolean;
 }

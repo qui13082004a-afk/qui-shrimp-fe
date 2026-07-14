@@ -55,11 +55,23 @@ export type DeliveryStaffOption = {
 };
 
 const getReadyOrders = async () => {
-  const res = await axiosClient.get("/orders/admin");
-  const orders = res.data.data || [];
+  const [ordersRes, deliveriesRes] = await Promise.all([
+    axiosClient.get("/orders/admin"),
+    axiosClient.get("/deliveries/admin"),
+  ]);
 
-  return orders.filter((order: DeliveryOrderOption) =>
-    ["cho_giao", "da_thanh_toan"].includes(order.trang_thai_don_hang)
+  const orders = ordersRes.data.data || [];
+  const deliveries = deliveriesRes.data.data || [];
+  const assignedOrderIds = new Set(
+    deliveries
+      .map((delivery: AdminDelivery) => Number(delivery.id_don_hang))
+      .filter(Boolean)
+  );
+
+  return orders.filter(
+    (order: DeliveryOrderOption) =>
+      ["cho_giao", "da_thanh_toan"].includes(order.trang_thai_don_hang) &&
+      !assignedOrderIds.has(Number(order.id_don_hang))
   ) as DeliveryOrderOption[];
 };
 

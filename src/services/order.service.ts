@@ -10,10 +10,15 @@ export interface CreateOrderItem {
 export interface CreateOrderPayload {
   items: CreateOrderItem[];
   hinh_thuc_thanh_toan: PaymentMethod;
+  id_dia_chi_giao_hang?: number;
   dia_chi_giao_hang: string;
   phi_van_chuyen?: number;
   ghi_chu?: string;
+  id_ao?: number;
   id_vu_nuoi?: number;
+  id_khu_vuc_giao_hang?: number;
+  vi_do_giao_hang?: number | string;
+  kinh_do_giao_hang?: number | string;
 }
 
 export interface PaymentRecord {
@@ -38,11 +43,25 @@ export interface OrderRecord {
   trang_thai_don_hang: string;
   dia_chi_giao_hang: string;
   ghi_chu?: string | null;
+  id_khu_vuc_giao_hang?: number | null;
+  id_diem_xuat_phat?: number | null;
+  khoang_cach_giao_hang_km?: number | string | null;
+  vi_do_giao_hang?: number | string | null;
+  kinh_do_giao_hang?: number | string | null;
   ngay_dat?: string;
   ngay_duyet?: string | null;
   ngay_giao?: string | null;
   ThanhToans?: PaymentRecord[];
   ChiTietDonHangs?: any[];
+  NguoiDung?: {
+    id_nguoi_dung?: number;
+    ho_ten?: string;
+    email?: string;
+    so_dien_thoai?: string;
+    dia_chi?: string;
+    tinh_thanh?: string;
+  };
+  HoSoKhachHang?: any;
 }
 
 interface ApiResponse<T> {
@@ -71,6 +90,22 @@ export const orderService = {
   getOrderById: async (orderId: string | number) => {
     const response = await api.get<ApiResponse<OrderRecord>>(
       `/orders/${orderId}`
+    );
+    return response.data;
+  },
+
+  getAdminOrders: async () => {
+    const response = await api.get<ApiResponse<OrderRecord[]>>("/orders/admin");
+    return response.data;
+  },
+
+  updateOrderStatus: async (
+    orderId: string | number,
+    trang_thai_don_hang: string
+  ) => {
+    const response = await api.put<ApiResponse<OrderRecord>>(
+      `/orders/${orderId}/status`,
+      { trang_thai_don_hang }
     );
     return response.data;
   },

@@ -10,6 +10,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { getProducts } from "../../../services/product.service";
 import { getCategories } from "../../../services/category.service";
+import {
+    warehouseService,
+    type Warehouse,
+} from "../../../services/warehouse.service";
 import { toastSuccess, toastError } from "../../../utils/notify";
 import "./StorePage.css";
 
@@ -21,6 +25,7 @@ const StorePage = () => {
 
     const [products, setProducts] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
+    const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [categoryKeyword, setCategoryKeyword] = useState("");
     const [pagination, setPagination] = useState<any>(null);
@@ -29,6 +34,7 @@ const StorePage = () => {
     const [searchKeyword, setSearchKeyword] = useState("");
     const [keyword, setKeyword] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+    const [selectedWarehouse, setSelectedWarehouse] = useState("");
     const [sortBy, setSortBy] = useState("");
     const [priceFilter, setPriceFilter] = useState("all");
 
@@ -94,16 +100,19 @@ const StorePage = () => {
                     sortBy: sortBy || "newest",
                     minPrice: minPrice ?? "",
                     maxPrice: maxPrice ?? "",
+                    id_kho_hang: selectedWarehouse || "",
                 };
 
-                const [productRes, categoryRes] = await Promise.all([
+                const [productRes, categoryRes, warehouseRes] = await Promise.all([
                     getProducts(requestParams as any),
                     getCategories(),
+                    warehouseService.getWarehouses({ activeOnly: true }),
                 ]);
 
                 setProducts(productRes.data || []);
                 setPagination(productRes.pagination || null);
                 setCategories(categoryRes.data || []);
+                setWarehouses(warehouseRes.data || []);
             } catch (error) {
                 console.log("STORE ERROR:", error);
                 toastError("Không thể tải danh sách sản phẩm");
@@ -117,7 +126,7 @@ const StorePage = () => {
         fetchData();
 
         return () => clearTimeout(loadingTimeout);
-    }, [page, keyword, selectedCategory, sortBy, priceFilter]);
+    }, [page, keyword, selectedCategory, selectedWarehouse, sortBy, priceFilter]);
 
     const uniqueCategories = categories.filter((category, index, self) => {
         const currentName = category.ten_danh_muc?.trim().toLowerCase();
@@ -266,6 +275,29 @@ const StorePage = () => {
                         />
                         <span>Trên 500.000đ</span>
                     </label>
+                </div>
+
+                <div className="store-filter-group">
+                    <h4>Kho hàng</h4>
+
+                    <select
+                        className="store-filter-select"
+                        value={selectedWarehouse}
+                        onChange={(event) => {
+                            setPage(1);
+                            setSelectedWarehouse(event.target.value);
+                        }}
+                    >
+                        <option value="">Tất cả kho</option>
+                        {warehouses.map((warehouse) => (
+                            <option
+                                key={warehouse.id_kho_hang}
+                                value={warehouse.id_kho_hang}
+                            >
+                                {warehouse.ten_kho}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
             </aside>

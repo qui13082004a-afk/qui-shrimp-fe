@@ -127,6 +127,210 @@
   max-width: 360px;
 }
 
+.credit-policy-legacy-table {
+  display: none;
+}
+
+.credit-policy-set-list {
+  display: grid;
+  gap: 18px;
+  padding: 22px 24px 26px;
+}
+
+.credit-policy-set-card {
+  border: 1px solid #dbeafe;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.credit-policy-set-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.credit-policy-set-card__head span {
+  display: block;
+  color: #0f75bc;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.credit-policy-set-card__head h3 {
+  margin: 0;
+  color: #003b69;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.credit-policy-set-card__add {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eaf6ff;
+  color: #075985;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.18s ease;
+  white-space: nowrap;
+}
+
+.credit-policy-set-card__add:hover {
+  border-color: #0f75bc;
+  background: #dff2ff;
+}
+
+.credit-policy-set-card__meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px 22px;
+  background: #f8fafc;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.credit-policy-set-card__meta div {
+  min-height: 70px;
+  border: 1px solid #e2eaf3;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.credit-policy-set-card__meta span,
+.credit-policy-stage-card__grid small {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 850;
+  margin-bottom: 7px;
+}
+
+.credit-policy-set-card__meta strong {
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.credit-policy-stage-flow {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 20px 22px 22px;
+}
+
+.credit-policy-stage-flow::before {
+  content: "";
+  position: absolute;
+  left: 43px;
+  top: 26px;
+  bottom: 28px;
+  width: 2px;
+  background: #dbeafe;
+}
+
+.credit-policy-stage-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.credit-policy-stage-card__marker {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: #0f75bc;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(15, 117, 188, 0.22);
+}
+
+.credit-policy-stage-card.tam_dung .credit-policy-stage-card__marker {
+  background: #f59e0b;
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.2);
+}
+
+.credit-policy-stage-card__body {
+  border: 1px solid #e2eaf3;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.credit-policy-stage-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.credit-policy-stage-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.credit-policy-stage-card__grid div {
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.credit-policy-stage-card__grid strong {
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.credit-policy-stage-card p {
+  margin: 0 0 14px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.credit-policy-group-row td {
+  background: #eef8ff;
+  border-top: 1px solid #bfdbfe;
+  border-bottom: 1px solid #bfdbfe;
+  padding: 14px 22px;
+}
+
+.credit-policy-group-row strong {
+  display: block;
+  color: #075985;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.credit-policy-group-row span {
+  display: block;
+  margin-top: 4px;
+  color: #0369a1;
+  font-size: 13px;
+  font-weight: 750;
+}
+
 .credit-policy-stage {
   display: inline-flex;
   align-items: center;
@@ -137,6 +341,26 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
+}
+
+.credit-policy-stage.giai_doan_1 {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.credit-policy-stage.giai_doan_2 {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.credit-policy-stage.giai_doan_3 {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.credit-policy-stage.giai_doan_4 {
+  background: #f5f3ff;
+  color: #6d28d9;
 }
 
 .credit-policy-stage.dau_vu {
@@ -338,6 +562,11 @@
   color: #15803d;
 }
 
+.admin-badge.tam_dung {
+  background: #fef3c7;
+  color: #b45309;
+}
+
 .admin-badge.tam_ngung {
   background: #fef3c7;
   color: #b45309;
@@ -373,6 +602,41 @@
 
   .credit-policy-toolbar {
     padding: 12px 16px 16px;
+    grid-template-columns: 1fr;
+  }
+
+  .credit-policy-set-list {
+    padding: 16px;
+  }
+
+  .credit-policy-set-card__head {
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .credit-policy-set-card__add {
+    width: 100%;
+  }
+
+  .credit-policy-set-card__meta {
+    grid-template-columns: 1fr;
+    padding: 14px 18px;
+  }
+
+  .credit-policy-stage-flow {
+    padding: 18px;
+  }
+
+  .credit-policy-stage-card {
+    grid-template-columns: 1fr;
+  }
+
+  .credit-policy-stage-flow::before,
+  .credit-policy-stage-card__marker {
+    display: none;
+  }
+
+  .credit-policy-stage-card__grid {
     grid-template-columns: 1fr;
   }
 
