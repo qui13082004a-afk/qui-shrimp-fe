@@ -1,7 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { customerProfileService } from "../../../services/customerProfile.service";
 import { pondService } from "../../../services/pond.service";
 import { cropSeasonService } from "../../../services/cropSeason.service";
+import {
+  locationService,
+  type Province,
+  type Ward,
+} from "../../../services/location.service";
 import {
   DebtRegistrationStepContent,
   type DebtRegistrationFormState,
@@ -35,8 +40,85 @@ const stepMeta = [
 const initialFiles: Record<FileField, File | null> = {
   anh_cccd_mat_truoc: null,
   anh_cccd_mat_sau: null,
-  anh_selfie: null,
   anh_bien_lai_tha_giong: null,
+};
+
+const parseDateOnly = (value: string) => {
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const addYears = (date: Date, years: number) => {
+  const next = new Date(date);
+  next.setFullYear(next.getFullYear() + years);
+  return next;
+};
+
+const validateBirthDate = (value: string) => {
+  const birthDate = parseDateOnly(value);
+
+  if (!birthDate) {
+    return "Ngày sinh không hợp lệ.";
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (birthDate > today) {
+    return "Ngày sinh không được lớn hơn ngày hiện tại.";
+  }
+
+  if (addYears(birthDate, 18) > today) {
+    return "Khách hàng phải từ 18 tuổi trở lên.";
+  }
+
+  if (addYears(birthDate, 100) < today) {
+    return "Tuổi khách hàng không được quá 100 tuổi.";
+  }
+
+  return "";
+};
+
+const isValidPersonName = (value: string) => {
+  const name = value.trim().replace(/\s+/g, " ");
+  return (
+    name.length >= 2 &&
+    name.length <= 100 &&
+    /^[A-Za-zÀ-ỹ\s]+$/.test(name) &&
+    /[A-Za-zÀ-ỹ]/.test(name)
+  );
+};
+
+const validateGuarantorInfo = (form: DebtRegistrationFormState) => {
+  const hasGuarantorInfo = [
+    form.nguoi_bao_lanh_ho_ten,
+    form.nguoi_bao_lanh_sdt,
+    form.nguoi_bao_lanh_cccd,
+    form.nguoi_bao_lanh_quan_he,
+  ].some((value) => value.trim());
+
+  if (!hasGuarantorInfo) return "";
+
+  if (!isValidPersonName(form.nguoi_bao_lanh_ho_ten)) {
+    return "Họ tên người bảo lãnh chỉ được nhập chữ, từ 2 đến 100 ký tự.";
+  }
+
+  if (!/^0\d{9}$/.test(form.nguoi_bao_lanh_sdt)) {
+    return "Số điện thoại người bảo lãnh phải gồm 10 chữ số và bắt đầu bằng 0.";
+  }
+
+  if (!/^\d{9}$|^\d{12}$/.test(form.nguoi_bao_lanh_cccd)) {
+    return "Số CCCD người bảo lãnh phải gồm 9 hoặc 12 chữ số.";
+  }
+
+  if (
+    form.nguoi_bao_lanh_quan_he.trim() &&
+    !isValidPersonName(form.nguoi_bao_lanh_quan_he)
+  ) {
+    return "Quan hệ với khách hàng chỉ được nhập chữ, từ 2 đến 100 ký tự.";
+  }
+
+  return "";
 };
 
 const createInitialForm = (
@@ -116,6 +198,72 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
   const [loadingPondCropInfo, setLoadingPondCropInfo] = useState(false);
   const [isAreaAutoFilled, setIsAreaAutoFilled] = useState(true);
   const [isHarvestDateAutoFilled, setIsHarvestDateAutoFilled] = useState(true);
+  const [provinceOptions, setProvinceOptions] = useState<Province[]>([]);
+  const [wardOptions, setWardOptions] = useState<Ward[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [loadingWards, setLoadingWards] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+
+    const loadProvinces = async () => {
+      setLoadingProvinces(true);
+      try {
+        const response = await locationService.getProvinces();
+        if (!cancelled) {
+          setProvinceOptions(response.data || []);
+        }
+      } catch {
+        if (!cancelled) {
+          setProvinceOptions([]);
+          setError("Không thể tải danh sách tỉnh/thành. Vui lòng thử lại.");
+        }
+      } finally {
+        if (!cancelled) setLoadingProvinces(false);
+      }
+    };
+
+    void loadProvinces();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !selectedProvinceId) {
+      setWardOptions([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadWards = async () => {
+      setLoadingWards(true);
+      try {
+        const response = await locationService.getWardsByProvince(selectedProvinceId);
+        if (!cancelled) {
+          setWardOptions(response.data || []);
+        }
+      } catch {
+        if (!cancelled) {
+          setWardOptions([]);
+          setError("Không thể tải danh sách phường/xã. Vui lòng thử lại.");
+        }
+      } finally {
+        if (!cancelled) setLoadingWards(false);
+      }
+    };
+
+    void loadWards();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, selectedProvinceId]);
 
   useEffect(() => {
     if (!isOpen || !pondId || !cropSeasonId) return;
@@ -185,6 +333,8 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
     setError("");
     setAreaChecked(false);
     setAreaSupported(false);
+    setSelectedProvinceId("");
+    setWardOptions([]);
     setFiles(initialFiles);
     setPondImages([]);
     setForm(createInitialForm(defaultFullName, defaultPhone, defaultPondArea, defaultPondAddress, defaultHarvestDate));
@@ -215,11 +365,47 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
     }
   };
 
+  const handleSelectProvince = (provinceId: string) => {
+    const province = provinceOptions.find(
+      (item) => String(item.id_tinh_thanh) === provinceId
+    );
+
+    setSelectedProvinceId(provinceId);
+    setWardOptions([]);
+    setForm((current) => ({
+      ...current,
+      tinh_thanh_ao: province?.ten_tinh || "",
+      quan_huyen_ao: province ? "Theo don vi hanh chinh 34 tinh" : "",
+      phuong_xa_ao: "",
+    }));
+    setAreaChecked(false);
+    setAreaSupported(false);
+    setError("");
+  };
+
+  const handleSelectWard = (wardId: string) => {
+    const ward = wardOptions.find(
+      (item) => String(item.id_phuong_xa) === wardId
+    );
+
+    setForm((current) => ({
+      ...current,
+      phuong_xa_ao: ward?.ten_xa || "",
+    }));
+    setAreaChecked(false);
+    setAreaSupported(false);
+    setError("");
+  };
+
   const validateCurrentStep = () => {
     if (step === 1 && (!form.ho_ten.trim() || !form.ngay_sinh || !/^\d{9,12}$/.test(form.so_cccd) || !/^0\d{9}$/.test(form.so_dien_thoai) || !form.dia_chi_thuong_tru.trim())) {
       return "Vui lòng nhập đầy đủ và đúng thông tin cá nhân.";
     }
-    if (step === 2 && (!form.tinh_thanh_ao.trim() || !form.quan_huyen_ao.trim() || !form.phuong_xa_ao.trim() || !form.dia_chi_chi_tiet_ao.trim())) {
+    if (step === 1) {
+      const birthDateError = validateBirthDate(form.ngay_sinh);
+      if (birthDateError) return birthDateError;
+    }
+    if (step === 2 && (!form.tinh_thanh_ao.trim() || !form.phuong_xa_ao.trim() || !form.dia_chi_chi_tiet_ao.trim())) {
       return "Vui lòng nhập đầy đủ địa chỉ ao nuôi.";
     }
     if (step === 2 && Number(form.dien_tich_ao) <= 0) {
@@ -241,8 +427,12 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
     if (step === 4 && (Number(form.han_muc_mong_muon) <= 0 || Number(form.thoi_han_tra_mong_muon) <= 0 || !form.mat_hang_du_kien.trim())) {
       return "Vui lòng nhập đầy đủ nhu cầu mua trả sau.";
     }
+    if (step === 4) {
+      const guarantorError = validateGuarantorInfo(form);
+      if (guarantorError) return guarantorError;
+    }
     if (step === 5 && Object.values(files).some((file) => !file)) {
-      return "Vui lòng tải đủ CCCD, selfie, biên lai và chữ ký.";
+      return "Vui lòng tải đủ CCCD và biên lai thả giống.";
     }
     if (step === 5 && (!form.cam_ket_thong_tin || !form.dong_y_xac_minh || !form.dong_y_dieu_khoan)) {
       return "Bạn cần đồng ý đầy đủ các cam kết trước khi gửi.";
@@ -251,7 +441,7 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
   };
 
   const handleCheckArea = async () => {
-    if (!form.tinh_thanh_ao.trim() || !form.quan_huyen_ao.trim() || !form.phuong_xa_ao.trim()) {
+    if (!form.tinh_thanh_ao.trim() || !form.phuong_xa_ao.trim()) {
       setError("Vui lòng nhập tỉnh, huyện và xã trước khi kiểm tra.");
       return;
     }
@@ -401,7 +591,14 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
                 isAreaAutoFilled={isAreaAutoFilled}
                 isHarvestDateAutoFilled={isHarvestDateAutoFilled}
                 loadingPondCropInfo={loadingPondCropInfo}
+                provinceOptions={provinceOptions}
+                wardOptions={wardOptions}
+                selectedProvinceId={selectedProvinceId}
+                loadingProvinces={loadingProvinces}
+                loadingWards={loadingWards}
                 updateField={updateField}
+                onSelectProvince={handleSelectProvince}
+                onSelectWard={handleSelectWard}
                 setFile={(field, file) => setFiles((current) => ({ ...current, [field]: file }))}
                 setPondImages={setPondImages}
                 onCheckArea={handleCheckArea}
@@ -424,3 +621,4 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
     </div>
   );
 };
+

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -16,7 +16,16 @@ import {
   User,
 } from "lucide-react";
 import { authService } from "../../services/auth.service";
+import {
+  locationService,
+  type Province,
+} from "../../services/location.service";
 import "./RegisterPage.css";
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phonePattern = /^0\d{9}$/;
+
+const normalizeText = (value: string) => value.trim().replace(/\s+/g, " ");
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -28,15 +37,80 @@ export default function RegisterPage() {
   const [matKhau, setMatKhau] = useState("");
   const [xacNhanMatKhau, setXacNhanMatKhau] = useState("");
   const [tinhThanh, setTinhThanh] = useState("");
+  const [provinces, setProvinces] = useState<Province[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        setLoadingProvinces(true);
+        const res = await locationService.getProvinces();
+        setProvinces(res.data || []);
+      } catch (error) {
+        console.log("GET PROVINCES ERROR:", error);
+        setErrorMessage("Không tải được danh sách tỉnh/thành. Vui lòng thử lại.");
+      } finally {
+        setLoadingProvinces(false);
+      }
+    };
+
+    void fetchProvinces();
+  }, []);
+
+  const sortedProvinces = useMemo(
+    () =>
+      [...provinces].sort((a, b) =>
+        a.ten_tinh.localeCompare(b.ten_tinh, "vi")
+      ),
+    [provinces]
+  );
+
+  const validateForm = () => {
+    const cleanName = normalizeText(hoTen);
+    const cleanPhone = soDienThoai.trim();
+    const cleanAddress = normalizeText(diaChi);
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (cleanName.length < 2) {
+      return "Vui lòng nhập họ tên hợp lệ.";
+    }
+
+    if (!phonePattern.test(cleanPhone)) {
+      return "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0.";
+    }
+
+    if (cleanAddress.length < 5) {
+      return "Vui lòng nhập địa chỉ cụ thể hơn.";
+    }
+
+    if (!emailPattern.test(cleanEmail)) {
+      return "Email không hợp lệ.";
+    }
+
+    if (!tinhThanh) {
+      return "Vui lòng chọn khu vực nuôi.";
+    }
+
+    if (matKhau.length < 6) {
+      return "Mật khẩu phải có ít nhất 6 ký tự.";
+    }
+
+    if (matKhau !== xacNhanMatKhau) {
+      return "Mật khẩu xác nhận không khớp.";
+    }
+
+    return "";
+  };
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (matKhau !== xacNhanMatKhau) {
-      setErrorMessage("Mật khẩu xác nhận không khớp");
+    const validationMessage = validateForm();
+    if (validationMessage) {
+      setErrorMessage(validationMessage);
       return;
     }
 
@@ -44,16 +118,18 @@ export default function RegisterPage() {
       setLoading(true);
       setErrorMessage("");
 
+      const cleanEmail = email.trim().toLowerCase();
+
       const res = await authService.register({
-        ho_ten: hoTen,
-        so_dien_thoai: soDienThoai,
-        dia_chi: diaChi,
-        email,
+        ho_ten: normalizeText(hoTen),
+        so_dien_thoai: soDienThoai.trim(),
+        dia_chi: normalizeText(diaChi),
+        email: cleanEmail,
         mat_khau: matKhau,
         tinh_thanh: tinhThanh,
       });
 
-      localStorage.setItem("verifyEmail", email);
+      localStorage.setItem("verifyEmail", cleanEmail);
 
       alert(
         res.data.message ||
@@ -62,7 +138,7 @@ export default function RegisterPage() {
 
       navigate("/verify-email");
     } catch (error: any) {
-      setErrorMessage(error.response?.data?.message || "Đăng ký thất bại");
+      setErrorMessage(error.response?.data?.message || "Đăng ký thất bại.");
     } finally {
       setLoading(false);
     }
@@ -77,7 +153,7 @@ export default function RegisterPage() {
           <div>
             <h1>
               <Droplet size={34} fill="white" />
-             Nhà Nông
+              Nhà Nông
             </h1>
 
             <p className="left-desc">
@@ -132,6 +208,7 @@ export default function RegisterPage() {
                       value={hoTen}
                       onChange={(e) => setHoTen(e.target.value)}
                       placeholder="Nguyễn Văn A"
+                      autoComplete="name"
                     />
                   </div>
                 </div>
@@ -142,8 +219,13 @@ export default function RegisterPage() {
                     <Phone size={18} />
                     <input
                       value={soDienThoai}
-                      onChange={(e) => setSoDienThoai(e.target.value)}
+                      onChange={(e) =>
+                        setSoDienThoai(e.target.value.replace(/\D/g, ""))
+                      }
                       placeholder="0901234567"
+                      inputMode="numeric"
+                      maxLength={10}
+                      autoComplete="tel"
                     />
                   </div>
                 </div>
@@ -157,6 +239,7 @@ export default function RegisterPage() {
                     value={diaChi}
                     onChange={(e) => setDiaChi(e.target.value)}
                     placeholder="Nhập địa chỉ của bạn"
+                    autoComplete="street-address"
                   />
                 </div>
               </div>
@@ -170,6 +253,7 @@ export default function RegisterPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="nguyenvan@email.com"
+                    autoComplete="email"
                   />
                 </div>
               </div>
@@ -181,11 +265,21 @@ export default function RegisterPage() {
                   <select
                     value={tinhThanh}
                     onChange={(e) => setTinhThanh(e.target.value)}
+                    disabled={loadingProvinces}
                   >
-                    <option value="">Chọn Tỉnh / Thành phố</option>
-                    <option value="Tiền Giang">Tiền Giang</option>
-                    <option value="Bến Tre">Bến Tre</option>
-                    <option value="Long An">Long An</option>
+                    <option value="">
+                      {loadingProvinces
+                        ? "Đang tải tỉnh/thành..."
+                        : "Chọn Tỉnh / Thành phố"}
+                    </option>
+                    {sortedProvinces.map((province) => (
+                      <option
+                        key={province.id_tinh_thanh}
+                        value={province.ten_tinh}
+                      >
+                        {province.ten_tinh}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="select-icon" size={20} />
                 </div>
@@ -201,6 +295,7 @@ export default function RegisterPage() {
                       value={matKhau}
                       onChange={(e) => setMatKhau(e.target.value)}
                       placeholder="••••••••"
+                      autoComplete="new-password"
                     />
                     <Eye size={18} />
                   </div>
@@ -215,6 +310,7 @@ export default function RegisterPage() {
                       value={xacNhanMatKhau}
                       onChange={(e) => setXacNhanMatKhau(e.target.value)}
                       placeholder="••••••••"
+                      autoComplete="new-password"
                     />
                   </div>
                 </div>
@@ -222,7 +318,11 @@ export default function RegisterPage() {
 
               {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-              <button disabled={loading} type="submit" className="register-btn">
+              <button
+                disabled={loading || loadingProvinces}
+                type="submit"
+                className="register-btn"
+              >
                 {loading ? "Đang đăng ký..." : "Đăng ký ngay"}
                 <ArrowRight size={20} />
               </button>

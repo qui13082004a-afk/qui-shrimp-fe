@@ -16,12 +16,6 @@ const profileStatusLabel: Record<string, string> = {
   tu_choi: "Từ chối",
 };
 
-const verifyStatusLabel: Record<string, string> = {
-  chua_xac_thuc: "Chưa xác thực",
-  da_xac_thuc: "Đã xác thực",
-  that_bai: "Thất bại",
-};
-
 const formatCurrency = (value?: number | string | null) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -334,7 +328,6 @@ export default function AdminCustomerDebtProfilePage() {
                 <th>Ao / Vụ nuôi</th>
                 <th>Hạn mức</th>
                 <th>Hạn thanh toán</th>
-                <th>Xác thực</th>
                 <th>Trạng thái</th>
                 <th>Khóa</th>
                 <th>Thao tác</th>
@@ -386,13 +379,6 @@ export default function AdminCustomerDebtProfilePage() {
                     </td>
 
                     <td>
-                      <span className={`admin-badge ${item.trang_thai_xac_thuc}`}>
-                        {verifyStatusLabel[item.trang_thai_xac_thuc || ""] ||
-                          "Chưa rõ"}
-                      </span>
-                    </td>
-
-                    <td>
                       <span className={`admin-badge ${item.trang_thai_ho_so}`}>
                         {profileStatusLabel[item.trang_thai_ho_so || ""] ||
                           "Chưa rõ"}
@@ -435,7 +421,7 @@ export default function AdminCustomerDebtProfilePage() {
             <div className="admin-modal__header">
               <div>
                 <h2>Chi tiết hồ sơ mua trả sau</h2>
-                <p>Thông tin khách hàng, ao nuôi, hạn mức, xác thực và trạng thái công nợ.</p>
+                <p>Thông tin khách hàng, ao nuôi, hạn mức, chứng từ và trạng thái công nợ.</p>
               </div>
 
               <button className="admin-modal__close" onClick={closeDetail}>
@@ -539,38 +525,7 @@ export default function AdminCustomerDebtProfilePage() {
               </div>
 
               <div className="customer-profile-section">
-                <h3>Xác thực giấy tờ</h3>
-
-                <div className="customer-profile-info-grid">
-                  <div>
-                    <span>Trạng thái xác thực</span>
-                    <strong>
-                      {verifyStatusLabel[selectedProfile.trang_thai_xac_thuc || ""] ||
-                        "Chưa rõ"}
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>Độ tương đồng</span>
-                    <strong>
-                      {selectedProfile.do_tuong_dong
-                        ? `${selectedProfile.do_tuong_dong}%`
-                        : "Chưa có"}
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>Ngày xác thực</span>
-                    <strong>{formatDate(selectedProfile.ngay_xac_thuc)}</strong>
-                  </div>
-
-                  <div>
-                    <span>Lý do thất bại</span>
-                    <strong>
-                      {selectedProfile.ly_do_xac_thuc_that_bai || "Không có"}
-                    </strong>
-                  </div>
-                </div>
+                <h3>Chứng từ hồ sơ</h3>
 
                 <div className="customer-profile-docs">
                   {selectedProfile.anh_cccd_mat_truoc && (
@@ -585,11 +540,6 @@ export default function AdminCustomerDebtProfilePage() {
                     </a>
                   )}
 
-                  {selectedProfile.anh_selfie && (
-                    <a href={selectedProfile.anh_selfie} target="_blank" rel="noreferrer">
-                      Ảnh selfie
-                    </a>
-                  )}
                 </div>
               </div>
 

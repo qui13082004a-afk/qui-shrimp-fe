@@ -23,6 +23,8 @@ const Footer = () => {
             <Link to="/store">Cửa hàng</Link>
             <Link to="/ponds">Ao nuôi</Link>
             <Link to="/orders">Công nợ</Link>
+            <Link to="/about">Giới thiệu</Link>
+            <Link to="/contact">Liên hệ</Link>
           </div>
         </div>
 

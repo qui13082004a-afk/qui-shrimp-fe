@@ -1,13 +1,44 @@
-import { useState } from "react";
-import { Headphones, Lock, Mail } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle2, Headphones, Lock, Mail, XCircle } from "lucide-react";
 import { authService } from "../../services/auth.service";
 import "./LoginPage.css";
+
+type LoginNotice = {
+  type: "success" | "error";
+  message: string;
+};
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [matKhau, setMatKhau] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [notice, setNotice] = useState<LoginNotice | null>(null);
+  const redirectTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
+
+  const getRedirectPath = (role?: string) => {
+    if (role === "admin") {
+      return "/admin";
+    }
+
+    if (role === "nhan_vien_dinh_muc") {
+      return "/nhan-vien-dinh-muc/ho-so-tham-dinh";
+    }
+
+    if (role === "nhan_vien_giao_hang") {
+      return "/delivery";
+    }
+
+    return "/home";
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,6 +46,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
       setErrorMessage("");
+      setNotice(null);
 
       const res = await authService.login({
         email,
@@ -27,20 +59,21 @@ export default function LoginPage() {
       localStorage.setItem("accessToken", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      alert(res.data.message || "Đăng nhập thành công");
+      setNotice({
+        type: "success",
+        message: res.data.message || "Đăng nhập thành công. Đang chuyển trang...",
+      });
 
-      if (user.vai_tro === "admin") {
-        window.location.href = "/admin";
-      } else if (user.vai_tro === "nhan_vien_dinh_muc") {
-        window.location.href = "/nhan-vien-dinh-muc/ho-so-tham-dinh";
-      } else if (user.vai_tro === "nhan_vien_giao_hang") {
-        window.location.href = "/delivery";
-      } else {
-        window.location.href = "/home";
-      }
+      redirectTimerRef.current = window.setTimeout(() => {
+        window.location.href = getRedirectPath(user.vai_tro);
+      }, 700);
     } catch (error: any) {
       const message = error.response?.data?.message || "Đăng nhập thất bại";
       setErrorMessage(message);
+      setNotice({
+        type: "error",
+        message,
+      });
     } finally {
       setLoading(false);
     }
@@ -48,14 +81,21 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
+      {notice && (
+        <div className={`login-notice login-notice--${notice.type}`} role="status">
+          {notice.type === "success" ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+          <span>{notice.message}</span>
+        </div>
+      )}
+
       <div className="login-card">
         <div className="login-left">
-          <img src="/shrimp-farm.jpg" alt="Đất Tôm" />
+          <img src="/shrimp-farm.jpg" alt="Ao nuôi tôm" />
 
           <div className="login-overlay"></div>
 
           <div className="login-brand">
-            <h1>Nhà NÔNG</h1>
+            <h1>NHÀ NÔNG</h1>
             <p>
               Giải pháp quản lý và cung ứng vật tư nuôi tôm hiện đại. Đồng hành
               cùng người nuôi tôm trong từng vụ nuôi thành công.
@@ -105,7 +145,7 @@ export default function LoginPage() {
 
               {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-              <button type="submit" disabled={loading}>
+              <button className="login-submit-button" type="submit" disabled={loading}>
                 {loading ? "Đang đăng nhập..." : "Đăng nhập"}
               </button>
             </form>
@@ -113,8 +153,7 @@ export default function LoginPage() {
             <div className="line"></div>
 
             <p className="register-text">
-              Chưa có tài khoản?{" "}
-              <a href="/register">Đăng ký tài khoản mới</a>
+              Chưa có tài khoản? <a href="/register">Đăng ký tài khoản mới</a>
             </p>
 
             <p className="support">

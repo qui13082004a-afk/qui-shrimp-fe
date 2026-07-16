@@ -14,7 +14,7 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // Khi gửi FormData (ví dụ upload ảnh CCCD, selfie...), KHÔNG được giữ
+  // Khi gửi FormData (ví dụ upload ảnh CCCD, biên lai...), KHÔNG được giữ
   // Content-Type: application/json mặc định của instance. Phải xóa để
   // trình duyệt tự set "multipart/form-data; boundary=..." đúng chuẩn,
   // nếu không backend sẽ nhận sai định dạng và các trường File sẽ rỗng.

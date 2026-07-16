@@ -7,11 +7,6 @@ export type StaffProfileStatus =
   | "da_duyet"
   | "tu_choi";
 
-export type StaffVerifyStatus =
-  | "chua_xac_thuc"
-  | "da_xac_thuc"
-  | "that_bai";
-
 export type LimitPolicy = {
   id_chinh_sach: number;
   ten_chinh_sach: string;
@@ -37,15 +32,10 @@ export type StaffCustomerProfile = {
   ngay_duyet?: string | null;
   ghi_chu?: string | null;
   trang_thai_ho_so: StaffProfileStatus;
-  trang_thai_xac_thuc: StaffVerifyStatus;
   ly_do_tu_choi?: string | null;
   ly_do_khoa?: string | null;
-  ly_do_xac_thuc_that_bai?: string | null;
   anh_cccd_mat_truoc?: string | null;
   anh_cccd_mat_sau?: string | null;
-  anh_selfie?: string | null;
-  do_tuong_dong?: number | string | null;
-  ngay_xac_thuc?: string | null;
 
   NguoiDung?: {
     id_nguoi_dung: number;

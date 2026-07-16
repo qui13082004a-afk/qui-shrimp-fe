@@ -12,8 +12,6 @@ type StaffProfileStatus =
   | "da_duyet"
   | "tu_choi";
 
-type StaffVerifyStatus = "chua_xac_thuc" | "da_xac_thuc" | "that_bai";
-
 type StaffCustomerProfile = {
   [key: string]: any;
   id_ho_so: number;
@@ -21,6 +19,7 @@ type StaffCustomerProfile = {
   id_ao: number;
   id_vu_nuoi: number;
   id_chinh_sach?: number | null;
+  id_chinh_sach_da_nhac?: number | null;
   dinh_muc_cong_no?: number | string;
   han_muc_con_lai?: number | string;
   duoc_phep_tra_sau?: boolean;
@@ -29,15 +28,43 @@ type StaffCustomerProfile = {
   ngay_duyet?: string | null;
   ghi_chu?: string | null;
   trang_thai_ho_so: StaffProfileStatus;
-  trang_thai_xac_thuc: StaffVerifyStatus;
   ly_do_tu_choi?: string | null;
   ly_do_khoa?: string | null;
-  ly_do_xac_thuc_that_bai?: string | null;
   anh_cccd_mat_truoc?: string | null;
   anh_cccd_mat_sau?: string | null;
-  anh_selfie?: string | null;
-  do_tuong_dong?: number | string | null;
-  ngay_xac_thuc?: string | null;
+  anh_bien_lai_tha_giong?: string | null;
+  anh_ao_nuoi?: string | string[] | null;
+  ho_ten?: string | null;
+  ngay_sinh?: string | null;
+  so_cccd?: string | null;
+  so_dien_thoai?: string | null;
+  zalo?: string | null;
+  dia_chi_thuong_tru?: string | null;
+  tinh_thanh_ao?: string | null;
+  quan_huyen_ao?: string | null;
+  phuong_xa_ao?: string | null;
+  dia_chi_chi_tiet_ao?: string | null;
+  dien_tich_ao?: number | string | null;
+  don_vi_dien_tich?: "m2" | "ha" | string | null;
+  so_vu_nuoi_moi_nam?: number | string | null;
+  san_luong_du_kien?: number | string | null;
+  don_vi_san_luong?: "kg" | "tan" | string | null;
+  kinh_nghiem_nuoi_nam?: number | string | null;
+  nguon_thu_nhap_tra_no?: string | null;
+  nguoi_mua_tom_du_kien?: string | null;
+  ngay_thu_hoach_du_kien?: string | null;
+  han_muc_mong_muon?: number | string | null;
+  thoi_han_tra_mong_muon?: number | string | null;
+  don_vi_thoi_han?: "ngay" | "thang" | "sau_thu_hoach" | string | null;
+  mat_hang_du_kien?: string | null;
+  nguoi_bao_lanh_ho_ten?: string | null;
+  nguoi_bao_lanh_sdt?: string | null;
+  nguoi_bao_lanh_cccd?: string | null;
+  nguoi_bao_lanh_quan_he?: string | null;
+  cam_ket_thong_tin?: boolean | number;
+  dong_y_xac_minh?: boolean | number;
+  dong_y_dieu_khoan?: boolean | number;
+  ngay_tao?: string | null;
   NguoiDung?: {
     [key: string]: any;
     id_nguoi_dung: number;
@@ -76,12 +103,6 @@ const profileStatusLabels: Record<StaffProfileStatus, string> = {
   tu_choi: "Từ chối",
 };
 
-const verifyStatusLabels: Record<StaffVerifyStatus, string> = {
-  chua_xac_thuc: "Chưa xác thực",
-  da_xac_thuc: "Đã xác thực",
-  that_bai: "Thất bại",
-};
-
 const formatMoney = (value?: number | string | null) => {
   return Number(value || 0).toLocaleString("vi-VN") + " đ";
 };
@@ -91,6 +112,7 @@ const formatDate = (value?: string | null) => {
   return new Date(value).toLocaleDateString("vi-VN");
 };
 
+const NEXT_STAGE_LOOKAHEAD_DAYS = 3;
 
 const booleanLabel = (value?: boolean | number | null) => {
   if (value === true || value === 1) return "Có";
@@ -114,7 +136,6 @@ void seasonStatusLabels;
 const mediaLabelMap: Record<string, string> = {
   anh_cccd_mat_truoc: "CCCD mặt trước",
   anh_cccd_mat_sau: "CCCD mặt sau",
-  anh_selfie: "Ảnh selfie",
   anh_dai_dien: "Ảnh đại diện",
   anh_ao: "Ảnh ao nuôi",
   hinh_anh_ao: "Ảnh ao nuôi",
@@ -142,8 +163,36 @@ const collectProfileMedia = (profile: StaffCustomerProfile) => {
   const result: Array<{ key: string; label: string; url: string; isPdf: boolean }> = [];
   const seen = new Set<string>();
 
+  const looksLikeMediaValue = (value: string) =>
+    /^https?:\/\//i.test(value) ||
+    /^data:image\//i.test(value) ||
+    /\.(jpg|jpeg|png|webp|gif|pdf)(?:$|\?)/i.test(value);
+
+  const pushMedia = (key: string, label: string, url: string) => {
+    const normalizedUrl = url.trim();
+    if (!looksLikeMediaValue(normalizedUrl) || seen.has(normalizedUrl)) return;
+
+    seen.add(normalizedUrl);
+    result.push({
+      key,
+      label,
+      url: normalizedUrl,
+      isPdf: /\.pdf(?:$|\?)/i.test(normalizedUrl),
+    });
+  };
+
   const walk = (value: any, path = "") => {
     if (!value || typeof value !== "object") return;
+
+    if (Array.isArray(value)) {
+      const labelKey = path.split(".").pop() || path;
+
+      value.forEach((item, index) => {
+        if (typeof item !== "string" || !item.trim()) return;
+        pushMedia(`${path}.${index}`, `${toReadableLabel(labelKey)} ${index + 1}`, item);
+      });
+      return;
+    }
 
     Object.entries(value).forEach(([key, item]) => {
       const currentPath = path ? `${path}.${key}` : key;
@@ -156,24 +205,17 @@ const collectProfileMedia = (profile: StaffCustomerProfile) => {
       if (typeof item !== "string" || !item.trim()) return;
 
       const normalizedKey = key.toLowerCase();
+      const normalizedValue = item.trim();
       const looksLikeMediaField =
         normalizedKey.startsWith("anh_") ||
         normalizedKey.startsWith("hinh_anh") ||
         normalizedKey.startsWith("file_") ||
-        normalizedKey.includes("cccd") ||
-        normalizedKey.includes("selfie") ||
         normalizedKey.includes("bien_nhan") ||
         normalizedKey.includes("hop_dong");
 
-      if (!looksLikeMediaField || seen.has(item)) return;
+      if (!looksLikeMediaField) return;
 
-      seen.add(item);
-      result.push({
-        key: currentPath,
-        label: toReadableLabel(key),
-        url: item,
-        isPdf: /\.pdf(?:$|\?)/i.test(item),
-      });
+      pushMedia(currentPath, toReadableLabel(key), normalizedValue);
     });
   };
 
@@ -237,18 +279,102 @@ const findNextPolicyInSameSet = (
 
   return (
     policies
-      .filter(
-        (policy) =>
+      .filter((policy) => {
+        const day = farmingDays ?? null;
+        const daysUntilStage =
+          day === null ? 0 : Number(policy.tu_ngay) - Number(day);
+
+        return (
           policy.trang_thai === "hoat_dong" &&
-          policy.ten_chinh_sach === currentPolicy.ten_chinh_sach &&
+          policy.ten_chinh_sach.trim() === currentPolicy.ten_chinh_sach.trim() &&
           Number(policy.tu_ngay) > Number(currentPolicy.tu_ngay) &&
           Number(policy.han_muc_toi_da) > Number(currentPolicy.han_muc_toi_da) &&
-          (farmingDays === null ||
-            farmingDays === undefined ||
-            farmingDays >= Number(policy.tu_ngay))
-      )
+          (day === null || daysUntilStage <= NEXT_STAGE_LOOKAHEAD_DAYS)
+        );
+      })
       .sort((a, b) => Number(a.tu_ngay) - Number(b.tu_ngay))[0] || null
   );
+};
+
+const getPolicyStageText = (policy?: LimitPolicy | null) => {
+  if (!policy) return "Chưa có giai đoạn";
+
+  const stageMap: Record<string, string> = {
+    giai_doan_1: "Giai đoạn 1",
+    giai_doan_2: "Giai đoạn 2",
+    giai_doan_3: "Giai đoạn 3",
+    giai_doan_4: "Giai đoạn 4",
+  };
+
+  return stageMap[policy.giai_doan] || policy.giai_doan || "Giai đoạn";
+};
+
+const getStageTimingText = (
+  farmingDays: number | null,
+  policy?: LimitPolicy | null
+) => {
+  if (farmingDays === null || !policy) return "Chưa đủ dữ liệu ngày nuôi";
+
+  const daysUntilStage = Number(policy.tu_ngay) - Number(farmingDays);
+
+  if (daysUntilStage > 0) {
+    return `Còn ${daysUntilStage} ngày tới ${getPolicyStageText(policy)}`;
+  }
+
+  return `Đã tới ${getPolicyStageText(policy)}`;
+};
+
+const findPolicyBySetName = (
+  policies: LimitPolicy[],
+  policySetName: string,
+  currentPolicy?: LimitPolicy | null,
+  farmingDays?: number | null
+) => {
+  const name = policySetName.trim();
+  if (!name) return null;
+
+  const stages = policies
+    .filter(
+      (policy) =>
+        policy.trang_thai === "hoat_dong" &&
+        policy.ten_chinh_sach.trim() === name
+    )
+    .sort((a, b) => Number(a.tu_ngay) - Number(b.tu_ngay));
+
+  if (!stages.length) return null;
+
+  const day = farmingDays ?? null;
+  const currentStageStart = Number(currentPolicy?.tu_ngay ?? -1);
+
+  if (currentPolicy && currentPolicy.ten_chinh_sach.trim() === name) {
+    const nextStages = stages.filter(
+      (policy) =>
+        Number(policy.tu_ngay) > currentStageStart &&
+        Number(policy.han_muc_toi_da) > Number(currentPolicy.han_muc_toi_da)
+    );
+
+    if (!nextStages.length) return currentPolicy;
+
+    if (day !== null) {
+      return (
+        nextStages.find((policy) => day >= Number(policy.tu_ngay) - 3) ||
+        nextStages[0]
+      );
+    }
+
+    return nextStages[0];
+  }
+
+  if (day !== null) {
+    return (
+      stages.find(
+        (policy) =>
+          day >= Number(policy.tu_ngay) && day <= Number(policy.den_ngay)
+      ) || stages[0]
+    );
+  }
+
+  return stages[0];
 };
 
 const getPolicyWindowText = (policy?: LimitPolicy | null) => {
@@ -259,6 +385,40 @@ const getPolicyWindowText = (policy?: LimitPolicy | null) => {
 const isEnabled = (value?: boolean | number | null) => {
   return value === true || value === 1;
 };
+
+const emptyText = "—";
+
+const displayText = (value?: string | number | null) => {
+  const text = String(value ?? "").trim();
+  return text || emptyText;
+};
+
+const formatArea = (profile: StaffCustomerProfile) => {
+  return [profile.phuong_xa_ao, profile.tinh_thanh_ao]
+    .map((item) => String(item || "").trim())
+    .filter(Boolean)
+    .join(" - ") || emptyText;
+};
+
+const formatPondAddress = (profile: StaffCustomerProfile) => {
+  return [
+    profile.dia_chi_chi_tiet_ao,
+    profile.phuong_xa_ao,
+    profile.tinh_thanh_ao,
+  ]
+    .map((item) => String(item || "").trim())
+    .filter(Boolean)
+    .join(", ") || emptyText;
+};
+
+const timeUnitLabel = (value?: string | null) => {
+  if (value === "ngay") return "ngày";
+  if (value === "thang") return "tháng";
+  if (value === "sau_thu_hoach") return "sau thu hoạch";
+  return value || emptyText;
+};
+
+const verifyStatusLabels: Record<string, string> = {};
 
 export default function StaffAssessmentProfilePage() {
   const [profiles, setProfiles] = useState<StaffCustomerProfile[]>([]);
@@ -278,6 +438,7 @@ export default function StaffAssessmentProfilePage() {
   const [surveyNote, setSurveyNote] = useState("");
 
   const [proposalForm, setProposalForm] = useState({
+    ten_chinh_sach: "",
     id_chinh_sach: "",
     han_muc_de_xuat: "",
     ly_do_de_xuat: "",
@@ -287,8 +448,9 @@ export default function StaffAssessmentProfilePage() {
     kich_co_tom: "",
     ngay_khao_sat: new Date().toISOString().slice(0, 10),
   });
+  const [surveyFiles, setSurveyFiles] = useState<File[]>([]);
 
-  // Chính sách hạn mức đang áp dụng - dùng để kiểm tra hạn mức đề xuất có
+  // Chon bo chinh sach han muc để kiểm tra hạn mức đề xuất có
   // vượt mức tối đa cho phép hay không, giống hệt logic đã có ở trang
   // "Tạo phiếu đề xuất hạn mức" (StaffCreateLimitProposalPage), để hai nơi
   // cùng tạo phiếu đề xuất không bị lệch quy tắc kiểm tra với nhau.
@@ -386,11 +548,39 @@ export default function StaffAssessmentProfilePage() {
           profile,
           farmingDays,
           targetPolicy,
+          daysUntilStage:
+            farmingDays === null || !targetPolicy
+              ? null
+              : Number(targetPolicy.tu_ngay) - Number(farmingDays),
           shouldReview,
         };
       })
-      .filter((item) => item.shouldReview);
+      .filter((item) => item.shouldReview)
+      .sort((a, b) => Number(a.daysUntilStage ?? 999) - Number(b.daysUntilStage ?? 999));
   }, [profiles, policies]);
+
+  const canCreateProposalForProfile = (profile: StaffCustomerProfile) => {
+    if (["cho_kiem_tra", "cho_de_xuat"].includes(profile.trang_thai_ho_so)) {
+      return true;
+    }
+
+    if (
+      profile.trang_thai_ho_so !== "da_duyet" ||
+      !isEnabled(profile.duoc_phep_tra_sau) ||
+      isEnabled(profile.bi_khoa_tra_sau)
+    ) {
+      return false;
+    }
+
+    const farmingDays = getDayDiff(
+      profile.VuNuoi?.ngay_tha_giong,
+      new Date().toISOString()
+    );
+
+    return Boolean(
+      findNextPolicyInSameSet(policies, profile.ChinhSachHanMuc, farmingDays)
+    );
+  };
 
   const openDetail = (profile: StaffCustomerProfile) => {
     setSelectedProfile(profile);
@@ -436,7 +626,9 @@ export default function StaffAssessmentProfilePage() {
 
     setProposalProfile(profile);
     setConfirmChecked(true);
+    setSurveyFiles([]);
     setProposalForm({
+      ten_chinh_sach: matchedPolicy?.ten_chinh_sach || "",
       id_chinh_sach: matchedPolicy?.id_chinh_sach
         ? String(matchedPolicy.id_chinh_sach)
         : "",
@@ -462,6 +654,15 @@ export default function StaffAssessmentProfilePage() {
   }, [proposalProfile, proposalForm.ngay_khao_sat]);
 
   const proposalMatchedPolicy = useMemo(() => {
+    if (proposalForm.ten_chinh_sach) {
+      return findPolicyBySetName(
+        policies,
+        proposalForm.ten_chinh_sach,
+        proposalProfile?.ChinhSachHanMuc,
+        proposalFarmingDays
+      );
+    }
+
     if (proposalForm.id_chinh_sach) {
       return (
         policies.find(
@@ -475,35 +676,71 @@ export default function StaffAssessmentProfilePage() {
     if (proposalFarmingDays === null) return null;
 
     return findPolicyByFarmingDays(policies, proposalFarmingDays);
-  }, [policies, proposalFarmingDays, proposalForm.id_chinh_sach]);
+  }, [
+    policies,
+    proposalFarmingDays,
+    proposalForm.id_chinh_sach,
+    proposalForm.ten_chinh_sach,
+    proposalProfile,
+  ]);
 
-  const proposalPolicyOptions = useMemo(() => {
+  const proposalPolicySetOptions = useMemo(() => {
     const currentPolicy = proposalProfile?.ChinhSachHanMuc;
 
     if (!currentPolicy) {
-      return policies.filter((policy) => policy.trang_thai === "hoat_dong");
+      return Array.from(
+        new Set(
+          policies
+            .filter((policy) => policy.trang_thai === "hoat_dong")
+            .map((policy) => policy.ten_chinh_sach.trim())
+            .filter(Boolean)
+        )
+      );
     }
 
-    return policies
-      .filter(
-        (policy) =>
-          policy.trang_thai === "hoat_dong" &&
-          policy.ten_chinh_sach === currentPolicy.ten_chinh_sach &&
-          Number(policy.tu_ngay) > Number(currentPolicy.tu_ngay) &&
-          Number(policy.han_muc_toi_da) > Number(currentPolicy.han_muc_toi_da)
-      )
-      .sort((a, b) => Number(a.tu_ngay) - Number(b.tu_ngay));
+    return [currentPolicy.ten_chinh_sach.trim()].filter(Boolean);
   }, [policies, proposalProfile]);
 
-  const handleProposalPolicyChange = (policyId: string) => {
-    const selectedPolicy =
-      policies.find(
-        (policy) => Number(policy.id_chinh_sach) === Number(policyId)
-      ) || null;
+  const applyPolicySetToProposal = (policySetName: string, surveyDate: string) => {
+    const farmingDays = getDayDiff(
+      proposalProfile?.VuNuoi?.ngay_tha_giong,
+      surveyDate
+    );
+    const selectedPolicy = findPolicyBySetName(
+      policies,
+      policySetName,
+      proposalProfile?.ChinhSachHanMuc,
+      farmingDays
+    );
 
     setProposalForm((prev) => ({
       ...prev,
-      id_chinh_sach: policyId,
+      ten_chinh_sach: policySetName,
+      id_chinh_sach: selectedPolicy?.id_chinh_sach
+        ? String(selectedPolicy.id_chinh_sach)
+        : "",
+      han_muc_de_xuat: selectedPolicy?.han_muc_toi_da
+        ? String(selectedPolicy.han_muc_toi_da)
+        : prev.han_muc_de_xuat,
+    }));
+  };
+
+  const handleProposalSurveyDateChange = (surveyDate: string) => {
+    const selectedPolicy = proposalForm.ten_chinh_sach
+      ? findPolicyBySetName(
+          policies,
+          proposalForm.ten_chinh_sach,
+          proposalProfile?.ChinhSachHanMuc,
+          getDayDiff(proposalProfile?.VuNuoi?.ngay_tha_giong, surveyDate)
+        )
+      : null;
+
+    setProposalForm((prev) => ({
+      ...prev,
+      ngay_khao_sat: surveyDate,
+      id_chinh_sach: selectedPolicy?.id_chinh_sach
+        ? String(selectedPolicy.id_chinh_sach)
+        : prev.id_chinh_sach,
       han_muc_de_xuat: selectedPolicy?.han_muc_toi_da
         ? String(selectedPolicy.han_muc_toi_da)
         : prev.han_muc_de_xuat,
@@ -550,6 +787,7 @@ export default function StaffAssessmentProfilePage() {
         oxy_hoa_tan: proposalForm.oxy_hoa_tan,
         kich_co_tom: proposalForm.kich_co_tom,
         ngay_khao_sat: proposalForm.ngay_khao_sat,
+        minh_chung_khao_sat: surveyFiles,
       });
 
       setAlert("Đã gửi phiếu đề xuất hạn mức cho Admin duyệt");
@@ -616,6 +854,14 @@ export default function StaffAssessmentProfilePage() {
                   {item.farmingDays} ngày nuôi ·{" "}
                   {getPolicyWindowText(item.targetPolicy)}
                 </span>
+                <div className="staff-policy-reminder__stage">
+                  <span>{getStageTimingText(item.farmingDays, item.targetPolicy)}</span>
+                  <span>
+                    {getPolicyStageText(item.profile.ChinhSachHanMuc)} -&gt;{" "}
+                    {getPolicyStageText(item.targetPolicy)}
+                  </span>
+                  <span>{formatMoney(item.targetPolicy?.han_muc_toi_da)}</span>
+                </div>
               </button>
             ))}
           </div>
@@ -690,7 +936,6 @@ export default function StaffAssessmentProfilePage() {
                 <th>Vụ nuôi</th>
                 <th>Hạn mức hiện tại</th>
                 <th>Trạng thái</th>
-                <th>Xác thực</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
@@ -763,21 +1008,11 @@ export default function StaffAssessmentProfilePage() {
                     </td>
 
                     <td>
-                      <span
-                        className={`staff-badge verify-${profile.trang_thai_xac_thuc}`}
-                      >
-                        {verifyStatusLabels[profile.trang_thai_xac_thuc]}
-                      </span>
-                    </td>
-
-                    <td>
                       <div className="staff-assessment-actions">
                         <button type="button" onClick={() => openDetail(profile)}>
                           Chi tiết
                         </button>
-                        {["cho_kiem_tra", "cho_de_xuat"].includes(
-                          profile.trang_thai_ho_so
-                        ) && (
+                        {canCreateProposalForProfile(profile) && (
                           <button
                             type="button"
                             className="primary"
@@ -808,6 +1043,235 @@ export default function StaffAssessmentProfilePage() {
             </div>
 
             <div className="staff-profile-detail">
+              <div className="staff-profile-section staff-profile-section--highlight">
+                <h3>Thông tin hồ sơ cần thẩm định</h3>
+                <div className="staff-info-grid">
+                  <div>
+                    <span>Mã hồ sơ</span>
+                    <strong>#{selectedProfile.id_ho_so}</strong>
+                  </div>
+                  <div>
+                    <span>Ngày gửi hồ sơ</span>
+                    <strong>{formatDate(selectedProfile.ngay_tao)}</strong>
+                  </div>
+                  <div>
+                    <span>Trạng thái hồ sơ</span>
+                    <strong>{profileStatusLabels[selectedProfile.trang_thai_ho_so]}</strong>
+                  </div>
+                  <div>
+                    <span>Trạng thái xác thực</span>
+                    <strong>
+                      {verifyStatusLabels[""] ||
+                        emptyText}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Họ tên khách hàng</span>
+                    <strong>
+                      {displayText(selectedProfile.ho_ten || selectedProfile.NguoiDung?.ho_ten)}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Số điện thoại</span>
+                    <strong>
+                      {displayText(
+                        selectedProfile.so_dien_thoai ||
+                          selectedProfile.NguoiDung?.so_dien_thoai
+                      )}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Ngày sinh</span>
+                    <strong>{formatDate(selectedProfile.ngay_sinh)}</strong>
+                  </div>
+                  <div>
+                    <span>Số CCCD</span>
+                    <strong>{displayText(selectedProfile.so_cccd)}</strong>
+                  </div>
+                  <div>
+                    <span>Zalo</span>
+                    <strong>{displayText(selectedProfile.zalo)}</strong>
+                  </div>
+                  <div>
+                    <span>Khu vực ao</span>
+                    <strong>{formatArea(selectedProfile)}</strong>
+                  </div>
+                  <div className="staff-info-grid__full">
+                    <span>Địa chỉ thường trú</span>
+                    <strong>{displayText(selectedProfile.dia_chi_thuong_tru)}</strong>
+                  </div>
+                  <div className="staff-info-grid__full">
+                    <span>Địa chỉ ao nuôi</span>
+                    <strong>{formatPondAddress(selectedProfile)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="staff-profile-section">
+                <h3>Thông tin ao, vụ nuôi và năng lực</h3>
+                <div className="staff-info-grid">
+                  <div>
+                    <span>Ao nuôi</span>
+                    <strong>
+                      #{selectedProfile.id_ao} -{" "}
+                      {displayText(selectedProfile.AoNuoi?.ten_ao)}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Vụ nuôi</span>
+                    <strong>
+                      #{selectedProfile.id_vu_nuoi} -{" "}
+                      {displayText(selectedProfile.VuNuoi?.ten_vu_nuoi)}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Diện tích ao</span>
+                    <strong>
+                      {displayText(selectedProfile.dien_tich_ao)}{" "}
+                      {selectedProfile.don_vi_dien_tich || "m2"}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Số vụ nuôi mỗi năm</span>
+                    <strong>{displayText(selectedProfile.so_vu_nuoi_moi_nam)}</strong>
+                  </div>
+                  <div>
+                    <span>Sản lượng dự kiến</span>
+                    <strong>
+                      {displayText(selectedProfile.san_luong_du_kien)}{" "}
+                      {selectedProfile.don_vi_san_luong || "kg"}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Kinh nghiệm nuôi</span>
+                    <strong>{displayText(selectedProfile.kinh_nghiem_nuoi_nam)} năm</strong>
+                  </div>
+                  <div>
+                    <span>Ngày thả giống</span>
+                    <strong>{formatDate(selectedProfile.VuNuoi?.ngay_tha_giong)}</strong>
+                  </div>
+                  <div>
+                    <span>Ngày nuôi hiện tại</span>
+                    <strong>
+                      {getDayDiff(
+                        selectedProfile.VuNuoi?.ngay_tha_giong,
+                        new Date().toISOString()
+                      ) ?? emptyText}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Thu hoạch dự kiến</span>
+                    <strong>
+                      {formatDate(
+                        selectedProfile.ngay_thu_hoach_du_kien ||
+                          selectedProfile.VuNuoi?.ngay_thu_hoach_du_kien
+                      )}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Người mua tôm dự kiến</span>
+                    <strong>{displayText(selectedProfile.nguoi_mua_tom_du_kien)}</strong>
+                  </div>
+                  <div className="staff-info-grid__full">
+                    <span>Nguồn thu nhập trả nợ</span>
+                    <strong>{displayText(selectedProfile.nguon_thu_nhap_tra_no)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="staff-profile-section">
+                <h3>Nhu cầu hạn mức và trả sau</h3>
+                <div className="staff-info-grid">
+                  <div>
+                    <span>Hạn mức mong muốn</span>
+                    <strong>{formatMoney(selectedProfile.han_muc_mong_muon)}</strong>
+                  </div>
+                  <div>
+                    <span>Thời hạn trả mong muốn</span>
+                    <strong>
+                      {displayText(selectedProfile.thoi_han_tra_mong_muon)}{" "}
+                      {timeUnitLabel(selectedProfile.don_vi_thoi_han)}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Hạn mức đã duyệt</span>
+                    <strong>{formatMoney(selectedProfile.dinh_muc_cong_no)}</strong>
+                  </div>
+                  <div>
+                    <span>Hạn thanh toán</span>
+                    <strong>{formatDate(selectedProfile.han_thanh_toan)}</strong>
+                  </div>
+                  <div>
+                    <span>Được phép trả sau</span>
+                    <strong>{booleanLabel(selectedProfile.duoc_phep_tra_sau)}</strong>
+                  </div>
+                  <div>
+                    <span>Bị khóa trả sau</span>
+                    <strong>{booleanLabel(selectedProfile.bi_khoa_tra_sau)}</strong>
+                  </div>
+                  <div className="staff-info-grid__full">
+                    <span>Mặt hàng dự kiến mua</span>
+                    <strong>{displayText(selectedProfile.mat_hang_du_kien)}</strong>
+                  </div>
+                  {selectedProfile.ly_do_tu_choi && (
+                    <div className="staff-info-grid__full danger">
+                      <span>Lý do từ chối</span>
+                      <strong>{selectedProfile.ly_do_tu_choi}</strong>
+                    </div>
+                  )}
+                  {selectedProfile.ly_do_khoa && (
+                    <div className="staff-info-grid__full danger">
+                      <span>Lý do khóa trả sau</span>
+                      <strong>{selectedProfile.ly_do_khoa}</strong>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="staff-profile-section">
+                <h3>Người bảo lãnh và cam kết</h3>
+                <div className="staff-info-grid">
+                  <div>
+                    <span>Họ tên người bảo lãnh</span>
+                    <strong>{displayText(selectedProfile.nguoi_bao_lanh_ho_ten)}</strong>
+                  </div>
+                  <div>
+                    <span>Số điện thoại</span>
+                    <strong>{displayText(selectedProfile.nguoi_bao_lanh_sdt)}</strong>
+                  </div>
+                  <div>
+                    <span>Số CCCD</span>
+                    <strong>{displayText(selectedProfile.nguoi_bao_lanh_cccd)}</strong>
+                  </div>
+                  <div>
+                    <span>Quan hệ với khách hàng</span>
+                    <strong>{displayText(selectedProfile.nguoi_bao_lanh_quan_he)}</strong>
+                  </div>
+                  <div>
+                    <span>Cam kết thông tin</span>
+                    <strong>{booleanLabel(selectedProfile.cam_ket_thong_tin)}</strong>
+                  </div>
+                  <div>
+                    <span>Đồng ý xác minh</span>
+                    <strong>{booleanLabel(selectedProfile.dong_y_xac_minh)}</strong>
+                  </div>
+                  <div>
+                    <span>Đồng ý điều khoản</span>
+                    <strong>{booleanLabel(selectedProfile.dong_y_dieu_khoan)}</strong>
+                  </div>
+                  <div>
+                    <span>Ngày xác thực</span>
+                    <strong>{formatDate(null)}</strong>
+                  </div>
+                  {false && (
+                    <div className="staff-info-grid__full danger">
+                      <span>Lý do xác thực thất bại</span>
+                      <strong>{emptyText}</strong>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="staff-profile-section">
                 <h3>Thông tin khách hàng</h3>
                 <div className="staff-info-grid">
@@ -864,12 +1328,8 @@ export default function StaffAssessmentProfilePage() {
                   <div><span>Hạn thanh toán</span><strong>{formatDate(selectedProfile.han_thanh_toan)}</strong></div>
                   <div><span>Ngày duyệt</span><strong>{formatDate(selectedProfile.ngay_duyet)}</strong></div>
                   <div><span>Trạng thái hồ sơ</span><strong>{profileStatusLabels[selectedProfile.trang_thai_ho_so]}</strong></div>
-                  <div><span>Trạng thái xác thực</span><strong>{verifyStatusLabels[selectedProfile.trang_thai_xac_thuc]}</strong></div>
-                  <div><span>Độ tương đồng</span><strong>{selectedProfile.do_tuong_dong !== null && selectedProfile.do_tuong_dong !== undefined ? `${selectedProfile.do_tuong_dong}%` : "—"}</strong></div>
-                  <div><span>Ngày xác thực</span><strong>{formatDate(selectedProfile.ngay_xac_thuc)}</strong></div>
                   {selectedProfile.ly_do_tu_choi && <div className="staff-info-grid__full danger"><span>Lý do từ chối</span><strong>{selectedProfile.ly_do_tu_choi}</strong></div>}
                   {selectedProfile.ly_do_khoa && <div className="staff-info-grid__full danger"><span>Lý do khóa trả sau</span><strong>{selectedProfile.ly_do_khoa}</strong></div>}
-                  {selectedProfile.ly_do_xac_thuc_that_bai && <div className="staff-info-grid__full danger"><span>Lý do xác thực thất bại</span><strong>{selectedProfile.ly_do_xac_thuc_that_bai}</strong></div>}
                 </div>
               </div>
 
@@ -905,7 +1365,7 @@ export default function StaffAssessmentProfilePage() {
                 <div className="staff-modal__footer">
                   <button type="button" className="staff-secondary-btn" onClick={() => setSelectedProfile(null)}>Đóng</button>
                   <button type="button" className="staff-primary-btn" onClick={handleSaveSurveyNote}>Lưu khảo sát</button>
-                  {["cho_kiem_tra", "cho_de_xuat"].includes(selectedProfile.trang_thai_ho_so) && (
+                  {canCreateProposalForProfile(selectedProfile) && (
                     <button type="button" className="staff-primary-btn" onClick={() => { setSelectedProfile(null); openProposalModal(selectedProfile); }}>Lập phiếu đề xuất</button>
                   )}
                 </div>
@@ -952,34 +1412,30 @@ export default function StaffAssessmentProfilePage() {
                   type="date"
                   value={proposalForm.ngay_khao_sat}
                   onChange={(event) =>
-                    setProposalForm((prev) => ({
-                      ...prev,
-                      ngay_khao_sat: event.target.value,
-                    }))
+                    handleProposalSurveyDateChange(event.target.value)
                   }
                 />
               </label>
 
               <label className="staff-proposal-form__full">
-                Chính sách hạn mức áp dụng
+                Chon bo chinh sach han muc
                 <select
-                  value={proposalForm.id_chinh_sach}
+                  value={proposalForm.ten_chinh_sach}
                   onChange={(event) =>
-                    handleProposalPolicyChange(event.target.value)
+                    applyPolicySetToProposal(
+                      event.target.value,
+                      proposalForm.ngay_khao_sat
+                    )
                   }
                 >
                   <option value="">
                     {proposalProfile?.ChinhSachHanMuc
-                      ? "Chọn giai đoạn nâng tiếp theo"
-                      : "Tự động theo số ngày nuôi"}
+                      ? "Chon bo chinh sach hien tai"
+                      : "Chon bo chinh sach"}
                   </option>
-                  {proposalPolicyOptions.map((policy) => (
-                    <option
-                      key={policy.id_chinh_sach}
-                      value={policy.id_chinh_sach}
-                    >
-                      {policy.ten_chinh_sach} · {policy.tu_ngay}-{policy.den_ngay} ngày · tối đa{" "}
-                      {formatMoney(policy.han_muc_toi_da)}
+                  {proposalPolicySetOptions.map((policySetName) => (
+                    <option key={policySetName} value={policySetName}>
+                      {policySetName}
                     </option>
                   ))}
                 </select>
@@ -1051,6 +1507,31 @@ export default function StaffAssessmentProfilePage() {
                   }
                   placeholder="VD: 5.2"
                 />
+              </label>
+
+              <label className="staff-proposal-form__full">
+                Ảnh khảo sát tại ao nuôi
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(event) => {
+                    const files = Array.from(event.target.files || []).slice(0, 10);
+                    setSurveyFiles(files);
+                  }}
+                />
+                <span className="staff-proposal-upload-note">
+                  Có thể tải tối đa 10 ảnh thực tế tại ao nuôi để Admin đối chiếu khi duyệt hạn mức.
+                </span>
+                {surveyFiles.length > 0 && (
+                  <div className="staff-survey-files">
+                    {surveyFiles.map((file, index) => (
+                      <span className="staff-survey-file" key={`${file.name}-${index}`}>
+                        {index + 1}. {file.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </label>
 
               <label className="staff-proposal-form__full">

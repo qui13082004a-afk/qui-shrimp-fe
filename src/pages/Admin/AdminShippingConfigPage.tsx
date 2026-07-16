@@ -15,6 +15,7 @@ import {
   locationService,
   type CoordinateResolution,
   type Province,
+  type Ward,
 } from "../../services/location.service";
 import {
   businessAreaService,
@@ -31,9 +32,18 @@ import {
   type ShippingFee,
   type ShippingFeePayload,
 } from "../../services/shippingFee.service";
+import {
+  customerProfileService,
+  type SupportedPostpaidArea,
+} from "../../services/customerProfile.service";
 
-type TabKey = "business-area" | "departure-point" | "shipping-fee";
-type ModalType = "business-area" | "departure-point" | "shipping-fee" | null;
+type TabKey = "business-area" | "postpaid-area" | "departure-point" | "shipping-fee";
+type ModalType =
+  | "business-area"
+  | "postpaid-area"
+  | "departure-point"
+  | "shipping-fee"
+  | null;
 
 const defaultMapCenter: [number, number] = [10.0452, 105.7469];
 
@@ -129,10 +139,17 @@ function DeparturePointMap({ lat, lng, onPick }: DeparturePointMapProps) {
 const initialBusinessAreaForm: BusinessAreaPayload = {
   id_tinh_thanh: "",
   cho_phep_ban_hang: false,
-  cho_phep_tra_sau: false,
   dang_hoat_dong: true,
   ban_kinh_toi_da_km: "",
   phi_van_chuyen_mac_dinh: 0,
+  ghi_chu: "",
+};
+
+const initialPostpaidAreaForm: Omit<SupportedPostpaidArea, "id_khu_vuc"> = {
+  tinh_thanh: "",
+  quan_huyen: "Theo don vi hanh chinh 34 tinh",
+  phuong_xa: "",
+  trang_thai: "hoat_dong",
   ghi_chu: "",
 };
 
@@ -178,12 +195,18 @@ const getProvinceCode = (area?: BusinessArea | null) => {
 export default function AdminShippingConfigPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("business-area");
   const [provinces, setProvinces] = useState<Province[]>([]);
+  const [postpaidWardOptions, setPostpaidWardOptions] = useState<Ward[]>([]);
+  const [selectedPostpaidProvinceId, setSelectedPostpaidProvinceId] =
+    useState<string>("");
   const [businessAreas, setBusinessAreas] = useState<BusinessArea[]>([]);
+  const [postpaidAreas, setPostpaidAreas] = useState<SupportedPostpaidArea[]>([]);
   const [departurePoints, setDeparturePoints] = useState<DeparturePoint[]>([]);
   const [shippingFees, setShippingFees] = useState<ShippingFee[]>([]);
 
   const [businessAreaForm, setBusinessAreaForm] =
     useState<BusinessAreaPayload>(initialBusinessAreaForm);
+  const [postpaidAreaForm, setPostpaidAreaForm] =
+    useState<Omit<SupportedPostpaidArea, "id_khu_vuc">>(initialPostpaidAreaForm);
   const [departurePointForm, setDeparturePointForm] =
     useState<DeparturePointPayload>(initialDeparturePointForm);
   const [shippingFeeForm, setShippingFeeForm] =
@@ -196,7 +219,6 @@ export default function AdminShippingConfigPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [importing, setImporting] = useState(false);
   const [resolvingCoordinate, setResolvingCoordinate] = useState(false);
   const [coordinateInfo, setCoordinateInfo] =
     useState<CoordinateResolution | null>(null);
@@ -205,15 +227,19 @@ export default function AdminShippingConfigPage() {
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const [provinceRes, areaRes, pointRes, feeRes] = await Promise.all([
+      const [provinceRes, areaRes, postpaidAreaRes, pointRes, feeRes] = await Promise.all([
         locationService.getProvinces(),
         businessAreaService.getBusinessAreas(),
+        customerProfileService.getSupportedAreas(),
         departurePointService.getDeparturePoints(),
         shippingFeeService.getShippingFees(),
       ]);
 
       setProvinces(Array.isArray(provinceRes.data) ? provinceRes.data : []);
       setBusinessAreas(Array.isArray(areaRes.data) ? areaRes.data : []);
+      setPostpaidAreas(
+        Array.isArray(postpaidAreaRes.data) ? postpaidAreaRes.data : []
+      );
       setDeparturePoints(Array.isArray(pointRes.data) ? pointRes.data : []);
       setShippingFees(Array.isArray(feeRes.data) ? feeRes.data : []);
     } catch (error: any) {
@@ -244,6 +270,20 @@ export default function AdminShippingConfigPage() {
     });
   }, [businessAreas, keyword, statusFilter]);
 
+  const filteredPostpaidAreas = useMemo(() => {
+    return postpaidAreas.filter((area) => {
+      const searchText = `${area.tinh_thanh || ""} ${area.quan_huyen || ""} ${
+        area.phuong_xa || ""
+      } ${area.ghi_chu || ""}`.toLowerCase();
+      const matchKeyword = searchText.includes(keyword.toLowerCase().trim());
+      const matchStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" && area.trang_thai === "hoat_dong") ||
+        (statusFilter === "inactive" && area.trang_thai === "tam_ngung");
+      return matchKeyword && matchStatus;
+    });
+  }, [postpaidAreas, keyword, statusFilter]);
+
   const filteredDeparturePoints = useMemo(() => {
     return departurePoints.filter((point) => {
       const searchText = `${point.ten_diem} ${point.dia_chi}`.toLowerCase();
@@ -272,33 +312,22 @@ export default function AdminShippingConfigPage() {
     return {
       areas: businessAreas.length,
       activeAreas: businessAreas.filter((item) => item.dang_hoat_dong).length,
+      postpaidAreas: postpaidAreas.filter((item) => item.trang_thai === "hoat_dong").length,
       departurePoints: departurePoints.length,
       shippingFees: shippingFees.length,
     };
-  }, [businessAreas, departurePoints, shippingFees]);
+  }, [businessAreas, postpaidAreas, departurePoints, shippingFees]);
 
   const resetModal = () => {
     setModalType(null);
     setEditingId(null);
     setBusinessAreaForm(initialBusinessAreaForm);
+    setPostpaidAreaForm(initialPostpaidAreaForm);
+    setSelectedPostpaidProvinceId("");
+    setPostpaidWardOptions([]);
     setDeparturePointForm(initialDeparturePointForm);
     setShippingFeeForm(initialShippingFeeForm);
     setCoordinateInfo(null);
-  };
-
-  const handleImportWards = async () => {
-    try {
-      setImporting(true);
-      const result = await locationService.importWards();
-      setMessage(
-        `Import thanh cong ${result.data.so_tinh_thanh} tinh/thanh va ${result.data.so_phuong_xa} phuong/xa`
-      );
-      fetchAll();
-    } catch (error: any) {
-      setMessage(error?.response?.data?.message || "Import du lieu tinh/xa that bai");
-    } finally {
-      setImporting(false);
-    }
   };
 
   const openCreateModal = (type: Exclude<ModalType, null>) => {
@@ -306,6 +335,11 @@ export default function AdminShippingConfigPage() {
     setModalType(type);
 
     if (type === "business-area") setBusinessAreaForm(initialBusinessAreaForm);
+    if (type === "postpaid-area") {
+      setPostpaidAreaForm(initialPostpaidAreaForm);
+      setSelectedPostpaidProvinceId("");
+      setPostpaidWardOptions([]);
+    }
     if (type === "departure-point") setDeparturePointForm(initialDeparturePointForm);
     if (type === "shipping-fee") setShippingFeeForm(initialShippingFeeForm);
   };
@@ -315,13 +349,33 @@ export default function AdminShippingConfigPage() {
     setBusinessAreaForm({
       id_tinh_thanh: area.id_tinh_thanh,
       cho_phep_ban_hang: area.cho_phep_ban_hang,
-      cho_phep_tra_sau: area.cho_phep_tra_sau,
       dang_hoat_dong: area.dang_hoat_dong,
       ban_kinh_toi_da_km: area.ban_kinh_toi_da_km ?? "",
       phi_van_chuyen_mac_dinh: area.phi_van_chuyen_mac_dinh ?? 0,
       ghi_chu: area.ghi_chu || "",
     });
     setModalType("business-area");
+  };
+
+  const openPostpaidAreaEdit = (area: SupportedPostpaidArea) => {
+    const province = provinces.find(
+      (item) =>
+        item.ten_tinh.toLowerCase().trim() ===
+        String(area.tinh_thanh || "").toLowerCase().trim()
+    );
+
+    setEditingId(Number(area.id_khu_vuc));
+    setPostpaidAreaForm({
+      tinh_thanh: area.tinh_thanh || "",
+      quan_huyen: area.quan_huyen || "Theo don vi hanh chinh 34 tinh",
+      phuong_xa: area.phuong_xa || "",
+      trang_thai: area.trang_thai || "hoat_dong",
+      ghi_chu: area.ghi_chu || "",
+    });
+    setSelectedPostpaidProvinceId(
+      province ? String(province.id_tinh_thanh) : ""
+    );
+    setModalType("postpaid-area");
   };
 
   const openDeparturePointEdit = (point: DeparturePoint) => {
@@ -361,6 +415,68 @@ export default function AdminShippingConfigPage() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  const handlePostpaidAreaChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    setPostpaidAreaForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePostpaidProvinceChange = (provinceId: string) => {
+    const province = provinces.find(
+      (item) => String(item.id_tinh_thanh) === String(provinceId)
+    );
+
+    setSelectedPostpaidProvinceId(provinceId);
+    setPostpaidAreaForm((prev) => ({
+      ...prev,
+      tinh_thanh: province?.ten_tinh || "",
+      quan_huyen: "Theo don vi hanh chinh 34 tinh",
+      phuong_xa: "",
+    }));
+  };
+
+  const handlePostpaidWardChange = (wardId: string) => {
+    const ward = postpaidWardOptions.find(
+      (item) => String(item.id_phuong_xa) === String(wardId)
+    );
+
+    setPostpaidAreaForm((prev) => ({
+      ...prev,
+      phuong_xa: ward?.ten_xa || "",
+    }));
+  };
+
+  useEffect(() => {
+    if (!selectedPostpaidProvinceId) {
+      setPostpaidWardOptions([]);
+      return;
+    }
+
+    let mounted = true;
+
+    locationService
+      .getWardsByProvince(selectedPostpaidProvinceId)
+      .then((result) => {
+        if (mounted) {
+          setPostpaidWardOptions(Array.isArray(result.data) ? result.data : []);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setPostpaidWardOptions([]);
+          setMessage("Khong tai duoc danh sach phuong/xa cua tinh da chon");
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [selectedPostpaidProvinceId]);
 
   const handleDeparturePointChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -477,6 +593,33 @@ export default function AdminShippingConfigPage() {
     }
   };
 
+  const savePostpaidArea = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!String(postpaidAreaForm.tinh_thanh || "").trim()) {
+      setMessage("Vui long nhap tinh/thanh ho tro tra sau");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      if (editingId) {
+        await customerProfileService.updateSupportedArea(editingId, postpaidAreaForm);
+        setMessage("Cap nhat khu vuc ho tro tra sau thanh cong");
+      } else {
+        await customerProfileService.createSupportedArea(postpaidAreaForm);
+        setMessage("Them khu vuc ho tro tra sau thanh cong");
+      }
+      resetModal();
+      fetchAll();
+    } catch (error: any) {
+      setMessage(
+        error?.response?.data?.message || "Luu khu vuc ho tro tra sau that bai"
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const saveDeparturePoint = async (event: FormEvent) => {
     event.preventDefault();
     if (!String(departurePointForm.ten_diem || "").trim()) {
@@ -529,7 +672,7 @@ export default function AdminShippingConfigPage() {
 
   const toggleBusinessArea = async (
     area: BusinessArea,
-    field: "cho_phep_ban_hang" | "cho_phep_tra_sau" | "dang_hoat_dong"
+    field: "cho_phep_ban_hang" | "dang_hoat_dong"
   ) => {
     try {
       setLoading(true);
@@ -537,6 +680,23 @@ export default function AdminShippingConfigPage() {
         [field]: !area[field],
       });
       setMessage("Cap nhat khu vuc kinh doanh thanh cong");
+      fetchAll();
+    } catch (error: any) {
+      setMessage(error?.response?.data?.message || "Cap nhat that bai");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const togglePostpaidArea = async (area: SupportedPostpaidArea) => {
+    if (!area.id_khu_vuc) return;
+
+    try {
+      setLoading(true);
+      await customerProfileService.updateSupportedArea(area.id_khu_vuc, {
+        trang_thai: area.trang_thai === "hoat_dong" ? "tam_ngung" : "hoat_dong",
+      });
+      setMessage("Cap nhat khu vuc ho tro tra sau thanh cong");
       fetchAll();
     } catch (error: any) {
       setMessage(error?.response?.data?.message || "Cap nhat that bai");
@@ -599,17 +759,14 @@ export default function AdminShippingConfigPage() {
         <div>
           <p className="admin-page__eyebrow">Van chuyen</p>
           <h1>Khu vuc & van chuyen</h1>
-          <p>Quan ly tinh duoc ban hang, diem xuat phat va muc phi van chuyen.</p>
+          <p>Quan ly khu vuc ban hang, khu vuc tra sau, diem xuat phat va muc phi van chuyen.</p>
         </div>
 
-        <button
-          type="button"
-          className="admin-secondary-btn shipping-import-btn"
-          onClick={handleImportWards}
-          disabled={importing}
-        >
-          {importing ? "Dang import..." : "Import tinh/xa"}
-        </button>
+        <div className="shipping-header-summary">
+          <span>Dang cau hinh</span>
+          <strong>{stats.areas + stats.postpaidAreas + stats.departurePoints + stats.shippingFees}</strong>
+          <p>Tong cau hinh van hanh</p>
+        </div>
       </div>
 
       {message && (
@@ -622,26 +779,50 @@ export default function AdminShippingConfigPage() {
       )}
 
       <div className="shipping-config-stats">
-        <div className="shipping-config-stat-card">
+        <button
+          type="button"
+          className={`shipping-config-stat-card ${
+            activeTab === "business-area" ? "is-active" : ""
+          }`}
+          onClick={() => setActiveTab("business-area")}
+        >
           <span>Khu vuc</span>
           <strong>{stats.areas}</strong>
           <p>Tinh/thanh da cau hinh</p>
-        </div>
-        <div className="shipping-config-stat-card">
+        </button>
+        <button
+          type="button"
+          className={`shipping-config-stat-card ${
+            activeTab === "business-area" ? "is-active" : ""
+          }`}
+          onClick={() => setActiveTab("business-area")}
+        >
           <span>Dang hoat dong</span>
           <strong>{stats.activeAreas}</strong>
           <p>Khu vuc dang phuc vu</p>
-        </div>
-        <div className="shipping-config-stat-card">
+        </button>
+        <button
+          type="button"
+          className={`shipping-config-stat-card ${
+            activeTab === "postpaid-area" ? "is-active" : ""
+          }`}
+          onClick={() => setActiveTab("postpaid-area")}
+        >
+          <span>Khu vuc tra sau</span>
+          <strong>{stats.postpaidAreas}</strong>
+          <p>Khu vuc dang ho tro mua tra sau</p>
+        </button>
+        <button
+          type="button"
+          className={`shipping-config-stat-card ${
+            activeTab === "departure-point" ? "is-active" : ""
+          }`}
+          onClick={() => setActiveTab("departure-point")}
+        >
           <span>Diem xuat phat</span>
           <strong>{stats.departurePoints}</strong>
           <p>Kho/cua hang da cau hinh</p>
-        </div>
-        <div className="shipping-config-stat-card">
-          <span>Muc phi</span>
-          <strong>{stats.shippingFees}</strong>
-          <p>Khoang phi van chuyen</p>
-        </div>
+        </button>
       </div>
 
       <div className="shipping-tabs">
@@ -651,6 +832,13 @@ export default function AdminShippingConfigPage() {
           onClick={() => setActiveTab("business-area")}
         >
           Khu vuc kinh doanh
+        </button>
+        <button
+          type="button"
+          className={activeTab === "postpaid-area" ? "active" : ""}
+          onClick={() => setActiveTab("postpaid-area")}
+        >
+          Khu vuc tra sau
         </button>
         <button
           type="button"
@@ -673,6 +861,7 @@ export default function AdminShippingConfigPage() {
           <div>
             <h2>
               {activeTab === "business-area" && "Danh sach khu vuc kinh doanh"}
+              {activeTab === "postpaid-area" && "Danh sach khu vuc ho tro tra sau"}
               {activeTab === "departure-point" && "Danh sach diem xuat phat"}
               {activeTab === "shipping-fee" && "Danh sach muc phi van chuyen"}
             </h2>
@@ -711,7 +900,6 @@ export default function AdminShippingConfigPage() {
                 <tr>
                   <th>Tinh/thanh</th>
                   <th>Ban hang</th>
-                  <th>Tra sau</th>
                   <th>Ban kinh</th>
                   <th>Phi mac dinh</th>
                   <th>Trang thai</th>
@@ -722,13 +910,13 @@ export default function AdminShippingConfigPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={7}>
                       <div className="shipping-empty">Dang tai du lieu...</div>
                     </td>
                   </tr>
                 ) : filteredBusinessAreas.length === 0 ? (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={7}>
                       <div className="shipping-empty">
                         <strong>Chua co khu vuc phu hop</strong>
                         <span>Hay them khu vuc hoac thay doi bo loc.</span>
@@ -747,11 +935,6 @@ export default function AdminShippingConfigPage() {
                           toggleBusinessArea(area, "cho_phep_ban_hang")
                         )}
                       </td>
-                      <td>
-                        {renderToggle(area.cho_phep_tra_sau, "Tra sau", () =>
-                          toggleBusinessArea(area, "cho_phep_tra_sau")
-                        )}
-                      </td>
                       <td>{formatDistance(area.ban_kinh_toi_da_km)}</td>
                       <td>
                         <strong>{formatCurrency(area.phi_van_chuyen_mac_dinh)}</strong>
@@ -767,6 +950,67 @@ export default function AdminShippingConfigPage() {
                           type="button"
                           className="shipping-action-btn"
                           onClick={() => openBusinessAreaEdit(area)}
+                        >
+                          Sua
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {activeTab === "postpaid-area" && (
+          <div className="admin-table-wrap">
+            <table className="admin-table shipping-config-table">
+              <thead>
+                <tr>
+                  <th>Tinh/thanh</th>
+                  <th>Don vi hanh chinh</th>
+                  <th>Phuong/xa</th>
+                  <th>Trang thai</th>
+                  <th>Ghi chu</th>
+                  <th>Thao tac</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className="shipping-empty">Dang tai du lieu...</div>
+                    </td>
+                  </tr>
+                ) : filteredPostpaidAreas.length === 0 ? (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className="shipping-empty">
+                        <strong>Chua co khu vuc tra sau phu hop</strong>
+                        <span>Hay them khu vuc ho tro tra sau hoac thay doi bo loc.</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPostpaidAreas.map((area) => (
+                    <tr key={area.id_khu_vuc}>
+                      <td>
+                        <strong>{area.tinh_thanh || "-"}</strong>
+                        <span>Ma khu vuc: #{area.id_khu_vuc}</span>
+                      </td>
+                      <td>{area.quan_huyen || "Theo don vi hanh chinh 34 tinh"}</td>
+                      <td>{area.phuong_xa || "Toan khu vuc"}</td>
+                      <td>
+                        {renderToggle(area.trang_thai === "hoat_dong", "Trang thai", () =>
+                          togglePostpaidArea(area)
+                        )}
+                      </td>
+                      <td>{area.ghi_chu || "-"}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="shipping-action-btn"
+                          onClick={() => openPostpaidAreaEdit(area)}
                         >
                           Sua
                         </button>
@@ -918,7 +1162,7 @@ export default function AdminShippingConfigPage() {
             <div className="admin-modal__header">
               <div>
                 <h2>{editingId ? "Cap nhat khu vuc" : "Them khu vuc"}</h2>
-                <p>Thiet lap quyen ban hang, tra sau va phi mac dinh theo tinh.</p>
+                <p>Thiet lap quyen ban hang, ban kinh va phi mac dinh theo tinh.</p>
               </div>
               <button className="admin-modal__close" onClick={resetModal}>
                 x
@@ -982,15 +1226,6 @@ export default function AdminShippingConfigPage() {
                   <label>
                     <input
                       type="checkbox"
-                      name="cho_phep_tra_sau"
-                      checked={Boolean(businessAreaForm.cho_phep_tra_sau)}
-                      onChange={handleBusinessAreaChange}
-                    />
-                    Cho phep tra sau
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
                       name="dang_hoat_dong"
                       checked={Boolean(businessAreaForm.dang_hoat_dong)}
                       onChange={handleBusinessAreaChange}
@@ -1005,6 +1240,104 @@ export default function AdminShippingConfigPage() {
                     name="ghi_chu"
                     value={businessAreaForm.ghi_chu || ""}
                     onChange={handleBusinessAreaChange}
+                  />
+                </label>
+              </div>
+
+              <div className="admin-modal__actions">
+                <button type="button" className="admin-secondary-btn" onClick={resetModal}>
+                  Huy
+                </button>
+                <button type="submit" className="admin-primary-btn" disabled={saving}>
+                  {saving ? "Dang luu..." : "Luu"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {modalType === "postpaid-area" && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal shipping-modal">
+            <div className="admin-modal__header">
+              <div>
+                <h2>{editingId ? "Cap nhat khu vuc tra sau" : "Them khu vuc tra sau"}</h2>
+                <p>Quan ly khu vuc duoc ho tro mua tra sau rieng voi khu vuc kinh doanh.</p>
+              </div>
+              <button className="admin-modal__close" onClick={resetModal}>
+                x
+              </button>
+            </div>
+
+            <form className="shipping-form" onSubmit={savePostpaidArea}>
+              <div className="shipping-form-grid">
+                <label>
+                  Tinh/thanh
+                  <select
+                    value={selectedPostpaidProvinceId}
+                    onChange={(event) =>
+                      handlePostpaidProvinceChange(event.target.value)
+                    }
+                  >
+                    <option value="">Chon tinh/thanh</option>
+                    {provinces.map((province) => (
+                      <option
+                        key={province.id_tinh_thanh}
+                        value={province.id_tinh_thanh}
+                      >
+                        {province.ten_tinh}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  Phuong/xa
+                  <select
+                    value={
+                      postpaidWardOptions.find(
+                        (ward) =>
+                          ward.ten_xa === postpaidAreaForm.phuong_xa
+                      )?.id_phuong_xa || ""
+                    }
+                    onChange={(event) =>
+                      handlePostpaidWardChange(event.target.value)
+                    }
+                    disabled={!selectedPostpaidProvinceId}
+                  >
+                    <option value="">
+                      {selectedPostpaidProvinceId
+                        ? "Ho tro toan tinh/khu vuc"
+                        : "Chon tinh/thanh truoc"}
+                    </option>
+                    {postpaidWardOptions.map((ward) => (
+                      <option key={ward.id_phuong_xa} value={ward.id_phuong_xa}>
+                        {ward.ten_xa}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  Trang thai
+                  <select
+                    name="trang_thai"
+                    value={postpaidAreaForm.trang_thai || "hoat_dong"}
+                    onChange={handlePostpaidAreaChange}
+                  >
+                    <option value="hoat_dong">Dang hoat dong</option>
+                    <option value="tam_ngung">Tam ngung</option>
+                  </select>
+                </label>
+
+                <label className="shipping-form-grid__full">
+                  Ghi chu
+                  <textarea
+                    name="ghi_chu"
+                    value={postpaidAreaForm.ghi_chu || ""}
+                    onChange={handlePostpaidAreaChange}
+                    placeholder="VD: Chi ho tro ho so mua tra sau trong khu vuc nay"
                   />
                 </label>
               </div>

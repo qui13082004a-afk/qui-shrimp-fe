@@ -1,5 +1,7 @@
 import React from 'react';
 
+const toDateInputValue = (date: Date) => date.toISOString().slice(0, 10);
+
 interface CropSeasonModalProps {
   isOpen: boolean;
   pondName: string;
@@ -19,6 +21,20 @@ export const CropSeasonModal: React.FC<CropSeasonModalProps> = ({
   isOpen, pondName, formData, onChange, onSubmit, onClose
 }) => {
   if (!isOpen) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const minSeedDate = new Date(today);
+  minSeedDate.setDate(minSeedDate.getDate() - 90);
+
+  const maxHarvestDate = formData.ngay_tha_giong
+    ? (() => {
+        const date = new Date(`${formData.ngay_tha_giong}T00:00:00`);
+        date.setDate(date.getDate() + 120);
+        return toDateInputValue(date);
+      })()
+    : undefined;
 
   return (
     <div className="modal-overlay">
@@ -41,6 +57,9 @@ export const CropSeasonModal: React.FC<CropSeasonModalProps> = ({
               <label>Ngày thả giống thực tế</label>
               <input 
                 type="date" 
+                required
+                min={toDateInputValue(minSeedDate)}
+                max={toDateInputValue(today)}
                 value={formData.ngay_tha_giong} 
                 onChange={(e) => onChange({...formData, ngay_tha_giong: e.target.value})} 
               />
@@ -59,6 +78,8 @@ export const CropSeasonModal: React.FC<CropSeasonModalProps> = ({
             <label>Ngày hoạch tính dự kiến</label>
             <input 
               type="date" 
+              min={formData.ngay_tha_giong || undefined}
+              max={maxHarvestDate}
               value={formData.ngay_thu_hoach_du_kien} 
               onChange={(e) => onChange({...formData, ngay_thu_hoach_du_kien: e.target.value})} 
             />

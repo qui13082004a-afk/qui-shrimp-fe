@@ -121,52 +121,56 @@ export default function AdminOrderPage() {
   };
 
   return (
-    <div className="admin-page admin-sales-page">
-      <div className="admin-page__header admin-page__header--between">
+    <div className="admin-page admin-sales-page admin-order-page">
+      <div className="admin-page__header admin-page__header--between admin-order-hero">
         <div>
           <p className="admin-page__eyebrow">Quản lý bán hàng</p>
           <h1>Đơn hàng</h1>
           <p>Theo dõi đơn, thanh toán, phí vận chuyển và cập nhật trạng thái xử lý.</p>
         </div>
-        <button className="admin-secondary-btn" type="button" onClick={loadOrders}>
+        <button
+          className="admin-secondary-btn admin-order-refresh"
+          type="button"
+          onClick={loadOrders}
+        >
           Làm mới
         </button>
       </div>
 
-      {alert && <div className="admin-alert">{alert}</div>}
+      {alert && <div className="admin-alert admin-order-alert">{alert}</div>}
 
-      <div className="admin-sales-stats">
-        <div className="admin-sales-card">
+      <div className="admin-sales-stats admin-order-stats">
+        <div className="admin-sales-card admin-order-stat-card">
           <span>Tổng đơn</span>
           <strong>{stats.total}</strong>
           <p>Toàn bộ đơn hàng</p>
         </div>
-        <div className="admin-sales-card">
+        <div className="admin-sales-card admin-order-stat-card admin-order-stat-card--pending">
           <span>Chờ xử lý</span>
           <strong>{stats.pending}</strong>
           <p>Cần admin kiểm tra</p>
         </div>
-        <div className="admin-sales-card">
+        <div className="admin-sales-card admin-order-stat-card admin-order-stat-card--delivery">
           <span>Đang giao</span>
           <strong>{stats.delivery}</strong>
           <p>Chờ giao hoặc đang giao</p>
         </div>
-        <div className="admin-sales-card">
+        <div className="admin-sales-card admin-order-stat-card admin-order-stat-card--revenue">
           <span>Doanh thu đơn</span>
           <strong>{formatMoney(stats.revenue)}</strong>
           <p>Không tính đơn đã hủy</p>
         </div>
       </div>
 
-      <div className="admin-card admin-sales-list-card">
-        <div className="admin-sales-card__top">
+      <div className="admin-card admin-sales-list-card admin-order-list-card">
+        <div className="admin-sales-card__top admin-order-list-head">
           <div>
             <h2>Danh sách đơn hàng</h2>
             <p>Tìm theo mã đơn, tên khách hoặc số điện thoại.</p>
           </div>
         </div>
 
-        <div className="admin-sales-toolbar">
+        <div className="admin-sales-toolbar admin-order-toolbar">
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -195,7 +199,7 @@ export default function AdminOrderPage() {
         </div>
 
         <div className="admin-table-wrap">
-          <table className="admin-table">
+          <table className="admin-table admin-order-table">
             <thead>
               <tr>
                 <th>Mã đơn</th>
@@ -226,13 +230,22 @@ export default function AdminOrderPage() {
                   <tr key={order.id_don_hang}>
                     <td>
                       <strong>#{order.id_don_hang}</strong>
-                      <span>{order.khoang_cach_giao_hang_km ? `${Number(order.khoang_cach_giao_hang_km).toFixed(1)} km` : "Chưa có khoảng cách"}</span>
+                      <span>
+                        {order.khoang_cach_giao_hang_km
+                          ? `${Number(order.khoang_cach_giao_hang_km).toFixed(1)} km`
+                          : "Chưa có khoảng cách"}
+                      </span>
                     </td>
                     <td>
                       <strong>{order.NguoiDung?.ho_ten || "—"}</strong>
                       <span>{order.NguoiDung?.so_dien_thoai || "Chưa có SĐT"}</span>
                     </td>
-                    <td>{paymentLabels[order.hinh_thuc_thanh_toan] || order.hinh_thuc_thanh_toan}</td>
+                    <td>
+                      <span className="admin-order-payment">
+                        {paymentLabels[order.hinh_thuc_thanh_toan] ||
+                          order.hinh_thuc_thanh_toan}
+                      </span>
+                    </td>
                     <td>
                       <strong>{formatMoney(order.tong_thanh_toan)}</strong>
                       <span>Tạm tính: {formatMoney(order.tong_tien)}</span>
@@ -246,11 +259,12 @@ export default function AdminOrderPage() {
                     </td>
                     <td>{formatDate(order.ngay_dat)}</td>
                     <td>
-                      <div className="admin-actions">
+                      <div className="admin-actions admin-order-actions">
                         <button type="button" onClick={() => setSelectedOrder(order)}>
                           Chi tiết
                         </button>
                         <select
+                          className="admin-order-status-select"
                           value={order.trang_thai_don_hang}
                           disabled={updatingId === order.id_don_hang}
                           onChange={(event) => updateStatus(order, event.target.value)}
@@ -273,7 +287,7 @@ export default function AdminOrderPage() {
 
       {selectedOrder && (
         <div className="admin-modal-overlay">
-          <div className="admin-modal wide">
+          <div className="admin-modal wide admin-order-modal">
             <div className="admin-modal__header">
               <div>
                 <h2>Chi tiết đơn #{selectedOrder.id_don_hang}</h2>
@@ -330,7 +344,7 @@ export default function AdminOrderPage() {
             <div className="admin-order-items">
               <h3>Sản phẩm trong đơn</h3>
               <div className="admin-table-wrap">
-                <table className="admin-table">
+                <table className="admin-table admin-order-table">
                   <thead>
                     <tr>
                       <th>Sản phẩm</th>

@@ -3,7 +3,6 @@ import {
   AlertCircle,
   ClipboardCheck,
   CreditCard,
-  FileCheck2,
   MapPinned,
   Package,
   ReceiptText,
@@ -252,12 +251,6 @@ export default function AdminDashboardPage() {
       description: `${formatCount(metrics.pendingDebtExtensions)} yêu cầu đang chờ duyệt.`,
       href: "/admin/gia-han-thanh-toan",
       icon: CreditCard,
-    },
-    {
-      title: "Thỏa thuận ba bên",
-      description: "Theo dõi xác nhận hiệu lực hợp đồng.",
-      href: "/admin/thoa-thuan-ba-ben",
-      icon: FileCheck2,
     },
   ];
 

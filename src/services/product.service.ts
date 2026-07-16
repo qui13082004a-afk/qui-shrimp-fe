@@ -41,7 +41,7 @@ export interface ProductPayload {
   id_danh_muc: number | string;
   ten_san_pham: string;
   gia: number | string;
-  ton_kho: number | string;
+  ton_kho?: number | string;
   ton_kho_toi_thieu?: number | string;
   don_vi_tinh?: string;
   mo_ta?: string;
@@ -63,6 +63,8 @@ const toProductFormData = (payload: Partial<ProductPayload>) => {
       key === "images" ||
       key === "id_kho_hang" ||
       key === "so_luong_kho" ||
+      key === "ton_kho" ||
+      key === "ton_kho_toi_thieu" ||
       value === undefined ||
       value === null
     ) {

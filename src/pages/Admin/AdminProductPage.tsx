@@ -27,8 +27,6 @@ const emptyForm: ProductPayload = {
   id_danh_muc: "",
   ten_san_pham: "",
   gia: "",
-  ton_kho: 0,
-  ton_kho_toi_thieu: 0,
   don_vi_tinh: "",
   mo_ta: "",
   cong_dung: "",
@@ -38,6 +36,7 @@ const emptyForm: ProductPayload = {
   trang_thai: "dang_ban",
   id_kho_hang: "",
   so_luong_kho: "",
+  ton_kho_toi_thieu: "",
 };
 
 const formatMoney = (value?: number | string | null) =>
@@ -76,6 +75,7 @@ export default function AdminProductPage() {
   const [stockForm, setStockForm] = useState({
     id_kho_hang: "",
     so_luong: "",
+    ton_kho_toi_thieu: "",
     ghi_chu: "",
   });
   const [warehouseForm, setWarehouseForm] = useState({
@@ -146,8 +146,11 @@ export default function AdminProductPage() {
     () => ({
       total: products.length,
       active: products.filter((item) => item.trang_thai === "dang_ban").length,
-      lowStock: products.filter(
-        (item) => Number(item.ton_kho) <= Number(item.ton_kho_toi_thieu || 0)
+      lowStock: products.filter((item) =>
+        (item.TonKhoSanPhams || []).some((stock) => {
+          const minimumStock = Number(stock.ton_kho_toi_thieu || 0);
+          return minimumStock > 0 && Number(stock.so_luong || 0) <= minimumStock;
+        })
       ).length,
       hidden: products.filter((item) => item.trang_thai !== "dang_ban").length,
     }),
@@ -166,8 +169,6 @@ export default function AdminProductPage() {
       id_danh_muc: product.id_danh_muc,
       ten_san_pham: product.ten_san_pham,
       gia: product.gia,
-      ton_kho: product.ton_kho,
-      ton_kho_toi_thieu: product.ton_kho_toi_thieu || 0,
       don_vi_tinh: product.don_vi_tinh || "",
       mo_ta: product.mo_ta || "",
       cong_dung: product.cong_dung || "",
@@ -177,6 +178,7 @@ export default function AdminProductPage() {
       trang_thai: product.trang_thai,
       id_kho_hang: "",
       so_luong_kho: "",
+      ton_kho_toi_thieu: "",
     });
     setShowModal(true);
   };
@@ -208,6 +210,7 @@ export default function AdminProductPage() {
           id_san_pham: productId,
           id_kho_hang: warehouseId,
           so_luong: form.so_luong_kho as string | number,
+          ton_kho_toi_thieu: form.ton_kho_toi_thieu || 0,
         });
       }
 
@@ -224,7 +227,6 @@ export default function AdminProductPage() {
         id_danh_muc: product.id_danh_muc,
         ten_san_pham: product.ten_san_pham,
         gia: product.gia,
-        ton_kho: product.ton_kho,
         trang_thai: status,
       });
       await loadData();
@@ -251,6 +253,7 @@ export default function AdminProductPage() {
     setStockForm({
       id_kho_hang: "",
       so_luong: "",
+      ton_kho_toi_thieu: "",
       ghi_chu: "",
     });
   };
@@ -268,6 +271,7 @@ export default function AdminProductPage() {
         id_san_pham: stockProduct.id_san_pham,
         id_kho_hang: warehouseId,
         so_luong: stockForm.so_luong,
+        ton_kho_toi_thieu: stockForm.ton_kho_toi_thieu || 0,
         ghi_chu: stockForm.ghi_chu,
       });
       setAlert("Cập nhật tồn kho theo kho thành công.");
@@ -337,16 +341,32 @@ export default function AdminProductPage() {
 
   const renderWarehouseStocks = (product: Product) => {
     const stocks = product.TonKhoSanPhams || [];
-    if (!stocks.length) return "Chưa phân kho";
+    if (!stocks.length) {
+      return <span>Chưa phân kho</span>;
+    }
 
-    return stocks
-      .map(
-        (stock) =>
-          `${stock.KhoHang?.ten_kho || `Kho #${stock.id_kho_hang}`}: ${
-            stock.so_luong
-          }`
-      )
-      .join(", ");
+    return (
+      <div className="admin-stock-list">
+        {stocks.map((stock) => {
+          const minimumStock = Number(stock.ton_kho_toi_thieu || 0);
+          const quantity = Number(stock.so_luong || 0);
+          const isLowStock = minimumStock > 0 && quantity <= minimumStock;
+
+          return (
+            <div
+              className={`admin-stock-list__item${isLowStock ? " is-low" : ""}`}
+              key={stock.id_ton_kho || `${stock.id_kho_hang}-${stock.so_luong}`}
+            >
+              <strong>{stock.KhoHang?.ten_kho || `Kho #${stock.id_kho_hang}`}</strong>
+              <span>
+                {quantity.toLocaleString("vi-VN")}
+                {minimumStock > 0 ? ` / tối thiểu ${minimumStock.toLocaleString("vi-VN")}` : ""}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -450,7 +470,6 @@ export default function AdminProductPage() {
                 <th>Danh mục</th>
                 <th>Giá</th>
                 <th>Tồn kho</th>
-                <th>Kho</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
               </tr>
@@ -458,13 +477,13 @@ export default function AdminProductPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={7}>
                     <div className="admin-empty">Đang tải dữ liệu...</div>
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={7}>
                     <div className="admin-empty">Không có sản phẩm phù hợp</div>
                   </td>
                 </tr>
@@ -494,11 +513,7 @@ export default function AdminProductPage() {
                         <span>{product.don_vi_tinh || "đơn vị"}</span>
                       </td>
                       <td>
-                        <strong>{Number(product.ton_kho || 0).toLocaleString("vi-VN")}</strong>
-                        <span>Tối thiểu: {Number(product.ton_kho_toi_thieu || 0)}</span>
-                      </td>
-                      <td>
-                        <strong>{renderWarehouseStocks(product)}</strong>
+                        {renderWarehouseStocks(product)}
                       </td>
                       <td>
                         <span
@@ -613,31 +628,6 @@ export default function AdminProductPage() {
                 />
               </label>
               <label>
-                Tồn kho *
-                <input
-                  type="number"
-                  min="0"
-                  value={form.ton_kho}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, ton_kho: event.target.value }))
-                  }
-                />
-              </label>
-              <label>
-                Tồn tối thiểu
-                <input
-                  type="number"
-                  min="0"
-                  value={form.ton_kho_toi_thieu || 0}
-                  onChange={(event) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      ton_kho_toi_thieu: event.target.value,
-                    }))
-                  }
-                />
-              </label>
-              <label>
                 Kho nhập hàng
                 <select
                   value={form.id_kho_hang || ""}
@@ -690,6 +680,21 @@ export default function AdminProductPage() {
                     }))
                   }
                   placeholder="Số lượng ở kho đã chọn"
+                />
+              </label>
+              <label>
+                Tồn tối thiểu tại kho
+                <input
+                  type="number"
+                  min="0"
+                  value={form.ton_kho_toi_thieu || ""}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      ton_kho_toi_thieu: event.target.value,
+                    }))
+                  }
+                  placeholder="Thông báo khi tồn kho bằng hoặc thấp hơn mức này"
                 />
               </label>
               <label>
@@ -859,6 +864,21 @@ export default function AdminProductPage() {
                       so_luong: event.target.value,
                     }))
                   }
+                />
+              </label>
+              <label>
+                Tồn tối thiểu
+                <input
+                  type="number"
+                  min="0"
+                  value={stockForm.ton_kho_toi_thieu}
+                  onChange={(event) =>
+                    setStockForm((prev) => ({
+                      ...prev,
+                      ton_kho_toi_thieu: event.target.value,
+                    }))
+                  }
+                  placeholder="Thông báo admin khi tồn thấp"
                 />
               </label>
               <label className="full">

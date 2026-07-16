@@ -71,7 +71,7 @@ export interface SupportedPostpaidArea {
 
 export interface CheckSupportedAreaPayload {
   tinh_thanh: string;
-  quan_huyen: string;
+  quan_huyen?: string;
   phuong_xa?: string;
 }
 
@@ -154,7 +154,6 @@ export interface CustomerDebtProfile {
   /* Ảnh hồ sơ */
   anh_cccd_mat_truoc?: string | null;
   anh_cccd_mat_sau?: string | null;
-  anh_selfie?: string | null;
   anh_bien_lai_tha_giong?: string | null;
   anh_ao_nuoi?: string | string[] | null;
 
@@ -162,17 +161,6 @@ export interface CustomerDebtProfile {
   cam_ket_thong_tin?: boolean;
   dong_y_xac_minh?: boolean;
   dong_y_dieu_khoan?: boolean;
-
-  /* Xác thực khuôn mặt */
-  do_tuong_dong?: number | string | null;
-
-  trang_thai_xac_thuc?:
-    | "chua_xac_thuc"
-    | "da_xac_thuc"
-    | "that_bai";
-
-  ly_do_xac_thuc_that_bai?: string | null;
-  ngay_xac_thuc?: string | null;
 
   gia_han_moi_nhat?: LatestDebtExtension | null;
 
@@ -199,7 +187,6 @@ export interface CreateCustomerProfilePayload {
 
   anh_cccd_mat_truoc?: string;
   anh_cccd_mat_sau?: string;
-  anh_selfie?: string;
 }
 
 /* =========================================================
@@ -250,7 +237,6 @@ export interface CreatePostpaidProfileFormPayload {
 
   anh_cccd_mat_truoc: File;
   anh_cccd_mat_sau: File;
-  anh_selfie: File;
   anh_bien_lai_tha_giong: File;
   anh_ao_nuoi?: File[];
 }
@@ -286,14 +272,6 @@ export interface UpdateCustomerProfilePayload {
   nguoi_bao_lanh_cccd?: string;
   nguoi_bao_lanh_quan_he?: string;
 
-  trang_thai_xac_thuc?:
-    | "chua_xac_thuc"
-    | "da_xac_thuc"
-    | "that_bai";
-
-  ly_do_xac_thuc_that_bai?: string | null;
-  do_tuong_dong?: number | string | null;
-  ngay_xac_thuc?: string | null;
 }
 
 export interface ApprovePostpaidPayload {

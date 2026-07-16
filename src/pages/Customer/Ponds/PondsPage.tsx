@@ -29,6 +29,59 @@ import {
 } from "../DebtRegistration";
 
 import "./PondsPage.css";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const parseDateOnly = (value: string) => {
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const diffDays = (fromDate: Date, toDate: Date) => {
+  return Math.round((toDate.getTime() - fromDate.getTime()) / DAY_MS);
+};
+
+const validateCropSeasonDates = (seedValue: string, harvestValue: string) => {
+  const seedDate = parseDateOnly(seedValue);
+
+  if (!seedDate) {
+    return "Vui lòng nhập ngày thả giống hợp lệ.";
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const daysFromSeedToToday = diffDays(seedDate, today);
+
+  if (daysFromSeedToToday < 0) {
+    return "Ngày thả giống thực tế không được lớn hơn ngày hiện tại.";
+  }
+
+  if (daysFromSeedToToday > 90) {
+    return "Ngày thả giống thực tế không được cách thời điểm hiện tại quá 90 ngày.";
+  }
+
+  if (harvestValue) {
+    const harvestDate = parseDateOnly(harvestValue);
+
+    if (!harvestDate) {
+      return "Ngày thu hoạch dự kiến không hợp lệ.";
+    }
+
+    const daysFromSeedToHarvest = diffDays(seedDate, harvestDate);
+
+    if (daysFromSeedToHarvest < 0) {
+      return "Ngày thu hoạch dự kiến không được nhỏ hơn ngày thả giống.";
+    }
+
+    if (daysFromSeedToHarvest > 120) {
+      return "Ngày thu hoạch dự kiến không được cách ngày thả giống quá 120 ngày.";
+    }
+  }
+
+  return "";
+};
+
 const PondsPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -195,15 +248,12 @@ const PondsPage: React.FC = () => {
       ) || null
     : null;
 
-  const isDebtApproved =
-    currentProfile?.trang_thai_xac_thuc ===
-      "da_xac_thuc" &&
-    currentProfile?.duoc_phep_tra_sau === true;
+  const isDebtApproved = currentProfile?.duoc_phep_tra_sau === true;
 
   const isWaitingAdmin =
-    currentProfile?.trang_thai_xac_thuc ===
-      "da_xac_thuc" &&
-    currentProfile?.duoc_phep_tra_sau === false;
+    Boolean(currentProfile) &&
+    currentProfile?.duoc_phep_tra_sau === false &&
+    currentProfile?.trang_thai_ho_so !== "tu_choi";
 
   const formatCurrency = (
     value: number | string | undefined | null
@@ -220,19 +270,6 @@ const PondsPage: React.FC = () => {
       return "Thêm hồ sơ trả sau";
     }
 
-    if (
-      currentProfile.trang_thai_xac_thuc === "that_bai"
-    ) {
-      return "Xác thực lại";
-    }
-
-    if (
-      currentProfile.trang_thai_xac_thuc ===
-      "chua_xac_thuc"
-    ) {
-      return "Tiếp tục xác thực";
-    }
-
     if (isWaitingAdmin) {
       return "Chờ admin duyệt";
     }
@@ -242,19 +279,6 @@ const PondsPage: React.FC = () => {
 
   const getBannerStatusText = () => {
     if (!currentProfile) return "";
-
-    if (
-      currentProfile.trang_thai_xac_thuc === "that_bai"
-    ) {
-      return "(Xác thực thất bại)";
-    }
-
-    if (
-      currentProfile.trang_thai_xac_thuc ===
-      "chua_xac_thuc"
-    ) {
-      return "(Chưa xác thực)";
-    }
 
     if (isWaitingAdmin) {
       return "(Chờ duyệt)";
@@ -287,15 +311,13 @@ const PondsPage: React.FC = () => {
 
     if (isWaitingAdmin) {
       showError(
-        "Hồ sơ đã xác thực. Vui lòng chờ Admin duyệt hạn mức trả sau."
+        "Hồ sơ đang chờ Admin duyệt hạn mức trả sau."
       );
       return;
     }
 
     if (currentProfile?.id_ho_so) {
-      navigate(
-        `/face-verification/${currentProfile.id_ho_so}`
-      );
+      showError("Hồ sơ đã được gửi và đang chờ xử lý.");
       return;
     }
 
@@ -397,6 +419,16 @@ const PondsPage: React.FC = () => {
       showError(
         "Vui lòng chọn ao nuôi trước khi tạo vụ."
       );
+      return;
+    }
+
+    const cropDateError = validateCropSeasonDates(
+      cropFormData.ngay_tha_giong,
+      cropFormData.ngay_thu_hoach_du_kien
+    );
+
+    if (cropDateError) {
+      showError(cropDateError, "Dữ liệu vụ nuôi không hợp lệ");
       return;
     }
 

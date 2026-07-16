@@ -6,6 +6,7 @@ import VerifyEmailPage from "../pages/VerifyEmail/VerifyEmailPage";
 import ForgotPasswordPage from "../pages/ForgotPassword/ForgotPasswordPage";
 import ResetPasswordCodePage from "../pages/ResetPasswordCode/ResetPasswordCodePage";
 import ResetNewPasswordPage from "../pages/ResetNewPassword/ResetNewPasswordPage";
+import HomePage from "../pages/Home/HomePage";
 
 import CartPage from "../pages/Customer/Cart/CartPage";
 import CheckoutPage from "../pages/Customer/Checkout/CheckoutPage";
@@ -15,9 +16,11 @@ import StorePage from "../pages/Customer/Store/StorePage";
 import ProductDetailPage from "../pages/Customer/ProductDetail/ProductDetailPage";
 import PondsPage from "../pages/Customer/Ponds/PondsPage";
 import DashboardPage from "../pages/Customer/Dashboard/DashboardPage";
+import CustomerHomePage from "../pages/Customer/Home/CustomerHomePage";
+import AboutPage from "../pages/Customer/About/AboutPage";
+import ContactPage from "../pages/Customer/Contact/ContactPage";
 import ProfilePage from "../pages/Customer/Profile/ProfilePage";
 
-import FaceVerification from "../pages/FaceVerification/FaceVerification";
 
 import CustomerLayout from "../layouts/CustomerLayout/CustomerLayout";
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
@@ -43,14 +46,13 @@ import AdminCustomerDebtProfilePage from "../pages/Admin/AdminCustomerDebtProfil
 import AdminDebtExtensionPage from "../pages/Admin/AdminDebtExtensionPage";
 import AdminContractPage from "../pages/Admin/AdminContractPage";
 import AdminMerchantPage from "../pages/Admin/AdminMerchantPage";
-import AdminThreePartyAgreementPage from "../pages/Admin/AdminThreePartyAgreementPage";
-import AdminComingSoonPage from "../pages/Admin/AdminComingSoonPage";
 import AdminUserManagementPage from "../pages/Admin/AdminUserManagementPage";
 import AdminDeliveryPage from "../pages/Admin/AdminDeliveryPage";
 import AdminShippingConfigPage from "../pages/Admin/AdminShippingConfigPage";
 import AdminCategoryPage from "../pages/Admin/AdminCategoryPage";
 import AdminProductPage from "../pages/Admin/AdminProductPage";
 import AdminOrderPage from "../pages/Admin/AdminOrderPage";
+import AdminLimitStaffAreaPage from "../pages/Admin/AdminLimitStaffAreaPage";
 
 import StaffAssessmentProfilePage from "../pages/StaffLimit/StaffAssessmentProfilePage";
 import StaffLimitProposalPage from "../pages/StaffLimit/StaffLimitProposalPage";
@@ -100,7 +102,7 @@ function RoleRoute({ allowedRoles, children }: RoleRouteProps) {
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
@@ -109,7 +111,10 @@ export default function AppRoutes() {
       <Route path="/reset-new-password" element={<ResetNewPasswordPage />} />
 
       <Route element={<CustomerLayout />}>
-        <Route path="/home" element={<DashboardPage />} />
+        <Route path="/home" element={<CustomerHomePage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/debt" element={<DebtPage />} />
         <Route path="/store" element={<StorePage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
@@ -136,11 +141,6 @@ export default function AppRoutes() {
           element={<SeasonOrderHistoryPage />}
         />
 
-        <Route
-          path="/face-verification/:idHoSo"
-          element={<FaceVerification />}
-        />
-
         <Route path="/notifications" element={<NotificationsPage />} />
       </Route>
 
@@ -160,15 +160,11 @@ export default function AppRoutes() {
         <Route path="phieu-de-xuat-han-muc" element={<AdminLimitProposalPage />} />
         <Route path="gia-han-thanh-toan" element={<AdminDebtExtensionPage />} />
         <Route path="hop-dong" element={<AdminContractPage />} />
-        <Route path="thoa-thuan-ba-ben" element={<AdminThreePartyAgreementPage />} />
         <Route path="thuong-lai" element={<AdminMerchantPage />} />
 
         <Route path="nguoi-dung" element={<AdminUserManagementPage />} />
         <Route path="nhan-vien-giao-hang" element={<AdminDeliveryPage />} />
-        <Route
-          path="nhan-vien-dinh-muc"
-          element={<AdminComingSoonPage title="Nhân viên định mức" />}
-        />
+        <Route path="nhan-vien-dinh-muc" element={<AdminLimitStaffAreaPage />} />
 
         <Route path="danh-muc" element={<AdminCategoryPage />} />
         <Route path="san-pham" element={<AdminProductPage />} />
@@ -176,8 +172,6 @@ export default function AppRoutes() {
         <Route path="giao-hang" element={<AdminDeliveryPage />} />
         <Route path="khu-vuc-van-chuyen" element={<AdminShippingConfigPage />} />
 
-        <Route path="blog" element={<AdminComingSoonPage title="Quản lý blog" />} />
-        <Route path="binh-luan" element={<AdminComingSoonPage title="Quản lý bình luận" />} />
         <Route path="thong-bao" element={<NotificationsPage />} />
       </Route>
 
@@ -240,6 +234,7 @@ export default function AppRoutes() {
           </RoleRoute>
         }
       />
+      <Route path="*" element={<HomePage />} />
     </Routes>
   );
 }

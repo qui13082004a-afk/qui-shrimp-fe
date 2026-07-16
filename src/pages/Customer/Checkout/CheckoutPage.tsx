@@ -11,13 +11,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import {
   orderService,
+  type OrderPreview,
   type PaymentMethod,
 } from "../../../services/order.service";
 import { paymentService } from "../../../services/payment.service";
-import {
-  shippingFeeService,
-  type ShippingCalculation,
-} from "../../../services/shippingFee.service";
 import {
   deliveryAddressService,
   type DeliveryAddress,
@@ -46,6 +43,8 @@ interface CartItem {
   gia: number;
   hinh_anh: string;
   so_luong: number;
+  id_kho_hang?: number;
+  id_kho_khach_chon?: number;
 }
 
 interface StoredUser {
@@ -159,7 +158,6 @@ export default function CheckoutPage() {
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [user, setUser] = useState<StoredUser>({});
-  const [address, setAddress] = useState("");
   const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddress[]>(
     []
   );
@@ -193,7 +191,7 @@ export default function CheckoutPage() {
 
   const [loading, setLoading] = useState(false);
   const [shippingLoading, setShippingLoading] = useState(false);
-  const [shippingInfo, setShippingInfo] = useState<ShippingCalculation | null>(
+  const [shippingInfo, setShippingInfo] = useState<OrderPreview["van_chuyen"] | null>(
     null
   );
   const [shippingMessage, setShippingMessage] = useState("");
@@ -210,7 +208,6 @@ export default function CheckoutPage() {
 
     setCartItems(storedCart);
     setUser(storedUser);
-    setAddress(storedUser.dia_chi || "");
     fetchMyPonds();
     fetchMyDeliveryAddresses(storedUser);
     fetchProvinces();
@@ -252,8 +249,6 @@ export default function CheckoutPage() {
       return;
     }
 
-    setAddress(selectedDeliveryAddress.dia_chi);
-
     const lat = Number(selectedDeliveryAddress.vi_do);
     const lng = Number(selectedDeliveryAddress.kinh_do);
 
@@ -265,16 +260,48 @@ export default function CheckoutPage() {
       return;
     }
 
-    const calculateShipping = async () => {
+    const previewOrder = async () => {
       try {
         setShippingLoading(true);
         setShippingMessage("");
-        const res = await shippingFeeService.calculateShippingFee({
-          vi_do: lat,
-          kinh_do: lng,
+        const res = await orderService.previewOrder({
+          items: cartItems.map((item) => ({
+            id_san_pham: item.id_san_pham,
+            so_luong_dat: item.so_luong,
+            id_kho_hang: item.id_kho_hang || item.id_kho_khach_chon,
+          })),
+          hinh_thuc_thanh_toan: paymentMethod,
+          id_dia_chi_giao_hang: selectedDeliveryAddress.id_dia_chi,
+          dia_chi_giao_hang: selectedDeliveryAddress.dia_chi,
+          id_ao: selectedPondId || undefined,
+          id_vu_nuoi: selectedCropSeasonId || undefined,
+          vi_do_giao_hang: lat,
+          kinh_do_giao_hang: lng,
         });
-        setShippingInfo(res.data);
-        setShippingMessage(res.data?.thong_bao || "");
+        const preview = res.data;
+        const warehouseName =
+          preview.van_chuyen?.kho_xuat?.ten_kho ||
+          preview.kho_xuat_du_kien?.ten_kho;
+
+        setShippingInfo({
+          ...(preview.van_chuyen || {}),
+          id_khu_vuc: preview.van_chuyen?.id_khu_vuc,
+          khoang_cach_km: Number(
+            preview.van_chuyen?.khoang_cach_km ||
+              preview.khoang_cach_kho_km ||
+              0
+          ),
+          phi_van_chuyen: Number(preview.phi_van_chuyen || 0),
+          kho_xuat: preview.van_chuyen?.kho_xuat || preview.kho_xuat_du_kien,
+        });
+        setShippingMessage(
+          [
+            warehouseName ? `Kho xuất: ${warehouseName}` : "",
+            preview.van_chuyen?.thong_bao || "",
+          ]
+            .filter(Boolean)
+            .join(". ")
+        );
       } catch (error: any) {
         setShippingInfo(null);
         setShippingMessage(
@@ -286,8 +313,8 @@ export default function CheckoutPage() {
       }
     };
 
-    void calculateShipping();
-  }, [selectedDeliveryAddress]);
+    void previewOrder();
+  }, [cartItems, paymentMethod, selectedCropSeasonId, selectedDeliveryAddress, selectedPondId]);
 
   const fetchMyPonds = async () => {
     try {
@@ -310,9 +337,8 @@ export default function CheckoutPage() {
 
       if (defaultAddress) {
         setSelectedAddressId(defaultAddress.id_dia_chi);
-        setAddress(defaultAddress.dia_chi);
       } else {
-        setAddress(fallbackUser.dia_chi || "");
+        void fallbackUser;
       }
     } catch (error) {
       console.log("GET DELIVERY ADDRESSES ERROR:", error);
@@ -514,6 +540,7 @@ export default function CheckoutPage() {
         items: cartItems.map((item) => ({
           id_san_pham: item.id_san_pham,
           so_luong_dat: item.so_luong,
+          id_kho_hang: item.id_kho_hang || item.id_kho_khach_chon,
         })),
         hinh_thuc_thanh_toan: paymentMethod,
         id_dia_chi_giao_hang: selectedDeliveryAddress.id_dia_chi,

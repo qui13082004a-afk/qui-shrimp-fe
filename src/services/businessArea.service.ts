@@ -5,7 +5,6 @@ export interface BusinessArea {
   id_khu_vuc: number;
   id_tinh_thanh: number;
   cho_phep_ban_hang: boolean;
-  cho_phep_tra_sau: boolean;
   dang_hoat_dong: boolean;
   ban_kinh_toi_da_km?: string | number | null;
   phi_van_chuyen_mac_dinh: string | number;
@@ -18,7 +17,6 @@ export interface BusinessArea {
 export interface BusinessAreaPayload {
   id_tinh_thanh?: number | string;
   cho_phep_ban_hang?: boolean;
-  cho_phep_tra_sau?: boolean;
   dang_hoat_dong?: boolean;
   ban_kinh_toi_da_km?: number | string | null;
   phi_van_chuyen_mac_dinh?: number | string;

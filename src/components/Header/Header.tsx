@@ -131,10 +131,12 @@ const Header = () => {
 
       <nav className="customer-header__nav">
         <NavLink to="/home">Trang chủ</NavLink>
+        <NavLink to="/dashboard">Tổng quan</NavLink>
         <NavLink to="/store">Cửa hàng</NavLink>
         <NavLink to="/ponds">Ao nuôi</NavLink>
         <NavLink to="/debt">Công nợ</NavLink>
-        <NavLink to="/blog">Blog</NavLink>
+        <NavLink to="/about">Giới thiệu</NavLink>
+        <NavLink to="/contact">Liên hệ</NavLink>
       </nav>
 
       <div className="customer-header__right">

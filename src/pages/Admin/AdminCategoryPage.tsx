@@ -16,7 +16,6 @@ const statusLabels: Record<CategoryStatus, string> = {
 const emptyForm: CategoryPayload = {
   ten_danh_muc: "",
   mo_ta: "",
-  anh_danh_muc: "",
   trang_thai: "hoat_dong",
 };
 
@@ -85,7 +84,6 @@ export default function AdminCategoryPage() {
     setForm({
       ten_danh_muc: category.ten_danh_muc,
       mo_ta: category.mo_ta || "",
-      anh_danh_muc: category.anh_danh_muc || "",
       trang_thai: category.trang_thai,
     });
     setShowModal(true);
@@ -209,7 +207,6 @@ export default function AdminCategoryPage() {
               <tr>
                 <th>Mã</th>
                 <th>Danh mục</th>
-                <th>Ảnh</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
               </tr>
@@ -217,15 +214,15 @@ export default function AdminCategoryPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5}>
-                    <div className="admin-empty">Đang tải dữ liệu...</div>
-                  </td>
+                    <td colSpan={4}>
+                      <div className="admin-empty">Đang tải dữ liệu...</div>
+                    </td>
                 </tr>
               ) : filteredCategories.length === 0 ? (
                 <tr>
-                  <td colSpan={5}>
-                    <div className="admin-empty">Không có danh mục phù hợp</div>
-                  </td>
+                    <td colSpan={4}>
+                      <div className="admin-empty">Không có danh mục phù hợp</div>
+                    </td>
                 </tr>
               ) : (
                 filteredCategories.map((category) => (
@@ -235,7 +232,6 @@ export default function AdminCategoryPage() {
                       <strong>{category.ten_danh_muc}</strong>
                       <span>{category.mo_ta || "Chưa có mô tả"}</span>
                     </td>
-                    <td>{category.anh_danh_muc || "—"}</td>
                     <td>
                       <span
                         className={`admin-badge ${
@@ -310,19 +306,6 @@ export default function AdminCategoryPage() {
                   <option value="hoat_dong">Hoạt động</option>
                   <option value="an">Ẩn</option>
                 </select>
-              </label>
-              <label className="full">
-                Ảnh danh mục
-                <input
-                  value={form.anh_danh_muc || ""}
-                  onChange={(event) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      anh_danh_muc: event.target.value,
-                    }))
-                  }
-                  placeholder="URL ảnh nếu có"
-                />
               </label>
               <label className="full">
                 Mô tả

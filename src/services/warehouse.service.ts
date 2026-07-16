@@ -23,6 +23,8 @@ export interface ProductStock {
   id_san_pham: number;
   id_kho_hang: number;
   so_luong: number;
+  so_luong_giu?: number;
+  ton_kho_toi_thieu?: number;
   ghi_chu?: string | null;
   KhoHang?: Warehouse;
   SanPham?: Product;
@@ -63,6 +65,7 @@ export const warehouseService = {
     id_san_pham: number | string;
     id_kho_hang: number | string;
     so_luong: number | string;
+    ton_kho_toi_thieu?: number | string;
     ghi_chu?: string;
   }) => {
     const response = await api.post("/warehouses/product-stocks", payload);

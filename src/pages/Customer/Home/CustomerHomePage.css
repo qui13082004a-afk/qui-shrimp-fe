@@ -1,0 +1,342 @@
+.customer-home-page {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 28px 18px 56px;
+  color: #0f2338;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+.customer-home-hero {
+  min-height: 420px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
+  gap: 24px;
+  align-items: stretch;
+  padding: 34px;
+  border: 1px solid #cfe1f2;
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, rgba(3, 63, 103, 0.96), rgba(3, 119, 164, 0.78)),
+    url("/shrimp-farm.jpg") center / cover;
+  box-shadow: 0 18px 48px rgba(15, 35, 56, 0.08);
+  overflow: hidden;
+}
+
+.customer-home-hero__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 720px;
+  color: #ffffff;
+}
+
+.customer-home-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #c7f9ff;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.customer-home-hero h1 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.customer-home-hero p {
+  max-width: 600px;
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.customer-home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.customer-home-btn {
+  min-height: 48px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-weight: 900;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.customer-home-btn:hover {
+  transform: translateY(-2px);
+}
+
+.customer-home-btn--primary {
+  color: #06385d;
+  background: #ffffff;
+}
+
+.customer-home-btn--secondary {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.customer-home-hero__panel {
+  align-self: center;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+
+.customer-home-hero__panel span {
+  display: block;
+  margin-bottom: 10px;
+  color: #d7f4ff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.customer-home-hero__panel strong {
+  display: block;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.customer-home-hero__panel p {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.customer-home-section {
+  margin-top: 28px;
+}
+
+.customer-home-section__head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.customer-home-section__head span,
+.customer-home-guide > span {
+  color: #007ea7;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.customer-home-section__head h2,
+.customer-home-guide h2 {
+  margin: 8px 0 0;
+  color: #062f4f;
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.customer-home-notify-link {
+  min-height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #cfe1f2;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #004b7a;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.customer-home-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.customer-home-action-card {
+  min-height: 220px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(15, 35, 56, 0.05);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.customer-home-action-card:hover {
+  transform: translateY(-3px);
+  border-color: #8bd0ee;
+  box-shadow: 0 18px 42px rgba(15, 35, 56, 0.08);
+}
+
+.customer-home-action-card__icon {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #e8f7ff;
+  color: #007ea7;
+}
+
+.customer-home-action-card h3 {
+  margin: 18px 0 8px;
+  color: #0f2338;
+  font-size: 19px;
+  line-height: 1.3;
+}
+
+.customer-home-action-card p {
+  margin: 0;
+  color: #607089;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.customer-home-action-card span {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #005f8f;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.customer-home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 22px;
+  margin-top: 28px;
+}
+
+.customer-home-guide,
+.customer-home-highlight {
+  border: 1px solid #dbe7f3;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(15, 35, 56, 0.05);
+}
+
+.customer-home-guide {
+  padding: 28px;
+}
+
+.customer-home-guide ol {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.customer-home-guide li {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #f2f8fd;
+  color: #24445f;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.customer-home-highlight {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.customer-home-highlight__item {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: 14px;
+  align-items: center;
+  border-radius: 16px;
+  background: #f7fbff;
+}
+
+.customer-home-highlight__item div {
+  width: 44px;
+  height: 44px;
+  grid-row: span 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #e8f7ff;
+  color: #007ea7;
+}
+
+.customer-home-highlight__item span {
+  color: #607089;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.customer-home-highlight__item strong {
+  color: #0f2338;
+  font-size: 17px;
+}
+
+@media (max-width: 1080px) {
+  .customer-home-hero,
+  .customer-home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-home-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .customer-home-page {
+    padding: 18px 12px 42px;
+  }
+
+  .customer-home-hero {
+    padding: 24px;
+    border-radius: 20px;
+  }
+
+  .customer-home-hero__actions,
+  .customer-home-section__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .customer-home-btn,
+  .customer-home-notify-link {
+    width: 100%;
+  }
+
+  .customer-home-actions {
+    grid-template-columns: 1fr;
+  }
+}

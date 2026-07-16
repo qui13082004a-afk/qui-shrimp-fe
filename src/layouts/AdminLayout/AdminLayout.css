@@ -64,6 +64,7 @@
 .admin-header__notification {
   width: 46px;
   height: 46px;
+  position: relative;
   display: grid;
   place-items: center;
   border: 1px solid #d8e4ef;
@@ -75,6 +76,32 @@
 
 .admin-header__notification span {
   font-size: 20px;
+}
+
+.admin-header__notification em {
+  min-width: 18px;
+  height: 18px;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.28);
+}
+
+.admin-header__notification.has-unread {
+  border-color: #fecaca;
+  background: #fff7f7;
 }
 
 .admin-header__notification:hover {

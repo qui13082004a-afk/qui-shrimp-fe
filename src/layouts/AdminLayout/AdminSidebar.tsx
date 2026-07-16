@@ -42,11 +42,6 @@ const menuGroups = [
         icon: "📄",
       },
       {
-        label: "Thỏa thuận ba bên",
-        path: "/admin/thoa-thuan-ba-ben",
-        icon: "🤝",
-      },
-      {
         label: "Thương lái",
         path: "/admin/thuong-lai",
         icon: "🏪",
@@ -96,22 +91,17 @@ const menuGroups = [
         path: "/admin/nhan-vien-giao-hang",
         icon: "🚛",
       },
+      {
+        label: "Nhân viên định mức",
+        path: "/admin/nhan-vien-dinh-muc",
+        icon: "🧾",
+      },
       
     ],
   },
   {
     title: "Nội dung",
     items: [
-      {
-        label: "Blog",
-        path: "/admin/blog",
-        icon: "📰",
-      },
-      {
-        label: "Bình luận",
-        path: "/admin/binh-luan",
-        icon: "💬",
-      },
       {
         label: "Thông báo",
         path: "/admin/thong-bao",

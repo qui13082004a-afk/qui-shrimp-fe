@@ -5,6 +5,8 @@ export type PaymentMethod = "cod" | "chuyen_khoan" | "tra_sau";
 export interface CreateOrderItem {
   id_san_pham: number;
   so_luong_dat: number;
+  id_kho_hang?: number;
+  id_kho_khach_chon?: number;
 }
 
 export interface CreateOrderPayload {
@@ -64,6 +66,45 @@ export interface OrderRecord {
   HoSoKhachHang?: any;
 }
 
+export interface OrderPreview {
+  kho_xuat_du_kien?: {
+    id_kho_hang: number;
+    ten_kho: string;
+    dia_chi?: string | null;
+    vi_do?: number | string | null;
+    kinh_do?: number | string | null;
+  };
+  co_chuyen_kho: boolean;
+  khoang_cach_kho_km?: number | string | null;
+  distance_provider?: string;
+  phi_van_chuyen: number;
+  tong_tien: number;
+  tong_thanh_toan: number;
+  van_chuyen?: {
+    id_khu_vuc?: number;
+    id_diem_xuat_phat?: number | null;
+    khoang_cach_km?: number;
+    distance_provider?: string;
+    phi_van_chuyen?: number;
+    pham_vi_phuc_vu?: string;
+    thong_bao?: string;
+    dia_gioi?: {
+      ma_xa?: string;
+      ten_xa?: string;
+      cap_xa?: string;
+      ma_tinh?: string;
+      ten_tinh?: string;
+    } | null;
+    kho_xuat?: {
+      id_kho_hang: number;
+      ten_kho: string;
+      dia_chi?: string | null;
+      vi_do?: number | string | null;
+      kinh_do?: number | string | null;
+    };
+  };
+}
+
 interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -71,6 +112,14 @@ interface ApiResponse<T> {
 }
 
 export const orderService = {
+  previewOrder: async (payload: CreateOrderPayload) => {
+    const response = await api.post<ApiResponse<OrderPreview>>(
+      "/orders/preview",
+      payload
+    );
+    return response.data;
+  },
+
   // Tạo đơn hàng
   createOrder: async (payload: CreateOrderPayload) => {
     const response = await api.post<ApiResponse<OrderRecord>>(

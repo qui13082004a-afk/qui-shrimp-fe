@@ -1,9 +1,9 @@
-import React from "react";
+﻿import React from "react";
+import type { Province, Ward } from "../../../services/location.service";
 
 export type FileField =
   | "anh_cccd_mat_truoc"
   | "anh_cccd_mat_sau"
-  | "anh_selfie"
   | "anh_bien_lai_tha_giong";
 
 export interface DebtRegistrationFormState {
@@ -53,10 +53,17 @@ interface StepContentProps {
   isAreaAutoFilled: boolean;
   isHarvestDateAutoFilled: boolean;
   loadingPondCropInfo: boolean;
+  provinceOptions: Province[];
+  wardOptions: Ward[];
+  selectedProvinceId: string;
+  loadingProvinces: boolean;
+  loadingWards: boolean;
   updateField: <K extends keyof DebtRegistrationFormState>(
     field: K,
     value: DebtRegistrationFormState[K]
   ) => void;
+  onSelectProvince: (provinceId: string) => void;
+  onSelectWard: (wardId: string) => void;
   setFile: (field: FileField, file: File | null) => void;
   setPondImages: (files: File[]) => void;
   onCheckArea: () => void;
@@ -87,7 +94,7 @@ const LockedField: React.FC<{
     </span>
     <div className="debt-register-field__locked-value">
       <span>{loading ? "Đang tải dữ liệu..." : value}</span>
-      <small>{loading ? "⏳" : "🔒"}</small>
+      <small>{loading ? "..." : "Khóa"}</small>
     </div>
   </div>
 );
@@ -130,7 +137,14 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
   isAreaAutoFilled,
   isHarvestDateAutoFilled,
   loadingPondCropInfo,
+  provinceOptions,
+  wardOptions,
+  selectedProvinceId,
+  loadingProvinces,
+  loadingWards,
   updateField,
+  onSelectProvince,
+  onSelectWard,
   setFile,
   setPondImages,
   onCheckArea,
@@ -187,9 +201,42 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
         </div>
 
         <div className="debt-register-grid">
-          <Field label="Tỉnh/Thành phố *"><input value={form.tinh_thanh_ao} onChange={(e) => updateField("tinh_thanh_ao", e.target.value)} placeholder="Cà Mau" /></Field>
-          <Field label="Quận/Huyện *"><input value={form.quan_huyen_ao} onChange={(e) => updateField("quan_huyen_ao", e.target.value)} placeholder="Đầm Dơi" /></Field>
-          <Field label="Phường/Xã *"><input value={form.phuong_xa_ao} onChange={(e) => updateField("phuong_xa_ao", e.target.value)} placeholder="Tân Duyệt" /></Field>
+          <Field label="Tỉnh/Thành phố *">
+            <select
+              value={selectedProvinceId}
+              onChange={(e) => onSelectProvince(e.target.value)}
+              disabled={loadingProvinces}
+            >
+              <option value="">
+                {loadingProvinces ? "Đang tải tỉnh/thành..." : "Chọn tỉnh/thành"}
+              </option>
+              {provinceOptions.map((province) => (
+                <option key={province.id_tinh_thanh} value={province.id_tinh_thanh}>
+                  {province.ten_tinh}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Phường/Xã *">
+            <select
+              value={wardOptions.find((ward) => ward.ten_xa === form.phuong_xa_ao)?.id_phuong_xa || ""}
+              onChange={(e) => onSelectWard(e.target.value)}
+              disabled={!selectedProvinceId || loadingWards}
+            >
+              <option value="">
+                {!selectedProvinceId
+                  ? "Chọn tỉnh/thành trước"
+                  : loadingWards
+                    ? "Đang tải phường/xã..."
+                    : "Chọn phường/xã"}
+              </option>
+              {wardOptions.map((ward) => (
+                <option key={ward.id_phuong_xa} value={ward.id_phuong_xa}>
+                  {ward.cap_xa ? `${ward.cap_xa} ${ward.ten_xa}` : ward.ten_xa}
+                </option>
+              ))}
+            </select>
+          </Field>
           {isAreaAutoFilled || loadingPondCropInfo ? (
             <LockedField
               label="Diện tích ao *"
@@ -205,7 +252,9 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
               </div>
             </Field>
           )}
-          <Field label="Địa chỉ chi tiết ao *" full><textarea value={form.dia_chi_chi_tiet_ao} onChange={(e) => updateField("dia_chi_chi_tiet_ao", e.target.value)} placeholder="Ấp, tuyến đường, mốc nhận diện gần nhất..." /></Field>
+          <Field label="Địa chỉ chi tiết ao *" full>
+            <textarea value={form.dia_chi_chi_tiet_ao} onChange={(e) => updateField("dia_chi_chi_tiet_ao", e.target.value)} placeholder="Số nhà, ấp/khóm, tuyến đường, mốc nhận diện gần nhất..." />
+          </Field>
         </div>
         {isAreaAutoFilled && (
           <p className="debt-register-hint">
@@ -272,10 +321,58 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
 
         <div className="debt-register-subheading"><h4>Người bảo lãnh / liên hệ khẩn cấp</h4><p>Không bắt buộc, nhưng nên bổ sung khi đề nghị hạn mức lớn.</p></div>
         <div className="debt-register-grid">
-          <Field label="Họ và tên"><input value={form.nguoi_bao_lanh_ho_ten} onChange={(e) => updateField("nguoi_bao_lanh_ho_ten", e.target.value)} /></Field>
-          <Field label="Số điện thoại"><input maxLength={10} value={form.nguoi_bao_lanh_sdt} onChange={(e) => updateField("nguoi_bao_lanh_sdt", e.target.value.replace(/\D/g, ""))} /></Field>
-          <Field label="Số CCCD"><input maxLength={12} value={form.nguoi_bao_lanh_cccd} onChange={(e) => updateField("nguoi_bao_lanh_cccd", e.target.value.replace(/\D/g, ""))} /></Field>
-          <Field label="Quan hệ với khách hàng"><input value={form.nguoi_bao_lanh_quan_he} onChange={(e) => updateField("nguoi_bao_lanh_quan_he", e.target.value)} placeholder="Vợ/chồng, người thân..." /></Field>
+          <Field label="Họ và tên">
+            <input
+              value={form.nguoi_bao_lanh_ho_ten}
+              onChange={(e) =>
+                updateField(
+                  "nguoi_bao_lanh_ho_ten",
+                  e.target.value.replace(/[^A-Za-zÀ-ỹ\s]/g, "")
+                )
+              }
+              placeholder="Nguyễn Văn A"
+            />
+          </Field>
+          <Field label="Số điện thoại">
+            <input
+              inputMode="tel"
+              maxLength={10}
+              value={form.nguoi_bao_lanh_sdt}
+              onChange={(e) =>
+                updateField(
+                  "nguoi_bao_lanh_sdt",
+                  e.target.value.replace(/\D/g, "")
+                )
+              }
+              placeholder="0901234567"
+            />
+          </Field>
+          <Field label="Số CCCD">
+            <input
+              inputMode="numeric"
+              maxLength={12}
+              value={form.nguoi_bao_lanh_cccd}
+              onChange={(e) =>
+                updateField(
+                  "nguoi_bao_lanh_cccd",
+                  e.target.value.replace(/\D/g, "")
+                )
+              }
+              placeholder="079095001234"
+            />
+          </Field>
+          <Field label="Quan hệ với khách hàng">
+            <input
+              value={form.nguoi_bao_lanh_quan_he}
+              onChange={(e) =>
+                updateField(
+                  "nguoi_bao_lanh_quan_he",
+                  e.target.value.replace(/[^A-Za-zÀ-ỹ\s]/g, "")
+                )
+              }
+              placeholder="Vợ/chồng, người thân..."
+            />
+          </Field>
           <Field label="Ghi chú bổ sung" full><textarea value={form.ghi_chu} onChange={(e) => updateField("ghi_chu", e.target.value)} /></Field>
         </div>
       </section>
@@ -286,9 +383,8 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
     <section className="debt-register-section">
       <div className="debt-register-section__heading"><span>05</span><div><h3>Minh chứng và cam kết</h3><p>Ảnh rõ nét, đủ góc và không bị che khuất.</p></div></div>
       <div className="debt-upload-grid">
-        <FileCard title="CCCD mặt trước *" description="Ảnh rõ số và khuôn mặt" file={files.anh_cccd_mat_truoc} onChange={(file) => setFile("anh_cccd_mat_truoc", file)} />
+        <FileCard title="CCCD mặt trước *" description="Ảnh rõ số và thông tin trên CCCD" file={files.anh_cccd_mat_truoc} onChange={(file) => setFile("anh_cccd_mat_truoc", file)} />
         <FileCard title="CCCD mặt sau *" description="Ảnh rõ ngày cấp và mã QR" file={files.anh_cccd_mat_sau} onChange={(file) => setFile("anh_cccd_mat_sau", file)} />
-        <FileCard title="Ảnh selfie *" description="Chụp chính diện, đủ sáng" file={files.anh_selfie} onChange={(file) => setFile("anh_selfie", file)} />
         <FileCard title="Biên lai thả giống *" description="Ảnh biên lai hoặc chứng từ" file={files.anh_bien_lai_tha_giong} onChange={(file) => setFile("anh_bien_lai_tha_giong", file)} />
         <label className={`debt-upload-card ${pondImages.length ? "has-file" : ""}`}>
           <input type="file" accept="image/*" multiple onChange={(e) => setPondImages(Array.from(e.target.files || []).slice(0, 5))} />
@@ -308,3 +404,4 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
     </section>
   );
 };
+

@@ -26,11 +26,6 @@ const menuItems = [
     path: "/nhan-vien-dinh-muc/hop-dong",
     icon: "📄",
   },
-  {
-    label: "Thỏa thuận ba bên",
-    path: "/nhan-vien-dinh-muc/thoa-thuan-ba-ben",
-    icon: "🤝",
-  },
 ];
 
 const formatUnreadCount = (count: number) => {
