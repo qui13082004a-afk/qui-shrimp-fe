@@ -576,6 +576,15 @@
   font-weight: 850;
 }
 
+.contract-create-profile .policy-cell {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.contract-create-profile .policy-cell strong {
+  color: #003b70;
+}
+
 .contract-pdf-preview-card {
   display: flex;
   align-items: center;

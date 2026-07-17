@@ -175,6 +175,15 @@
   color: #b45309;
 }
 
+.debt-side-card.reserved .side-icon {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.debt-side-card.reserved strong {
+  color: #b45309;
+}
+
 .section-title-row {
   display: flex;
   justify-content: space-between;
@@ -298,6 +307,31 @@
 .pond-money-row strong {
   color: #002855;
   font-size: 16px;
+  font-weight: 900;
+}
+
+.pond-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.pond-meta-row span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.pond-meta-row strong {
+  color: #0f172a;
+  font-size: 13px;
   font-weight: 900;
 }
 
@@ -1071,4 +1105,81 @@
     width:100%;
   }
 
+}
+
+/* Final debt payment polish */
+.debt-overview-main {
+  background:
+    linear-gradient(135deg, rgba(0, 64, 119, 0.06), rgba(15, 148, 136, 0.04)),
+    #ffffff;
+}
+
+.debt-side-card.reserved .side-icon {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.debt-side-card.reserved strong {
+  color: #b45309;
+}
+
+.debt-pay-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: -10px 0 22px;
+  padding: 12px 14px;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.debt-pay-note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.debt-pay-modal {
+  border: 1px solid #dbe7f5;
+}
+
+.debt-pay-modal h3 {
+  color: #003b70;
+  font-size: 28px;
+  letter-spacing: 0;
+}
+
+.debt-pay-modal p {
+  margin: 16px 0;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.debt-pay-modal p strong {
+  color: #003b70;
+  font-size: 20px;
+}
+
+.debt-modal-actions button {
+  font-size: 16px;
+}
+
+@media (max-width: 640px) {
+  .debt-pay-modal {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .debt-modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .debt-pay-note {
+    font-size: 13px;
+  }
 }

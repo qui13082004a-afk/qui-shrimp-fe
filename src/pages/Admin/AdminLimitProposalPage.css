@@ -177,10 +177,25 @@
   gap: 18px;
 }
 
+.limit-proposal-detail.is-reviewed {
+  grid-template-columns: 1fr;
+}
+
 .limit-proposal-detail__main {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.limit-proposal-detail.is-reviewed .limit-proposal-detail__main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.limit-proposal-detail.is-reviewed .limit-proposal-section:nth-child(5),
+.limit-proposal-detail.is-reviewed .limit-proposal-section:nth-child(6) {
+  grid-column: 1 / -1;
 }
 
 .limit-proposal-section {
@@ -227,6 +242,79 @@
   font-weight: 850;
 }
 
+.limit-proposal-survey-gallery {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #edf2f7;
+}
+
+.limit-proposal-gallery-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.limit-proposal-gallery-head strong {
+  color: #0f4c81;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.limit-proposal-gallery-head span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.limit-proposal-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.limit-proposal-gallery-item {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  min-height: 116px;
+  border: 1px solid #dbe4ef;
+  border-radius: 14px;
+  background: #f8fafc;
+  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+}
+
+.limit-proposal-gallery-item img {
+  width: 100%;
+  height: 116px;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.limit-proposal-gallery-item span {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(0, 40, 85, 0.86);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.limit-proposal-gallery-item:hover {
+  border-color: #0f75bc;
+}
+
+.limit-proposal-gallery-item:hover img {
+  transform: scale(1.04);
+}
+
 .limit-proposal-money-box {
   padding: 18px;
   border-radius: 18px;
@@ -235,10 +323,70 @@
   margin-bottom: 14px;
 }
 
+.limit-proposal-money-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.limit-proposal-money-grid .limit-proposal-money-box {
+  margin-bottom: 0;
+}
+
 .limit-proposal-money-box strong {
   color: #0f4c81;
   font-size: 26px;
   font-weight: 950;
+}
+
+.limit-proposal-section.policy-section {
+  border-color: #bfdbfe;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+}
+
+.limit-proposal-policy-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.limit-proposal-policy-card div,
+.limit-proposal-policy-empty {
+  padding: 14px;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.limit-proposal-policy-card span {
+  display: block;
+  margin-bottom: 6px;
+  color: #5c7ca3;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.limit-proposal-policy-card strong {
+  color: #0f4c81;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.limit-proposal-policy-card .policy-note {
+  grid-column: 1 / -1;
+}
+
+.limit-proposal-policy-card .policy-note p {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.limit-proposal-policy-empty {
+  color: #64748b;
+  font-weight: 750;
 }
 
 .limit-proposal-note {
@@ -399,8 +547,13 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .limit-proposal-detail {
+  .limit-proposal-detail,
+  .limit-proposal-detail.is-reviewed .limit-proposal-detail__main {
     grid-template-columns: 1fr;
+  }
+
+  .limit-proposal-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .limit-proposal-approval-box {
@@ -423,6 +576,28 @@
   }
 
   .limit-proposal-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .limit-proposal-money-grid,
+  .limit-proposal-policy-card {
+    grid-template-columns: 1fr;
+  }
+
+  .limit-proposal-policy-card .policy-note {
+    grid-column: auto;
+  }
+
+  .limit-proposal-gallery-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .limit-proposal-gallery-head span {
+    text-align: left;
+  }
+
+  .limit-proposal-gallery-grid {
     grid-template-columns: 1fr;
   }
 

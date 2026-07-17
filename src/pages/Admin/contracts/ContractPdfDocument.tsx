@@ -98,6 +98,14 @@ export interface ContractPdfProfile {
     ngay_tha_giong?: string;
     ngay_thu_hoach_du_kien?: string;
   };
+  ChinhSachHanMuc?: {
+    ten_chinh_sach?: string;
+    giai_doan?: string;
+    tu_ngay?: number | string;
+    den_ngay?: number | string;
+    han_muc_toi_da?: number | string;
+    ghi_chu?: string | null;
+  } | null;
 }
 
 interface Props {
@@ -119,11 +127,24 @@ const formatDate = (value?: string | null) => {
   return new Date(value).toLocaleDateString("vi-VN");
 };
 
+const formatPolicyStage = (value?: string | null) => {
+  const stageMap: Record<string, string> = {
+    giai_doan_1: "Giai đoạn 1",
+    giai_doan_2: "Giai đoạn 2",
+    giai_doan_3: "Giai đoạn 3",
+    giai_doan_4: "Giai đoạn 4",
+  };
+
+  return value ? stageMap[value] || value : "Chưa có";
+};
+
 export default function ContractPdfDocument({
   profile,
   contractCode,
   extraTerms,
 }: Props) {
+  const policy = profile.ChinhSachHanMuc;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -178,7 +199,26 @@ export default function ContractPdfDocument({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>4. Hạn mức và thời hạn thanh toán</Text>
+          <Text style={styles.sectionTitle}>4. Chính sách hạn mức áp dụng</Text>
+          <Text style={styles.row}>
+            Chính sách: {policy?.ten_chinh_sach || "Chưa có chính sách"}
+          </Text>
+          <Text style={styles.row}>
+            Giai đoạn áp dụng: {formatPolicyStage(policy?.giai_doan)}
+            {policy?.tu_ngay || policy?.den_ngay
+              ? ` (${policy?.tu_ngay || 0} - ${policy?.den_ngay || 0} ngày nuôi)`
+              : ""}
+          </Text>
+          <Text style={styles.row}>
+            Hạn mức tối đa theo chính sách: {formatCurrency(policy?.han_muc_toi_da)}
+          </Text>
+          <Text style={styles.row}>
+            Ghi chú chính sách: {policy?.ghi_chu || "Không có"}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>5. Hạn mức được duyệt và thời hạn thanh toán</Text>
           <Text style={styles.row}>
             Hạn mức công nợ được duyệt: {formatCurrency(profile.dinh_muc_cong_no)}
           </Text>
@@ -191,20 +231,23 @@ export default function ContractPdfDocument({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>5. Điều khoản thực hiện</Text>
+          <Text style={styles.sectionTitle}>6. Điều khoản thực hiện</Text>
           <Text style={styles.clause}>
-            Bên B cam kết sử dụng vật tư đúng mục đích cho hoạt động nuôi tôm đã đăng ký trong hồ sơ mua trả sau.
+            Bên B chỉ được mua vật tư trả sau trong phạm vi hạn mức đã được duyệt và trong giai đoạn chính sách nêu tại hợp đồng này.
           </Text>
           <Text style={styles.clause}>
-            Bên B có trách nhiệm thanh toán đầy đủ công nợ phát sinh trong thời hạn thanh toán đã được phê duyệt.
+            Bên B cam kết sử dụng vật tư đúng mục đích cho ao nuôi, vụ nuôi đã đăng ký; không chuyển nhượng, sử dụng sai mục đích hoặc phát sinh giao dịch ngoài phạm vi hồ sơ.
           </Text>
           <Text style={styles.clause}>
-            Bên A có quyền tạm dừng cấp hàng trả sau nếu Bên B có dấu hiệu vi phạm nghĩa vụ thanh toán hoặc thông tin hồ sơ không còn chính xác.
+            Bên B có trách nhiệm thanh toán đầy đủ công nợ phát sinh trong thời hạn thanh toán đã được phê duyệt. Các đơn hàng chưa hoàn tất chỉ được xem là phần giữ hạn mức, chưa phải công nợ thực tế cho đến khi đủ điều kiện ghi nhận.
+          </Text>
+          <Text style={styles.clause}>
+            Bên A có quyền rà soát, điều chỉnh hoặc tạm dừng quyền mua trả sau nếu thông tin khảo sát, tình trạng ao nuôi hoặc năng lực thanh toán của Bên B thay đổi so với chính sách đã duyệt.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>6. Xử lý vi phạm</Text>
+          <Text style={styles.sectionTitle}>7. Xử lý vi phạm</Text>
           <Text style={styles.clause}>
             Nếu Bên B chậm thanh toán, cung cấp thông tin sai lệch, không hợp tác trong quá trình thu hồi công nợ hoặc sử dụng vật tư sai mục đích, Bên A có quyền tạm khóa quyền mua trả sau, dừng cấp hạn mức mới, yêu cầu thanh toán toàn bộ công nợ còn lại và áp dụng biện pháp quản lý rủi ro phù hợp theo chính sách của doanh nghiệp.
           </Text>
@@ -215,7 +258,7 @@ export default function ContractPdfDocument({
 
         {extraTerms && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>7. Điều khoản bổ sung</Text>
+            <Text style={styles.sectionTitle}>8. Điều khoản bổ sung</Text>
             <Text style={styles.clause}>{extraTerms}</Text>
           </View>
         )}

@@ -85,9 +85,9 @@ const DebtPage: React.FC = () => {
   );
 
   const reservedDebt = Number(summary?.dang_giu_han_muc || 0);
-  const totalPayableDebt = currentDebt + reservedDebt;
+  const totalPayableDebt = currentDebt;
 
-  const usedCredit = totalPayableDebt;
+  const usedCredit = currentDebt + reservedDebt;
   const availableCredit = Math.max(totalLimit - usedCredit, 0);
 
   const usedPercent =
@@ -182,7 +182,7 @@ const DebtPage: React.FC = () => {
     if (!selected) return 0;
 
     const numbers = getPondNumbers(selected);
-    return numbers.debt + numbers.reserved;
+    return numbers.debt;
   }, [selectedProfileId, ponds, totalPayableDebt]);
 
   const openPayModal = () => {
@@ -192,7 +192,7 @@ const DebtPage: React.FC = () => {
     }
 
     setSelectedProfileId("");
-    setPayAmount(String(totalPayableDebt));
+    setPayAmount(String(currentDebt));
     setShowPayModal(true);
   };
 
@@ -238,8 +238,8 @@ const DebtPage: React.FC = () => {
     <div className="debt-page debt-dashboard">
       <div className="debt-topbar">
         <div>
-          <h1>Tổng quan Công nợ theo Vụ nuôi</h1>
-          <p>Quản lý hạn mức tín dụng và dư nợ các ao nuôi trong hệ thống.</p>
+          <h1>Tổng quan công nợ theo vụ nuôi</h1>
+          <p>Phân biệt công nợ hiện tại cần thanh toán và hạn mức đang tạm giữ.</p>
         </div>
 
         <button
@@ -256,7 +256,7 @@ const DebtPage: React.FC = () => {
       <div className="debt-overview-grid">
         <section className="debt-overview-main">
           <div>
-            <span className="overview-label">Tổng dư nợ hiện tại</span>
+            <span className="overview-label">Công nợ hiện tại</span>
             <strong>{formatCurrency(totalPayableDebt)}</strong>
           </div>
 
@@ -276,6 +276,16 @@ const DebtPage: React.FC = () => {
         </section>
 
         <aside className="debt-side-cards">
+          <div className="debt-side-card reserved">
+            <span className="side-icon">
+              <AlertTriangle size={24} strokeWidth={2.6} />
+            </span>
+            <div>
+              <small>Đang giữ hạn mức</small>
+              <strong>{formatCurrency(reservedDebt)}</strong>
+            </div>
+          </div>
+
           <div className="debt-side-card paid">
             <span className="side-icon">
               <Check size={24} strokeWidth={3} />
@@ -301,7 +311,7 @@ const DebtPage: React.FC = () => {
       <div className="section-title-row">
         <h2>
           <Waves size={20} strokeWidth={2.6} />
-          Chi tiết công nợ theo Ao nuôi
+          Chi tiết công nợ theo ao nuôi
         </h2>
 
         <div className="section-actions">
@@ -395,15 +405,18 @@ const DebtPage: React.FC = () => {
                 <div className="pond-card-body">
                   <div className="pond-money-row">
                     <div>
-                      <small>Dư nợ riêng</small>
-                      <strong>
-                        {formatCurrency(numbers.debt + numbers.reserved)}
-                      </strong>
+                      <small>Công nợ hiện tại</small>
+                      <strong>{formatCurrency(numbers.debt)}</strong>
                     </div>
                     <div>
-                      <small>Kỳ hạn</small>
-                      <strong>{formatDate(item.han_thanh_toan)}</strong>
+                      <small>Đang giữ hạn mức</small>
+                      <strong>{formatCurrency(numbers.reserved)}</strong>
                     </div>
+                  </div>
+
+                  <div className="pond-meta-row">
+                    <span>Kỳ hạn</span>
+                    <strong>{formatDate(item.han_thanh_toan)}</strong>
                   </div>
 
                   <div className="pond-progress">
@@ -412,14 +425,14 @@ const DebtPage: React.FC = () => {
 
                   <button
                     className={
-                      status.type === "danger"
+                      numbers.debt > 0
                         ? "pond-pay-now"
                         : "pond-detail-btn"
                     }
                     type="button"
                     onClick={() => navigate(`/debt/profile/${item.id_ho_so}`)}
                   >
-                    {status.type === "danger" ? (
+                    {numbers.debt > 0 ? (
                       <>
                         <CreditCard size={17} strokeWidth={2.7} />
                         Thanh toán ngay
@@ -540,7 +553,7 @@ const DebtPage: React.FC = () => {
             <h3>Thanh toán công nợ</h3>
 
             <p>
-              Công nợ có thể thanh toán:
+              Công nợ hiện tại có thể thanh toán:
               <strong> {formatCurrency(selectedProfileDebt)}</strong>
             </p>
             <label>Thanh toán cho</label>
@@ -552,7 +565,7 @@ const DebtPage: React.FC = () => {
                 setSelectedProfileId(value);
 
                 if (!value) {
-                  setPayAmount(String(totalPayableDebt));
+                  setPayAmount(String(currentDebt));
                   return;
                 }
 
@@ -562,16 +575,16 @@ const DebtPage: React.FC = () => {
 
                 if (selected) {
                   const numbers = getPondNumbers(selected);
-                  setPayAmount(String(numbers.debt + numbers.reserved));
+                  setPayAmount(String(numbers.debt));
                 }
               }}
             >
-              <option value="">🌍 Tất cả công nợ</option>
+              <option value="">Tất cả công nợ hiện tại</option>
 
               {ponds
                 .filter((item) => {
                   const numbers = getPondNumbers(item);
-                  return numbers.debt + numbers.reserved > 0;
+                  return numbers.debt > 0;
                 })
                 .map((item) => {
                   const numbers = getPondNumbers(item);
@@ -580,7 +593,7 @@ const DebtPage: React.FC = () => {
                     <option key={item.id_ho_so} value={item.id_ho_so}>
                       {item.ten_ao || `Ao #${item.id_ao}`} - Vụ #
                       {item.id_vu_nuoi || "--"} -{" "}
-                      {formatCurrency(numbers.debt + numbers.reserved)}
+                      {formatCurrency(numbers.debt)}
                     </option>
                   );
                 })}
@@ -592,6 +605,14 @@ const DebtPage: React.FC = () => {
               onChange={(e) => setPayAmount(e.target.value)}
               placeholder="Nhập số tiền muốn thanh toán"
             />
+
+            <div className="debt-pay-note">
+              <AlertTriangle size={18} strokeWidth={2.5} />
+              <span>
+                Chỉ thanh toán phần công nợ hiện tại. Khoản đang giữ hạn mức là
+                đơn chưa trở thành công nợ nên chưa thể thanh toán.
+              </span>
+            </div>
 
             <div className="debt-modal-actions">
               <button

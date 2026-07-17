@@ -82,10 +82,7 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
   const getPayableDebt = () => {
     if (!detail) return 0;
 
-    return (
-      Number(detail.cong_no_hien_tai || 0) +
-      Number(detail.dang_giu_han_muc || 0)
-    );
+    return Number(detail.cong_no_hien_tai || 0);
   };
 
   const openPayModal = () => {
@@ -224,6 +221,14 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
               <span>Còn khả dụng</span>
               <strong>{formatCurrency(detail.con_lai)}</strong>
             </div>
+          </div>
+
+          <div className="debt-reality-note">
+            <strong>Công nợ hiện tại</strong> là khoản có thể thanh toán.
+            <span>
+              Phần đang giữ hạn mức chỉ là đơn mua trả sau chưa chuyển thành
+              công nợ thực tế.
+            </span>
           </div>
         </section>
 
@@ -387,9 +392,17 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
             </p>
 
             <p>
-              Công nợ có thể thanh toán:
+              Công nợ hiện tại có thể thanh toán:
               <strong> {formatCurrency(payableDebt)}</strong>
             </p>
+
+            <div className="debt-reality-note modal-note">
+              <strong>Chưa là nợ thật sự thì chưa thanh toán.</strong>
+              <span>
+                Hệ thống chỉ tạo thanh toán cho công nợ hiện tại, không trừ
+                phần đang giữ hạn mức.
+              </span>
+            </div>
 
             <label>Số tiền thanh toán</label>
 

@@ -31,6 +31,24 @@ const toDateInputValue = (value?: string | null) => {
   return new Date(value).toISOString().slice(0, 10);
 };
 
+const parseProposalImages = (value?: string[] | string | null) => {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+
+  const trimmed = String(value).trim();
+  if (!trimmed) return [];
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : [trimmed];
+  } catch {
+    return [trimmed];
+  }
+};
+
 export default function AdminLimitProposalPage() {
   const [proposals, setProposals] = useState<LimitProposal[]>([]);
   const [selectedProposal, setSelectedProposal] = useState<LimitProposal | null>(
@@ -120,6 +138,14 @@ export default function AdminLimitProposalPage() {
   const getCropSeasonName = (item: LimitProposal) => {
     return item.HoSoKhachHang?.VuNuoi?.ten_vu_nuoi || "Chưa có vụ nuôi";
   };
+
+  const selectedSurveyImages = parseProposalImages(
+    selectedProposal?.hinh_anh_khao_sat
+  );
+  const selectedPolicy =
+    selectedProposal?.ChinhSachHanMuc ||
+    selectedProposal?.HoSoKhachHang?.ChinhSachHanMuc ||
+    null;
 
   const openDetail = (proposal: LimitProposal) => {
     setSelectedProposal(proposal);
@@ -390,7 +416,13 @@ export default function AdminLimitProposalPage() {
               </button>
             </div>
 
-            <div className="limit-proposal-detail">
+            <div
+              className={`limit-proposal-detail ${
+                selectedProposal.trang_thai === "cho_duyet"
+                  ? "is-pending"
+                  : "is-reviewed"
+              }`}
+            >
               <div className="limit-proposal-detail__main">
                 <div className="limit-proposal-section">
                   <h3>Thông tin phiếu</h3>
@@ -487,6 +519,54 @@ export default function AdminLimitProposalPage() {
                   </div>
                 </div>
 
+                <div className="limit-proposal-section policy-section">
+                  <h3>Chính sách hạn mức được chọn</h3>
+
+                  {selectedPolicy ? (
+                    <div className="limit-proposal-policy-card">
+                      <div>
+                        <span>Tên chính sách</span>
+                        <strong>
+                          {selectedPolicy.ten_chinh_sach || "Chưa có"}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Giai đoạn</span>
+                        <strong>
+                          {selectedPolicy.giai_doan || "Chưa có"}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Khoảng ngày nuôi</span>
+                        <strong>
+                          {selectedPolicy.tu_ngay ?? "--"} -{" "}
+                          {selectedPolicy.den_ngay ?? "--"} ngày
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>Hạn mức tối đa</span>
+                        <strong>
+                          {formatCurrency(selectedPolicy.han_muc_toi_da)}
+                        </strong>
+                      </div>
+
+                      <div className="policy-note">
+                        <span>Ghi chú chính sách</span>
+                        <p>
+                          {selectedPolicy.ghi_chu || "Không có ghi chú"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="limit-proposal-policy-empty">
+                      Phiếu này chưa gắn chính sách hạn mức.
+                    </div>
+                  )}
+                </div>
+
                 <div className="limit-proposal-section">
                   <h3>Thông tin khảo sát</h3>
 
@@ -515,12 +595,42 @@ export default function AdminLimitProposalPage() {
                     <div>
                       <span>Hình ảnh khảo sát</span>
                       <strong>
-                        {selectedProposal.hinh_anh_khao_sat
-                          ? "Đã có minh chứng"
+                        {selectedSurveyImages.length > 0
+                          ? `${selectedSurveyImages.length} ảnh minh chứng`
                           : "Chưa có"}
                       </strong>
                     </div>
                   </div>
+
+                  {selectedSurveyImages.length > 0 && (
+                    <div className="limit-proposal-survey-gallery">
+                      <div className="limit-proposal-gallery-head">
+                        <strong>Ảnh khảo sát tại ao</strong>
+                        <span>
+                          Click vào ảnh để mở minh chứng kích thước đầy đủ
+                        </span>
+                      </div>
+
+                      <div className="limit-proposal-gallery-grid">
+                        {selectedSurveyImages.map((image, index) => (
+                          <a
+                            className="limit-proposal-gallery-item"
+                            key={`${image}-${index}`}
+                            href={image}
+                            target="_blank"
+                            rel="noreferrer"
+                            title={`Mở ảnh khảo sát ${index + 1}`}
+                          >
+                            <img
+                              src={image}
+                              alt={`Ảnh khảo sát ao ${index + 1}`}
+                            />
+                            <span>Ảnh {index + 1}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="limit-proposal-section">

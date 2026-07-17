@@ -80,6 +80,17 @@ export interface CheckSupportedAreaResult {
   khu_vuc?: SupportedPostpaidArea | null;
 }
 
+export interface CreditLimitPolicyInfo {
+  id_chinh_sach?: number;
+  ten_chinh_sach?: string;
+  giai_doan?: string;
+  tu_ngay?: number | string;
+  den_ngay?: number | string;
+  han_muc_toi_da?: number | string;
+  trang_thai?: string;
+  ghi_chu?: string | null;
+}
+
 /* =========================================================
    HỒ SƠ TRẢ SAU
 ========================================================= */
@@ -167,6 +178,7 @@ export interface CustomerDebtProfile {
   NguoiDung?: CustomerProfileUser;
   AoNuoi?: CustomerProfilePond;
   VuNuoi?: CustomerProfileCropSeason;
+  ChinhSachHanMuc?: CreditLimitPolicyInfo | null;
 }
 
 /*

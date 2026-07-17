@@ -29,6 +29,7 @@ export interface LimitProposalPolicy {
   den_ngay?: number;
   han_muc_toi_da?: number | string;
   trang_thai?: string;
+  ghi_chu?: string | null;
 }
 
 export interface LimitProposalCustomerProfile {

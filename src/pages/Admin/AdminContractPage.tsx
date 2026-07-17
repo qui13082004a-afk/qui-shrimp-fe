@@ -934,6 +934,35 @@ export default function AdminContractPage() {
                                             {selectedCreateProfile.AoNuoi?.ten_ao || "Chưa có"}
                                         </strong>
                                     </div>
+                                    <div className="policy-cell">
+                                        <span>Chính sách áp dụng</span>
+                                        <strong>
+                                            {selectedCreateProfile.ChinhSachHanMuc?.ten_chinh_sach ||
+                                                "Chưa có chính sách"}
+                                        </strong>
+                                    </div>
+                                    <div>
+                                        <span>Giai đoạn</span>
+                                        <strong>
+                                            {selectedCreateProfile.ChinhSachHanMuc?.giai_doan ||
+                                                "Chưa có"}
+                                        </strong>
+                                    </div>
+                                    <div>
+                                        <span>Ngày nuôi áp dụng</span>
+                                        <strong>
+                                            {selectedCreateProfile.ChinhSachHanMuc?.tu_ngay ?? "--"} -{" "}
+                                            {selectedCreateProfile.ChinhSachHanMuc?.den_ngay ?? "--"} ngày
+                                        </strong>
+                                    </div>
+                                    <div>
+                                        <span>Hạn mức tối đa CS</span>
+                                        <strong>
+                                            {formatCurrency(
+                                                selectedCreateProfile.ChinhSachHanMuc?.han_muc_toi_da
+                                            )}
+                                        </strong>
+                                    </div>
                                 </div>
                             )}
 
