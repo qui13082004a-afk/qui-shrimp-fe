@@ -23,6 +23,7 @@ import {
   type Province,
   type Ward,
 } from "../../../services/location.service";
+import { normalizeForCompare } from "../../../utils/address";
 import OrderPage from "../Order/OrderPage";
 import "./ProfilePage.css";
 
@@ -109,13 +110,6 @@ const roleLabel: Record<UserProfile["vai_tro"], string> = {
   khach_hang: "Khách hàng",
   nhan_vien_giao_hang: "Nhân viên giao hàng",
 };
-
-const normalizeText = (value = "") =>
-  value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
 
 const buildAddress = (
   detail: string,
@@ -787,10 +781,15 @@ export default function ProfilePage() {
       return;
     }
 
-    const matchedProvince = provinces.find(
-      (province) =>
-        normalizeText(province.ten_tinh) === normalizeText(profile.tinh_thanh)
-    );
+    const normalizedProfileProvince = normalizeForCompare(profile.tinh_thanh);
+    const matchedProvince = provinces.find((province) => {
+      const normalizedProvince = normalizeForCompare(province.ten_tinh);
+      return (
+        normalizedProvince === normalizedProfileProvince ||
+        normalizedProfileProvince.includes(normalizedProvince) ||
+        normalizedProvince.includes(normalizedProfileProvince)
+      );
+    });
 
     if (matchedProvince) {
       setEditForm((prev) => ({
@@ -896,6 +895,14 @@ export default function ProfilePage() {
       if (response.data && response.data.success) {
         toastSuccess("Cập nhật thông tin cá nhân thành công!");
         setProfile((prev) => (prev ? { ...prev, ...payload } : null));
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...storedUser,
+            ...payload,
+          })
+        );
         setIsEditing(false);
       }
     } catch (err: any) {

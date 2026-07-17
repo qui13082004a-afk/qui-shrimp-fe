@@ -108,6 +108,210 @@
   margin-bottom: 20px;
 }
 
+.order-delivery-card {
+  margin-bottom: 20px;
+  padding: 24px;
+  border: 1px solid #dbe7f3;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 34%),
+    #ffffff;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.order-delivery-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.order-delivery-head span {
+  display: inline-block;
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+}
+
+.order-delivery-head h2 {
+  margin: 7px 0 6px;
+  color: #002855;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.order-delivery-head p {
+  max-width: 680px;
+  margin: 0;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+.order-delivery-badge {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #004077;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.order-delivery-badge.dang_giao {
+  background: #dbeafe;
+  color: #004077;
+}
+
+.order-delivery-badge.giao_thanh_cong {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.order-delivery-badge.giao_that_bai {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.order-delivery-badge.pending {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.order-delivery-timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.order-delivery-timeline::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 24px;
+  height: 3px;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.order-delivery-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.order-delivery-step > span {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #64748b;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.order-delivery-step strong {
+  color: inherit;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.order-delivery-step.active {
+  color: #004077;
+}
+
+.order-delivery-step.active > span {
+  background: #dbeafe;
+  color: #004077;
+}
+
+.order-delivery-step.current > span {
+  background: #004077;
+  color: #ffffff;
+}
+
+.order-delivery-step.failed {
+  color: #b91c1c;
+}
+
+.order-delivery-step.failed > span {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.order-delivery-meta {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 12px;
+}
+
+.order-delivery-meta > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 9px;
+  row-gap: 4px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid #edf2f7;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.order-delivery-meta svg {
+  grid-row: span 2;
+  color: #0284c7;
+}
+
+.order-delivery-meta span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.order-delivery-meta strong {
+  min-width: 0;
+  color: #0f172a;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.order-delivery-note {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid #cfe1f2;
+  border-radius: 14px;
+  background: #eef6ff;
+}
+
+.order-delivery-note strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #004077;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.order-delivery-note p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.55;
+}
+
 .order-detail-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -277,10 +481,26 @@
 
 @media (max-width: 900px) {
   .order-detail-header,
-  .order-detail-grid {
+  .order-detail-grid,
+  .order-delivery-head {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .order-delivery-timeline,
+  .order-delivery-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .order-delivery-timeline::before {
+    display: none;
+  }
+
+  .order-delivery-step {
+    grid-template-columns: auto 1fr;
+    justify-items: start;
+    text-align: left;
   }
 
   .order-info-list {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById } from "../../../services/product.service";
 import axios from "../../../lib/axios";
+import { toastSuccess } from "../../../utils/notify";
 import "./ProductDetailPage.css";
 
 const ProductDetailPage = () => {
@@ -83,7 +84,7 @@ const ProductDetailPage = () => {
 
     localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("storage"));
-    alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+    toastSuccess(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
   };
 
   if (loading) {

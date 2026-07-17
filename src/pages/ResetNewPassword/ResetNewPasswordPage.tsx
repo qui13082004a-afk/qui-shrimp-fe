@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Eye, Lock, Waves } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
+import { toastSuccess } from "../../utils/notify";
 import "./ResetNewPasswordPage.css";
 
 export default function ResetNewPasswordPage() {
@@ -50,7 +51,7 @@ export default function ResetNewPasswordPage() {
         mat_khau_moi: matKhauMoi,
       });
 
-      alert(res.data.message || "Đặt lại mật khẩu thành công");
+      toastSuccess(res.data.message || "Đặt lại mật khẩu thành công");
 
       localStorage.removeItem("resetEmail");
       localStorage.removeItem("resetOtp");

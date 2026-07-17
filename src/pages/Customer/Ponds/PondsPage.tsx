@@ -27,6 +27,7 @@ import { PondEmptyState } from "./PondEmptyState";
 import {
   DebtRegistrationModal,
 } from "../DebtRegistration";
+import { confirmDialog } from "../../../utils/notify";
 
 import "./PondsPage.css";
 
@@ -477,7 +478,7 @@ const PondsPage: React.FC = () => {
   const handleCloseCrop = async (
     id_vu_nuoi: number
   ) => {
-    const confirmClose = window.confirm(
+    const confirmClose = await confirmDialog(
       "Bạn muốn kết thúc vụ nuôi hiện tại để tiến hành thu hoạch?"
     );
 
@@ -508,7 +509,7 @@ const PondsPage: React.FC = () => {
   };
 
   const handleDelete = async (id_ao: number) => {
-    const confirmDelete = window.confirm(
+    const confirmDelete = await confirmDialog(
       "Bạn muốn xóa ao này chứ?"
     );
 

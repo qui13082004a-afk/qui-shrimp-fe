@@ -20,6 +20,7 @@ import {
   locationService,
   type Province,
 } from "../../services/location.service";
+import { toastSuccess } from "../../utils/notify";
 import "./RegisterPage.css";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -131,7 +132,7 @@ export default function RegisterPage() {
 
       localStorage.setItem("verifyEmail", cleanEmail);
 
-      alert(
+      toastSuccess(
         res.data.message ||
           "Đăng ký thành công. Vui lòng kiểm tra email để lấy mã OTP."
       );

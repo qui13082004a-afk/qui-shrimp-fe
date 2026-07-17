@@ -12,6 +12,7 @@ import CartPage from "../pages/Customer/Cart/CartPage";
 import CheckoutPage from "../pages/Customer/Checkout/CheckoutPage";
 import PaymentResultPage from "../pages/Customer/PaymentSuccess/PaymentResultPage";
 import PaymentSuccessPage from "../pages/Customer/PaymentSuccess/PaymentSuccessPage";
+import PaymentCancelPage from "../pages/Customer/PaymentSuccess/PaymentCancelPage";
 import StorePage from "../pages/Customer/Store/StorePage";
 import ProductDetailPage from "../pages/Customer/ProductDetail/ProductDetailPage";
 import PondsPage from "../pages/Customer/Ponds/PondsPage";
@@ -121,6 +122,8 @@ export default function AppRoutes() {
         <Route path="/debt/profile/:profileId" element={<DebtDetailPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/payment-success" element={<PaymentSuccessPage />} />
+        <Route path="/payment-cancel" element={<PaymentCancelPage />} />
         <Route path="/debt/payment-success" element={<PaymentSuccessPage />} />
         <Route path="/debt/payment-cancel" element={<PaymentResultPage />} />
         <Route path="/orders" element={<OrderPage />} />

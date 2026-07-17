@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trash2, ShieldCheck, Truck, Lock } from "lucide-react";
+import { confirmDialog } from "../../../utils/notify";
 import "./CartPage.css";
 
 interface CartItem {
@@ -42,11 +43,12 @@ const CartPage = () => {
   };
 
   // 3. Xóa sản phẩm ra khỏi giỏ
-  const handleRemoveItem = (id: number) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
-      const filtered = cartItems.filter((item) => item.id_san_pham !== id);
-      updateCart(filtered);
-    }
+  const handleRemoveItem = async (id: number) => {
+    const confirmed = await confirmDialog("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?");
+    if (!confirmed) return;
+
+    const filtered = cartItems.filter((item) => item.id_san_pham !== id);
+    updateCart(filtered);
   };
 
   // 4. Các hàm tính toán số liệu tài chính công khai

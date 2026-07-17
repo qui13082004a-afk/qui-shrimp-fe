@@ -46,6 +46,8 @@ const DashboardPage: React.FC = () => {
   const [totalDebt, setTotalDebt] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [userName, setUserName] = useState<string>("Thành viên");
+  const [userAddress, setUserAddress] = useState<string>("");
+  const [userProvince, setUserProvince] = useState<string>("");
 
   const loadDashboardData = async () => {
     try {
@@ -53,11 +55,17 @@ const DashboardPage: React.FC = () => {
       const userRes = await axios.get("/auth/me");
 
       if (userRes.data?.success) {
+        const userData = userRes.data.data || {};
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
         setUserName(
-          userRes.data.data?.ho_ten ||
-            userRes.data.data?.ten_dang_nhap ||
+          userData.ho_ten ||
+            storedUser.ho_ten ||
+            userData.ten_dang_nhap ||
             "Thành viên"
         );
+        setUserAddress(userData.dia_chi || storedUser.dia_chi || "");
+        setUserProvince(userData.tinh_thanh || storedUser.tinh_thanh || "");
       }
 
       // 2. Danh sách ao nuôi
@@ -334,7 +342,10 @@ const DashboardPage: React.FC = () => {
           </div>
 
           <HomeWeatherCard
-            firstPondAddress={ponds[0]?.dia_chi_ao}
+            userAddress={userAddress}
+            userProvince={userProvince}
+            fallbackPondAddress={ponds[0]?.dia_chi_ao}
+            fallbackPondProvince={ponds[0]?.TinhThanh?.ten_tinh}
           />
         </aside>
       </div>

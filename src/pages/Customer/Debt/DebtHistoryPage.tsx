@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { debtService } from "../../../services/debt.service";
 import type { DebtOrder } from "../../../services/debt.service";
+import { toastError } from "../../../utils/notify";
 import "./DebtPage.css";
 
 const DebtHistoryPage: React.FC = () => {
@@ -39,7 +40,7 @@ const DebtHistoryPage: React.FC = () => {
         }
       } catch (error) {
         console.error(error);
-        alert("Không thể tải lịch sử công nợ.");
+        toastError("Không thể tải lịch sử công nợ.");
       } finally {
         setLoading(false);
       }

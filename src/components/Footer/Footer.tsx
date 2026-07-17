@@ -1,8 +1,48 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin } from "lucide-react"; // Import icon cho trực quan
+import {
+  businessAreaService,
+  type BusinessArea,
+} from "../../services/businessArea.service";
 import "./Footer.css";
 
 const Footer = () => {
+  const [businessAreas, setBusinessAreas] = useState<BusinessArea[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadBusinessAreas = async () => {
+      try {
+        const res = await businessAreaService.getBusinessAreas();
+        if (mounted) {
+          setBusinessAreas(res.data || []);
+        }
+      } catch (error) {
+        console.error("LOAD FOOTER BUSINESS AREAS ERROR:", error);
+      }
+    };
+
+    void loadBusinessAreas();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const activeSellingAreas = useMemo(() => {
+    return businessAreas
+      .filter((area) => area.dang_hoat_dong && area.cho_phep_ban_hang)
+      .map((area) => area.TinhThanh?.ten_tinh)
+      .filter(Boolean) as string[];
+  }, [businessAreas]);
+
+  const areaText =
+    activeSellingAreas.length > 0
+      ? activeSellingAreas.join(", ")
+      : "Đang cập nhật theo cấu hình Admin";
+
   return (
     <footer className="customer-footer">
       <div className="customer-footer__inner">
@@ -41,7 +81,7 @@ const Footer = () => {
           </div>
           <div className="contact-item">
             <MapPin size={16} />
-            <span>Khu vực: Bến Tre, Tiền Giang, Long An</span>
+            <span>Khu vực: {areaText}</span>
           </div>
         </div>
       </div>

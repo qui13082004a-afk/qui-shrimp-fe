@@ -5,6 +5,10 @@ import {
   type CustomerDebtProfile,
   type UpdateCustomerProfilePayload,
 } from "../../services/customerProfile.service";
+import {
+  debtService,
+  type DebtProfileDetail,
+} from "../../services/debt.service";
 import "./AdminCommon.css";
 import "./AdminCustomerDebtProfilePage.css";
 
@@ -46,6 +50,10 @@ export default function AdminCustomerDebtProfilePage() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showLockModal, setShowLockModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [loadingDebtDetail, setLoadingDebtDetail] = useState(false);
+  const [debtDetail, setDebtDetail] = useState<DebtProfileDetail | null>(null);
+  const [paymentError, setPaymentError] = useState("");
 
   const [updateForm, setUpdateForm] = useState<UpdateCustomerProfilePayload>({
     trang_thai_ho_so: "cho_kiem_tra",
@@ -56,6 +64,10 @@ export default function AdminCustomerDebtProfilePage() {
   const [lockForm, setLockForm] = useState<UpdateCustomerProfilePayload>({
     bi_khoa_tra_sau: false,
     ly_do_khoa: "",
+  });
+
+  const [paymentForm, setPaymentForm] = useState({
+    so_tien: "",
   });
 
   const fetchProfiles = async () => {
@@ -124,6 +136,9 @@ export default function AdminCustomerDebtProfilePage() {
     setShowDetailModal(false);
     setShowUpdateModal(false);
     setShowLockModal(false);
+    setShowPaymentModal(false);
+    setDebtDetail(null);
+    setPaymentError("");
   };
 
   const openUpdateModal = (profile: CustomerDebtProfile) => {
@@ -143,6 +158,36 @@ export default function AdminCustomerDebtProfilePage() {
       ly_do_khoa: profile.bi_khoa_tra_sau ? "" : profile.ly_do_khoa || "",
     });
     setShowLockModal(true);
+  };
+
+  const openPaymentModal = async (profile: CustomerDebtProfile) => {
+    if (!profile.id_ho_so) {
+      setMessage("Khong tim thay ma ho so");
+      return;
+    }
+
+    setSelectedProfile(profile);
+    setShowPaymentModal(true);
+    setPaymentForm({ so_tien: "" });
+    setDebtDetail(null);
+    setPaymentError("");
+
+    try {
+      setLoadingDebtDetail(true);
+      const res = await debtService.getAdminDebtProfileDetail(profile.id_ho_so);
+      setDebtDetail(res.data);
+      const currentDebt = Number(res.data.cong_no_hien_tai || 0);
+      setPaymentForm({
+        so_tien: currentDebt > 0 ? String(Math.round(currentDebt)) : "",
+      });
+    } catch (error: any) {
+      setMessage(
+        error?.response?.data?.message || "Khong tai duoc chi tiet cong no"
+      );
+      setShowPaymentModal(false);
+    } finally {
+      setLoadingDebtDetail(false);
+    }
   };
 
   const handleUpdateProfile = async (event: FormEvent) => {
@@ -229,6 +274,57 @@ export default function AdminCustomerDebtProfilePage() {
     }
   };
 
+  const handleDirectPayment = async (event: FormEvent) => {
+    event.preventDefault();
+
+    if (!selectedProfile?.id_ho_so) {
+      setMessage("Khong tim thay ma ho so");
+      return;
+    }
+
+    const amount = Math.round(Number(paymentForm.so_tien || 0));
+    if (!amount || amount <= 0) {
+      setPaymentError("Vui lòng nhập số tiền thanh toán hợp lệ.");
+      return;
+    }
+
+    const payableDebt = Number(debtDetail?.cong_no_hien_tai || 0);
+    if (payableDebt <= 0) {
+      setPaymentError(
+        "Khách hàng chưa có công nợ hiện tại để ghi nhận thanh toán. Phần đang giữ hạn mức chưa được trừ tại đây."
+      );
+      return;
+    }
+    if (amount > payableDebt) {
+      setPaymentError(
+        `Số tiền thanh toán không được vượt quá ${formatCurrency(payableDebt)}.`
+      );
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setPaymentError("");
+      await debtService.createAdminDirectPayment({
+        id_ho_so: selectedProfile.id_ho_so,
+        so_tien: amount,
+      });
+
+      setMessage("Ghi nhan thanh toan cong no truc tiep thanh cong");
+      setShowPaymentModal(false);
+      setShowDetailModal(false);
+      setDebtDetail(null);
+      fetchProfiles();
+    } catch (error: any) {
+      setPaymentError(
+        error?.response?.data?.message ||
+          "Không thể ghi nhận thanh toán công nợ. Vui lòng kiểm tra lại."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const getCustomerName = (profile: CustomerDebtProfile) => {
     return profile.NguoiDung?.ho_ten || "Chưa có thông tin";
   };
@@ -236,6 +332,13 @@ export default function AdminCustomerDebtProfilePage() {
   const getPhone = (profile: CustomerDebtProfile) => {
     return profile.NguoiDung?.so_dien_thoai || "Chưa có SĐT";
   };
+
+  const payableDebt = Number(debtDetail?.cong_no_hien_tai || 0);
+  const hasPayableDebt = payableDebt > 0;
+  const payableOrders = (debtDetail?.don_hang || []).filter(
+    (order) =>
+      order.trang_thai_don_hang === "hoan_tat" && Number(order.con_lai || 0) > 0
+  );
 
   return (
     <div className="admin-page customer-profile-page">
@@ -398,6 +501,9 @@ export default function AdminCustomerDebtProfilePage() {
                     <td>
                       <div className="customer-profile-actions">
                         <button onClick={() => openDetail(item)}>Chi tiết</button>
+                        <button onClick={() => openPaymentModal(item)}>
+                          Ghi nhận TT
+                        </button>
                         <button onClick={() => openUpdateModal(item)}>Cập nhật</button>
                         <button
                           className={item.bi_khoa_tra_sau ? "" : "danger"}
@@ -575,6 +681,13 @@ export default function AdminCustomerDebtProfilePage() {
               <div className="customer-profile-detail-actions">
                 <button
                   className="admin-secondary-btn"
+                  onClick={() => openPaymentModal(selectedProfile)}
+                >
+                  Ghi nhận thanh toán
+                </button>
+
+                <button
+                  className="admin-secondary-btn"
                   onClick={() => openUpdateModal(selectedProfile)}
                 >
                   Cập nhật hồ sơ
@@ -588,6 +701,131 @@ export default function AdminCustomerDebtProfilePage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showPaymentModal && selectedProfile && (
+        <div className="admin-modal-overlay">
+          <div className="customer-profile-confirm customer-profile-payment-modal">
+            <div className="payment-modal-head">
+              <div>
+                <span>Thu công nợ trực tiếp</span>
+                <h2>Ghi nhận thanh toán</h2>
+                <p>
+                  Dùng khi khách hàng đã thanh toán trực tiếp cho admin. Hệ
+                  thống sẽ phân bổ số tiền vào các đơn mua trả sau còn nợ.
+                </p>
+              </div>
+              <div className="payment-modal-total">
+                <span>Có thể ghi nhận</span>
+                <strong>{formatCurrency(payableDebt)}</strong>
+              </div>
+            </div>
+
+            {loadingDebtDetail ? (
+              <div className="customer-profile-empty">
+                Đang tải chi tiết công nợ...
+              </div>
+            ) : (
+              <>
+                <div className="payment-modal-body">
+                <div className="customer-profile-payment-summary">
+                  <div className="payment-summary-card payment-summary-card--wide">
+                    <span>Khách hàng</span>
+                    <strong>{getCustomerName(selectedProfile)}</strong>
+                    <small>{getPhone(selectedProfile)}</small>
+                  </div>
+                  <div className="payment-summary-card">
+                    <span>Công nợ hiện tại</span>
+                    <strong>{formatCurrency(debtDetail?.cong_no_hien_tai)}</strong>
+                  </div>
+                  <div className="payment-summary-card">
+                    <span>Đang giữ hạn mức</span>
+                    <strong>{formatCurrency(debtDetail?.dang_giu_han_muc)}</strong>
+                  </div>
+                  <div className="payment-summary-card">
+                    <span>Đã thanh toán</span>
+                    <strong>{formatCurrency(debtDetail?.da_thanh_toan)}</strong>
+                  </div>
+                </div>
+
+                {!hasPayableDebt && (
+                  <div className="payment-inline-alert payment-inline-alert--warning">
+                    Hồ sơ này chưa có công nợ hiện tại để ghi nhận thanh toán.
+                    Phần đang giữ hạn mức chỉ là đơn đang xử lý/chờ giao, chưa
+                    được trừ bằng thao tác này.
+                  </div>
+                )}
+
+                {paymentError && (
+                  <div className="payment-inline-alert payment-inline-alert--danger">
+                    {paymentError}
+                  </div>
+                )}
+
+                <form onSubmit={handleDirectPayment}>
+                  <label>
+                    Số tiền khách đã thanh toán
+                    <input
+                      value={paymentForm.so_tien}
+                      onChange={(event) => {
+                        setPaymentError("");
+                        setPaymentForm({
+                          so_tien: event.target.value.replace(/\D/g, ""),
+                        });
+                      }}
+                      inputMode="numeric"
+                      placeholder="Nhập số tiền"
+                      disabled={!hasPayableDebt}
+                    />
+                  </label>
+
+                  <div className="customer-profile-payment-orders">
+                    <span>Đơn công nợ liên quan</span>
+                    {payableOrders.length === 0 ? (
+                      <p>Chưa có đơn hoàn tất còn nợ để phân bổ.</p>
+                    ) : (
+                      payableOrders.map((order) => (
+                        <div key={order.id_don_hang}>
+                          <section>
+                            <strong>Đơn #{order.id_don_hang}</strong>
+                            <em>{order.trang_thai_don_hang}</em>
+                          </section>
+                          <span>
+                            Còn lại {formatCurrency(order.con_lai)} / Tổng{" "}
+                            {formatCurrency(order.tong_thanh_toan)}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="customer-profile-confirm__actions">
+                    <button
+                      type="button"
+                      className="admin-secondary-btn"
+                      onClick={() => {
+                        setShowPaymentModal(false);
+                        setPaymentError("");
+                      }}
+                      disabled={saving}
+                    >
+                      Hủy
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="admin-primary-btn"
+                      disabled={saving || loadingDebtDetail || !hasPayableDebt}
+                    >
+                      {saving ? "Đang ghi nhận..." : "Ghi nhận thanh toán"}
+                    </button>
+                  </div>
+                </form>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -1,0 +1,189 @@
+.payment-cancel-page {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 18px;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 34%),
+    linear-gradient(180deg, #f5f7fb 0%, #eef7fb 100%);
+  color: #0f172a;
+}
+
+.payment-cancel-card {
+  width: 100%;
+  max-width: 720px;
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #dbe7f3;
+  border-radius: 20px;
+  padding: 42px 36px 34px;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
+}
+
+.payment-cancel-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 7px;
+  background: linear-gradient(90deg, #0f766e, #38bdf8);
+}
+
+.payment-cancel-icon {
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0284c7;
+  box-shadow: inset 0 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.payment-cancel-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #034078;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.payment-cancel-card h1 {
+  margin: 14px 0 10px;
+  color: #033b70;
+  font-size: 30px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.payment-cancel-card p {
+  max-width: 560px;
+  margin: 0 auto;
+  color: #64748b;
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.payment-cancel-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 30px 0 24px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.payment-cancel-summary > div {
+  min-height: 76px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+}
+
+.payment-cancel-summary span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.payment-cancel-summary strong {
+  display: block;
+  color: #034078;
+  font-size: 14.5px;
+  font-weight: 900;
+  word-break: break-word;
+}
+
+.payment-cancel-loading {
+  margin: -6px 0 18px;
+  color: #0284c7;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.payment-cancel-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.payment-cancel-actions button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.payment-cancel-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+}
+
+.payment-cancel-actions .primary {
+  background: #034078;
+  color: #ffffff;
+}
+
+.payment-cancel-actions .secondary {
+  background: #ffffff;
+  color: #034078;
+  border-color: #cbd5e1;
+}
+
+.payment-cancel-actions .ghost {
+  background: #eef6ff;
+  color: #0f766e;
+  border-color: #bfdbfe;
+}
+
+@media (max-width: 720px) {
+  .payment-cancel-page {
+    padding: 34px 14px;
+  }
+
+  .payment-cancel-card {
+    padding: 36px 20px 28px;
+    border-radius: 18px;
+  }
+
+  .payment-cancel-card h1 {
+    font-size: 24px;
+  }
+
+  .payment-cancel-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-cancel-actions {
+    flex-direction: column;
+  }
+
+  .payment-cancel-actions button {
+    width: 100%;
+  }
+}

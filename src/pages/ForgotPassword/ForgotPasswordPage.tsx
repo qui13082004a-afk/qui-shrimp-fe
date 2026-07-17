@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Mail, Waves } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
+import { toastSuccess } from "../../utils/notify";
 import "./ForgotPasswordPage.css";
 
 export default function ForgotPasswordPage() {
@@ -27,7 +28,7 @@ export default function ForgotPasswordPage() {
 
       localStorage.setItem("resetEmail", email);
 
-      alert(
+      toastSuccess(
         res.data.message ||
           "Đã gửi mã OTP đặt lại mật khẩu. Vui lòng kiểm tra email."
       );

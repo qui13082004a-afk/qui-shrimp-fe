@@ -9,6 +9,7 @@ import {
   debtExtensionService,
   type DebtExtension,
 } from "../../../services/debtExtension.service";
+import { toastError, toastWarning } from "../../../utils/notify";
 import "./DebtDetailPage.css";
 
 type DebtProfileDetailWithExtension = DebtProfileDetail & {
@@ -72,7 +73,7 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
       if (extensionRes.success) setExtensions(extensionRes.data || []);
     } catch (error) {
       console.error(error);
-      alert("Không thể tải chi tiết công nợ.");
+      toastError("Không thể tải chi tiết công nợ.");
     } finally {
       setLoading(false);
     }
@@ -91,7 +92,7 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
     const debt = getPayableDebt();
 
     if (debt <= 0) {
-      alert("Hồ sơ này không có công nợ cần thanh toán.");
+      toastWarning("Hồ sơ này không có công nợ cần thanh toán.");
       return;
     }
 
@@ -104,17 +105,17 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
     const debt = getPayableDebt();
 
     if (!profileId) {
-      alert("Không tìm thấy hồ sơ công nợ.");
+      toastError("Không tìm thấy hồ sơ công nợ.");
       return;
     }
 
     if (!amount || amount <= 0) {
-      alert("Vui lòng nhập số tiền hợp lệ.");
+      toastWarning("Vui lòng nhập số tiền hợp lệ.");
       return;
     }
 
     if (amount > debt) {
-      alert("Số tiền thanh toán không được vượt quá công nợ hồ sơ này.");
+      toastWarning("Số tiền thanh toán không được vượt quá công nợ hồ sơ này.");
       return;
     }
 
@@ -124,13 +125,13 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
       const res = await debtService.payPartialDebt(amount, Number(profileId));
 
       if (!res.data?.checkoutUrl) {
-        alert("Không nhận được link thanh toán.");
+        toastError("Không nhận được link thanh toán.");
         return;
       }
 
       window.location.href = res.data.checkoutUrl;
     } catch (error: any) {
-      alert(error.response?.data?.message || "Không thể tạo thanh toán công nợ.");
+      toastError(error.response?.data?.message || "Không thể tạo thanh toán công nợ.");
     } finally {
       setPaying(false);
     }

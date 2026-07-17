@@ -34,6 +34,37 @@ export interface PaymentRecord {
   ngay_thanh_toan?: string | null;
 }
 
+export type DeliveryStatus =
+  | "cho_giao"
+  | "dang_giao"
+  | "giao_thanh_cong"
+  | "giao_that_bai";
+
+export interface OrderDeliveryRecord {
+  id_giao_hang: number;
+  id_don_hang: number;
+  id_nhan_vien_giao?: number | null;
+  id_kho_xuat?: number | null;
+  trang_thai: DeliveryStatus;
+  anh_bien_nhan?: string | null;
+  anh_hop_dong?: string | null;
+  ghi_chu?: string | null;
+  thoi_gian_giao?: string | null;
+  NhanVienGiaoHang?: {
+    id_nhan_vien_giao_hang?: number;
+    khu_vuc_phu_trach?: string | null;
+    NguoiDung?: {
+      ho_ten?: string | null;
+      so_dien_thoai?: string | null;
+      email?: string | null;
+    } | null;
+  } | null;
+  KhoHang?: {
+    ten_kho?: string | null;
+    dia_chi?: string | null;
+  } | null;
+}
+
 export interface OrderRecord {
   id_don_hang: number;
   id_nguoi_dung: number;
@@ -54,6 +85,7 @@ export interface OrderRecord {
   ngay_duyet?: string | null;
   ngay_giao?: string | null;
   ThanhToans?: PaymentRecord[];
+  GiaoHangs?: OrderDeliveryRecord[];
   ChiTietDonHangs?: any[];
   NguoiDung?: {
     id_nguoi_dung?: number;

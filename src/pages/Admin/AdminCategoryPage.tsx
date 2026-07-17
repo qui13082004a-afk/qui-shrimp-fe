@@ -5,6 +5,7 @@ import {
   type CategoryPayload,
   type CategoryStatus,
 } from "../../services/category.service";
+import { confirmDialog } from "../../utils/notify";
 import "./AdminCommon.css";
 import "./AdminSalesPages.css";
 
@@ -123,7 +124,7 @@ export default function AdminCategoryPage() {
   };
 
   const deleteCategory = async (category: Category) => {
-    const confirmed = window.confirm(
+    const confirmed = await confirmDialog(
       `Xóa danh mục "${category.ten_danh_muc}"?`
     );
     if (!confirmed) return;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
+import { toastSuccess } from "../../utils/notify";
 import "./ResetPasswordCodePage.css";
 
 export default function ResetPasswordCodePage() {
@@ -88,7 +89,7 @@ export default function ResetPasswordCodePage() {
 
       const res = await authService.forgotPassword({ email });
 
-      alert(res.data.message || "Đã gửi lại mã OTP");
+      toastSuccess(res.data.message || "Đã gửi lại mã OTP");
       setTimeLeft(300);
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();

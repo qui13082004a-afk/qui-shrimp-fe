@@ -3,6 +3,7 @@ import { ArrowLeft, CalendarDays, Send } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { customerProfileService } from "../../../services/customerProfile.service";
 import { debtExtensionService } from "../../../services/debtExtension.service";
+import { toastError, toastSuccess, toastWarning } from "../../../utils/notify";
 import "./DebtExtensionRequestPage.css";
 
 const DebtExtensionRequestPage = () => {
@@ -32,7 +33,7 @@ const DebtExtensionRequestPage = () => {
         setProfile(res.data);
       } catch (error) {
         console.error(error);
-        alert("Không thể tải hồ sơ công nợ.");
+        toastError("Không thể tải hồ sơ công nợ.");
         navigate(-1);
       }
     };
@@ -44,12 +45,12 @@ const DebtExtensionRequestPage = () => {
     e.preventDefault();
 
     if (!hanDeXuat) {
-      alert("Vui lòng chọn hạn thanh toán đề xuất.");
+      toastWarning("Vui lòng chọn hạn thanh toán đề xuất.");
       return;
     }
 
     if (!lyDo.trim()) {
-      alert("Vui lòng nhập lý do xin gia hạn.");
+      toastWarning("Vui lòng nhập lý do xin gia hạn.");
       return;
     }
 
@@ -63,14 +64,14 @@ const DebtExtensionRequestPage = () => {
       });
 
       if (!res.success) {
-        alert(res.message || "Gửi đơn thất bại.");
+        toastError(res.message || "Gửi đơn thất bại.");
         return;
       }
 
-      alert("Gửi đơn xin gia hạn thành công.");
+      toastSuccess("Gửi đơn xin gia hạn thành công.");
       navigate(-1);
     } catch (error: any) {
-      alert(error.response?.data?.message || "Không thể gửi đơn gia hạn.");
+      toastError(error.response?.data?.message || "Không thể gửi đơn gia hạn.");
     } finally {
       setLoading(false);
     }

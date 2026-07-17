@@ -1,9 +1,24 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { orderService } from "../../../services/order.service";
-import type { OrderRecord, PaymentMethod } from "../../../services/order.service";
+import type {
+  DeliveryStatus,
+  OrderDeliveryRecord,
+  OrderRecord,
+  PaymentMethod,
+} from "../../../services/order.service";
 import "./OrderDetailPage.css";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  MapPin,
+  PackageCheck,
+  Truck,
+  UserRound,
+  XCircle,
+} from "lucide-react";
+import { confirmDialog, toastError, toastSuccess } from "../../../utils/notify";
 
 type OrderStatus =
   | "cho_xu_ly"
@@ -27,6 +42,24 @@ type OrderItem = {
     hinh_anh?: string | null;
     don_vi_tinh?: string | null;
   };
+};
+
+const deliveryStatusText: Record<DeliveryStatus, string> = {
+  cho_giao: "Chờ giao",
+  dang_giao: "Đang giao",
+  giao_thanh_cong: "Giao thành công",
+  giao_that_bai: "Giao thất bại",
+};
+
+const getDeliveryProgress = (delivery?: OrderDeliveryRecord | null) => {
+  if (!delivery) return 0;
+
+  if (delivery.trang_thai === "cho_giao") return 1;
+  if (delivery.trang_thai === "dang_giao") return 2;
+  if (delivery.trang_thai === "giao_thanh_cong") return 3;
+  if (delivery.trang_thai === "giao_that_bai") return 3;
+
+  return 0;
 };
 
 const OrderDetailPage = () => {
@@ -82,6 +115,15 @@ const OrderDetailPage = () => {
     return method ? map[method] || method : "--";
   };
 
+  const getLatestDelivery = () => {
+    const deliveries = order?.GiaoHangs || [];
+    if (!deliveries.length) return null;
+
+    return [...deliveries].sort(
+      (a, b) => Number(b.id_giao_hang) - Number(a.id_giao_hang)
+    )[0];
+  };
+
   const canCancel =
     order &&
     ["cho_xu_ly", "cho_thanh_toan"].includes(
@@ -97,7 +139,7 @@ const OrderDetailPage = () => {
       const result = await orderService.getOrderById(id);
 
       if (!result.success) {
-        alert(result.message || "Không thể tải chi tiết đơn hàng.");
+        toastError(result.message || "Không thể tải chi tiết đơn hàng.");
         navigate("/orders");
         return;
       }
@@ -105,7 +147,7 @@ const OrderDetailPage = () => {
       setOrder(result.data);
     } catch (error: any) {
       console.error(error);
-      alert(
+      toastError(
         error.response?.data?.message ||
           "Không thể tải chi tiết đơn hàng. Vui lòng thử lại."
       );
@@ -118,7 +160,7 @@ const OrderDetailPage = () => {
   const handleCancelOrder = async () => {
     if (!order) return;
 
-    const ok = window.confirm(
+    const ok = await confirmDialog(
       `Bạn có chắc muốn hủy đơn hàng #${order.id_don_hang} không?`
     );
 
@@ -130,7 +172,7 @@ const OrderDetailPage = () => {
       const result = await orderService.cancelOrder(order.id_don_hang);
 
       if (!result.success) {
-        alert(result.message || "Không thể hủy đơn hàng.");
+        toastError(result.message || "Không thể hủy đơn hàng.");
         return;
       }
 
@@ -140,10 +182,10 @@ const OrderDetailPage = () => {
         trang_thai_don_hang: result.data?.trang_thai_don_hang || "da_huy",
       });
 
-      alert("Hủy đơn hàng thành công.");
+      toastSuccess("Hủy đơn hàng thành công.");
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data?.message || "Không thể hủy đơn hàng.");
+      toastError(error.response?.data?.message || "Không thể hủy đơn hàng.");
     } finally {
       setCanceling(false);
     }
@@ -162,6 +204,10 @@ const OrderDetailPage = () => {
   if (!order) return null;
 
   const items = (order.ChiTietDonHangs || []) as OrderItem[];
+  const delivery = getLatestDelivery();
+  const deliveryProgress = getDeliveryProgress(delivery);
+  const deliveryFailed = delivery?.trang_thai === "giao_that_bai";
+  const deliveryStaff = delivery?.NhanVienGiaoHang?.NguoiDung;
 
   return (
     <div className="order-detail-page">
@@ -181,6 +227,92 @@ const OrderDetailPage = () => {
           {getStatusText(order.trang_thai_don_hang)}
         </div>
       </div>
+
+      <section className="order-delivery-card">
+        <div className="order-delivery-head">
+          <div>
+            <span>THEO DÕI GIAO HÀNG</span>
+            <h2>
+              {delivery
+                ? deliveryStatusText[delivery.trang_thai]
+                : "Chưa phân công giao hàng"}
+            </h2>
+            <p>
+              {delivery
+                ? "Trạng thái giao hàng được cập nhật khi nhân viên giao hàng xử lý đơn."
+                : "Đơn hàng sẽ hiển thị tiến trình giao hàng sau khi Admin phân công nhân viên giao hàng."}
+            </p>
+          </div>
+
+          <div className={`order-delivery-badge ${delivery?.trang_thai || "pending"}`}>
+            {deliveryFailed ? <XCircle size={18} /> : <Truck size={18} />}
+            {delivery ? deliveryStatusText[delivery.trang_thai] : "Chưa có phiếu giao"}
+          </div>
+        </div>
+
+        <div className="order-delivery-timeline">
+          {[
+            { label: "Đã đặt hàng", icon: <PackageCheck size={18} /> },
+            { label: "Chờ giao", icon: <Clock3 size={18} /> },
+            { label: "Đang giao", icon: <Truck size={18} /> },
+            {
+              label: deliveryFailed ? "Giao thất bại" : "Hoàn tất",
+              icon: deliveryFailed ? <XCircle size={18} /> : <CheckCircle2 size={18} />,
+            },
+          ].map((step, index) => {
+            const active = index === 0 || deliveryProgress >= index;
+            const current = deliveryProgress === index;
+
+            return (
+              <div
+                className={[
+                  "order-delivery-step",
+                  active ? "active" : "",
+                  current ? "current" : "",
+                  deliveryFailed && index === 3 ? "failed" : "",
+                ].join(" ")}
+                key={step.label}
+              >
+                <span>{step.icon}</span>
+                <strong>{step.label}</strong>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="order-delivery-meta">
+          <div>
+            <MapPin size={18} />
+            <span>Địa chỉ nhận hàng</span>
+            <strong>{order.dia_chi_giao_hang || "--"}</strong>
+          </div>
+
+          <div>
+            <UserRound size={18} />
+            <span>Nhân viên giao hàng</span>
+            <strong>
+              {deliveryStaff?.ho_ten ||
+                deliveryStaff?.so_dien_thoai ||
+                "Chưa phân công"}
+            </strong>
+          </div>
+
+          <div>
+            <Clock3 size={18} />
+            <span>Thời gian cập nhật</span>
+            <strong>
+              {formatDate(delivery?.thoi_gian_giao || order.ngay_giao || null)}
+            </strong>
+          </div>
+        </div>
+
+        {delivery?.ghi_chu && (
+          <div className="order-delivery-note">
+            <strong>Ghi chú giao hàng</strong>
+            <p>{delivery.ghi_chu}</p>
+          </div>
+        )}
+      </section>
 
       <div className="order-detail-grid">
         <section className="order-detail-card">

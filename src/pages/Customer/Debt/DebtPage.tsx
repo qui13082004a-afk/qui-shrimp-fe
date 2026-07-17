@@ -20,6 +20,7 @@ import type {
   DebtOrder,
   DebtSummary,
 } from "../../../services/debt.service";
+import { toastError, toastWarning } from "../../../utils/notify";
 import "./DebtPage.css";
 
 type PondFilter = "all" | "ok" | "warn" | "danger";
@@ -62,7 +63,7 @@ const DebtPage: React.FC = () => {
       if (ordersRes.success) setOrders(ordersRes.data || []);
     } catch (error) {
       console.error(error);
-      alert("Không thể tải dữ liệu công nợ.");
+      toastError("Không thể tải dữ liệu công nợ.");
     } finally {
       setLoading(false);
     }
@@ -186,7 +187,7 @@ const DebtPage: React.FC = () => {
 
   const openPayModal = () => {
     if (totalPayableDebt <= 0) {
-      alert("Không có công nợ cần thanh toán.");
+      toastWarning("Không có công nợ cần thanh toán.");
       return;
     }
 
@@ -199,12 +200,12 @@ const DebtPage: React.FC = () => {
     const amount = Number(payAmount);
 
     if (!amount || amount <= 0) {
-      alert("Vui lòng nhập số tiền hợp lệ.");
+      toastWarning("Vui lòng nhập số tiền hợp lệ.");
       return;
     }
 
     if (amount > selectedProfileDebt) {
-      alert("Số tiền thanh toán không được vượt quá công nợ đã chọn.");
+      toastWarning("Số tiền thanh toán không được vượt quá công nợ đã chọn.");
       return;
     }
 
@@ -217,13 +218,13 @@ const DebtPage: React.FC = () => {
       );
 
       if (!res.data?.checkoutUrl) {
-        alert("Không nhận được link thanh toán.");
+        toastError("Không nhận được link thanh toán.");
         return;
       }
 
       window.location.href = res.data.checkoutUrl;
     } catch (error: any) {
-      alert(error.response?.data?.message || "Không thể tạo thanh toán công nợ.");
+      toastError(error.response?.data?.message || "Không thể tạo thanh toán công nợ.");
     } finally {
       setPaying(false);
     }

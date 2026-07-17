@@ -83,6 +83,14 @@ export interface DebtProfileDetail {
   ngay_duyet?: string | null;
   ghi_chu?: string | null;
   so_don_lien_quan: number;
+  don_hang?: {
+    id_don_hang: number;
+    ngay_dat: string;
+    tong_thanh_toan: number;
+    da_thanh_toan: number;
+    con_lai: number;
+    trang_thai_don_hang: string;
+  }[];
 }
 
 export interface DebtTransaction {
@@ -135,4 +143,19 @@ payPartialDebt: async (so_tien: number, id_ho_so?: number | null) => {
   const res = await axios.post("/debts/pay-partial", payload);
   return res.data;
 },
+
+  getAdminDebtProfileDetail: async (profileId: string | number) => {
+    const res = await axios.get<ApiResponse<DebtProfileDetail>>(
+      `/debts/admin/profile/${profileId}`
+    );
+    return res.data;
+  },
+
+  createAdminDirectPayment: async (payload: {
+    id_ho_so: number | string;
+    so_tien: number;
+  }) => {
+    const res = await axios.post("/debts/admin/direct-payment", payload);
+    return res.data;
+  },
 };

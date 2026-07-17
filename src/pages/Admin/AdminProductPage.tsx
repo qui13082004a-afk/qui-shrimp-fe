@@ -14,6 +14,7 @@ import {
   departurePointService,
   type DeparturePoint,
 } from "../../services/departurePoint.service";
+import { confirmDialog } from "../../utils/notify";
 import "./AdminCommon.css";
 import "./AdminSalesPages.css";
 
@@ -236,7 +237,7 @@ export default function AdminProductPage() {
   };
 
   const hideProduct = async (product: Product) => {
-    const confirmed = window.confirm(`Ẩn sản phẩm "${product.ten_san_pham}"?`);
+    const confirmed = await confirmDialog(`Ẩn sản phẩm "${product.ten_san_pham}"?`);
     if (!confirmed) return;
 
     try {

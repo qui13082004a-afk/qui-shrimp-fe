@@ -22,7 +22,7 @@ const menuGroups = [
         icon: "📌",
       },
       {
-        label: "Hồ sơ mua trả sau",
+        label: "Công nợ khách hàng",
         path: "/admin/ho-so-cong-no",
         icon: "👤",
       },

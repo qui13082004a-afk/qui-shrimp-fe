@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { merchantService } from "../../services/merchant.service";
 import type { Merchant } from "../../services/merchant.service";
+import { confirmDialog } from "../../utils/notify";
 import "./AdminCommon.css";
 import "./AdminMerchantPage.css";
 
@@ -134,7 +135,7 @@ export default function AdminMerchantPage() {
   };
 
   const handleViolation = async (id: number) => {
-    const ok = window.confirm("Ghi nhận 1 lần vi phạm cho thương lái này?");
+    const ok = await confirmDialog("Ghi nhận 1 lần vi phạm cho thương lái này?");
     if (!ok) return;
 
     try {

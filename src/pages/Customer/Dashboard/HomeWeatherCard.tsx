@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CloudSun, Droplets, MapPin, ThermometerSun } from "lucide-react";
+import {
+  cleanAdministrativeName,
+  findProvinceInText,
+  getLastAddressPart,
+  removeVietnameseTones,
+} from "../../../utils/address";
 
 interface WeatherData {
   temp: number;
@@ -9,109 +15,106 @@ interface WeatherData {
 }
 
 interface HomeWeatherCardProps {
-  firstPondAddress: string | undefined;
+  userAddress?: string | null;
+  userProvince?: string | null;
+  fallbackPondAddress?: string | null;
+  fallbackPondProvince?: string | null;
 }
 
-export const HomeWeatherCard: React.FC<HomeWeatherCardProps> = ({ firstPondAddress }) => {
-  const [weather, setWeather] = useState<WeatherData>({
-    temp: 32,
-    humidity: 65,
-    description: "Nắng ráo",
-    locationName: "H. Trần Đề",
-  });
+const DEFAULT_WEATHER: WeatherData = {
+  temp: 32,
+  humidity: 65,
+  description: "Nắng ráo",
+  locationName: "Khu vực: Chưa cập nhật",
+};
 
-  const removeVietnameseTones = (str: string): string => {
-    let result = str;
-    result = result.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
-    result = result.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
-    result = result.replace(/ì|í|ị|ỉ|ĩ/g, "i");
-    result = result.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
-    result = result.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
-    result = result.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
-    result = result.replace(/đ/g, "d");
-    result = result.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
-    result = result.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
-    result = result.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
-    result = result.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
-    result = result.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
-    result = result.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
-    result = result.replace(/Đ/g, "D");
-    return result.replace(/[^a-zA-Z0-9 ]/g, "").trim();
+const getWeatherLocation = ({
+  userAddress,
+  userProvince,
+  fallbackPondAddress,
+  fallbackPondProvince,
+}: HomeWeatherCardProps) => {
+  const provinceFromUser =
+    findProvinceInText(userProvince) || cleanAdministrativeName(userProvince || "");
+  const provinceFromAddress =
+    findProvinceInText(userAddress) || getLastAddressPart(userAddress);
+  const provinceFromPond =
+    findProvinceInText(fallbackPondProvince) ||
+    cleanAdministrativeName(fallbackPondProvince || "") ||
+    findProvinceInText(fallbackPondAddress) ||
+    getLastAddressPart(fallbackPondAddress);
+
+  const location = provinceFromAddress || provinceFromUser || provinceFromPond || "";
+
+  return {
+    query: location,
+    display: location ? `Khu vực: ${location}` : "Khu vực: Chưa cập nhật",
   };
+};
 
-  const getLocationsFromAddress = (address: string | undefined) => {
-    if (!address) return { district: "Tran De", province: "Soc Trang" };
+export const HomeWeatherCard: React.FC<HomeWeatherCardProps> = ({
+  userAddress,
+  userProvince,
+  fallbackPondAddress,
+  fallbackPondProvince,
+}) => {
+  const [weather, setWeather] = useState<WeatherData>(DEFAULT_WEATHER);
 
-    const parts = address.split(",");
-    if (parts.length >= 2) {
-      const district = parts[parts.length - 2]
-        .replace(/(Huyện|Thị xã|Thành phố|Khu vực|Xã|Ấp)/gi, "")
-        .trim();
-      const province = parts[parts.length - 1].replace(/(Tỉnh|Thành phố)/gi, "").trim();
-      return { district, province };
-    }
-
-    const cleanAddress = address
-      .replace(/(Huyện|Thị xã|Thành phố|Khu vực|Xã|Ấp|Tỉnh)/gi, "")
-      .trim();
-    return { district: cleanAddress, province: cleanAddress };
-  };
+  const weatherLocation = useMemo(
+    () =>
+      getWeatherLocation({
+        userAddress,
+        userProvince,
+        fallbackPondAddress,
+        fallbackPondProvince,
+      }),
+    [userAddress, userProvince, fallbackPondAddress, fallbackPondProvince]
+  );
 
   useEffect(() => {
     const fetchWeather = async () => {
-      const { district, province } = getLocationsFromAddress(firstPondAddress);
       const weatherApiKey = "9249da92a04d4482465e90056acc6b51";
+      const query = removeVietnameseTones(weatherLocation.query);
 
-      if (!weatherApiKey) return;
+      if (!weatherApiKey || !query) {
+        setWeather((current) => ({
+          ...current,
+          locationName: weatherLocation.display,
+        }));
+        return;
+      }
 
       try {
-        const queryDistrict = removeVietnameseTones(district);
-
-        let res = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(queryDistrict)},VN&units=metric&lang=vi&appid=${weatherApiKey}`
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+            query
+          )},VN&units=metric&lang=vi&appid=${weatherApiKey}`
         );
-        let data = await res.json();
+        const data = await res.json();
 
-        if (data.cod === "404" || data.cod === 404 || !data.main) {
-          const queryProvince = removeVietnameseTones(province);
-
-          res = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(queryProvince)},VN&units=metric&lang=vi&appid=${weatherApiKey}`
-          );
-          data = await res.json();
-
-          if (data?.main) {
-            setWeather({
-              temp: Math.round(data.main.temp),
-              humidity: data.main.humidity,
-              description: data.weather[0].description,
-              locationName: `Tỉnh ${province}`,
-            });
-            return;
-          }
-        }
-
-        if (data?.main) {
-          setWeather({
-            temp: Math.round(data.main.temp),
-            humidity: data.main.humidity,
-            description: data.weather[0].description,
-            locationName: firstPondAddress ? `H. ${district}` : "H. Trần Đề",
-          });
-        }
+        setWeather((current) => ({
+          temp: data?.main ? Math.round(data.main.temp) : current.temp,
+          humidity: data?.main?.humidity || current.humidity,
+          description: data?.weather?.[0]?.description || current.description,
+          locationName: weatherLocation.display,
+        }));
       } catch (error) {
         console.error("Lỗi kết nối API thời tiết:", error);
+        setWeather((current) => ({
+          ...current,
+          locationName: weatherLocation.display,
+        }));
       }
     };
 
-    fetchWeather();
-  }, [firstPondAddress]);
+    void fetchWeather();
+  }, [weatherLocation]);
 
   return (
     <div className="weather-box">
       <div className="weather-label">
         <CloudSun size={16} />
-        <span>Thời tiết tại ao</span>
+        <span>Thời tiết theo địa chỉ của bạn</span>
       </div>
 
       <div className="weather-main">
@@ -132,8 +135,8 @@ export const HomeWeatherCard: React.FC<HomeWeatherCardProps> = ({ firstPondAddre
 
       <p className="weather-quote">
         {weather.temp > 30
-          ? '"Thời tiết lý tưởng để cho tôm ăn."'
-          : '"Nhiệt độ môi trường giảm, hãy giảm lượng thức ăn và tăng cường quạt khí Oxy."'}
+          ? '"Thời tiết hiện tại thuận lợi cho việc theo dõi ao nuôi."'
+          : '"Nhiệt độ giảm, nên theo dõi lượng thức ăn và oxy trong ao."'}
       </p>
     </div>
   );

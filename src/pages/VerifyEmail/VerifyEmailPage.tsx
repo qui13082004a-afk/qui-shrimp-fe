@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
+import { toastSuccess } from "../../utils/notify";
 import "./VerifyEmailPage.css";
 
 export default function VerifyEmailPage() {
@@ -86,7 +87,7 @@ export default function VerifyEmailPage() {
         otp_code: otpCode,
       });
 
-      alert(res.data.message || "Xác thực email thành công");
+      toastSuccess(res.data.message || "Xác thực email thành công");
 
       localStorage.removeItem("verifyEmail");
       navigate("/login");
@@ -103,7 +104,7 @@ export default function VerifyEmailPage() {
 
       const res = await authService.resendOtp({ email });
 
-      alert(res.data.message || "Đã gửi lại mã OTP");
+      toastSuccess(res.data.message || "Đã gửi lại mã OTP");
       setTimeLeft(300);
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
