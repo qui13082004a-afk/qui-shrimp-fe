@@ -12,6 +12,7 @@ import {
   orderService,
   type OrderRecord,
 } from "../../../services/order.service";
+import { paymentService } from "../../../services/payment.service";
 import "./PaymentSuccessPage.css";
 
 type ViewStatus = "loading" | "success" | "pending" | "failed";
@@ -58,6 +59,55 @@ export default function PaymentSuccessPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    if (isPayOSRedirect && isPayOSCancelled) {
+      setStatus("failed");
+      setMessage("Ban da huy thanh toan hoac giao dich chua hoan tat.");
+      return;
+    }
+
+    if (isPayOSRedirect && payosOrderCode) {
+      const verifyPayOSPayment = async () => {
+        try {
+          const result = await paymentService.confirmPayOSReturn(payosOrderCode);
+          const confirmation = result.data;
+
+          if (!confirmation.confirmed) {
+            setStatus(confirmation.terminal ? "failed" : "pending");
+            setMessage(
+              confirmation.message || "Giao dich dang cho PayOS xac nhan."
+            );
+            return;
+          }
+
+          if (confirmation.type === "order" && orderId) {
+            const orderResponse = await orderService.getOrderById(orderId);
+            setOrder(orderResponse.data);
+          }
+
+          setStatus("success");
+          setMessage(
+            confirmation.type === "debt"
+              ? "PayOS da xac nhan thanh toan. Cong no cua ban da duoc cap nhat."
+              : "PayOS da xac nhan thanh toan. Don hang da chuyen sang cho giao."
+          );
+
+          if (confirmation.type === "order") {
+            localStorage.removeItem("cart");
+            window.dispatchEvent(new Event("storage"));
+          }
+        } catch (error: any) {
+          setStatus("pending");
+          setMessage(
+            error.response?.data?.message ||
+              "Chua the xac minh giao dich voi PayOS. Vui long thu lai sau it phut."
+          );
+        }
+      };
+
+      verifyPayOSPayment();
+      return;
+    }
+
     if (isPayOSRedirect && !orderId) {
       if (!payosOrderCode) {
         setStatus("failed");
