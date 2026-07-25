@@ -21,7 +21,13 @@ const LIMIT = 12;
 
 const StorePage = () => {
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const user = (() => {
+        try {
+            return JSON.parse(localStorage.getItem("user") || "{}");
+        } catch {
+            return {};
+        }
+    })();
 
     const [products, setProducts] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);

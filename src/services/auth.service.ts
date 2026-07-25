@@ -35,4 +35,12 @@ export const authService = {
   }) => {
     return api.post("/auth/reset-password", data);
   },
+
+  changePassword: (data: {
+    mat_khau_cu: string;
+    mat_khau_moi: string;
+    xac_nhan_mat_khau_moi: string;
+  }) => {
+    return api.put("/auth/change-password", data);
+  },
 };

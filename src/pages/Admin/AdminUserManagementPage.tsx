@@ -1,28 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { adminUserService } from "../../services/adminUser.service";
+import type {
+  AdminUser,
+  UserRole,
+  UserStatus,
+} from "../../services/adminUser.service";
 import "./AdminUserManagementPage.css";
 
-type UserRole =
-  | "admin"
-  | "khach_hang"
-  | "nhan_vien_giao_hang"
-  | "nhan_vien_dinh_muc";
-
-type UserStatus = "chua_xac_thuc" | "hoat_dong" | "khoa";
-
-type AdminUser = {
-  id_nguoi_dung: number;
+type CreateStaffForm = {
   ho_ten: string;
   email: string;
-  so_dien_thoai?: string | null;
-  vai_tro: UserRole;
-  trang_thai_tai_khoan: UserStatus;
-  dia_chi?: string | null;
-  tinh_thanh?: string | null;
-  anh_dai_dien?: string | null;
-  ngay_tao?: string;
-  ngay_cap_nhat?: string;
+  so_dien_thoai: string;
+  mat_khau: string;
+  vai_tro: "nhan_vien_giao_hang" | "nhan_vien_dinh_muc";
 };
+
 const roleLabels: Record<UserRole, string> = {
   admin: "Admin",
   khach_hang: "Khách hàng",
@@ -34,6 +26,14 @@ const statusLabels: Record<UserStatus, string> = {
   chua_xac_thuc: "Chưa xác thực",
   hoat_dong: "Hoạt động",
   khoa: "Đã khóa",
+};
+
+const defaultCreateForm: CreateStaffForm = {
+  ho_ten: "",
+  email: "",
+  so_dien_thoai: "",
+  mat_khau: "",
+  vai_tro: "nhan_vien_giao_hang",
 };
 
 const formatDate = (value?: string) => {
@@ -51,7 +51,6 @@ export default function AdminUserManagementPage() {
   const [statusFilter, setStatusFilter] = useState<UserStatus | "tat_ca">(
     "tat_ca"
   );
-
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -59,21 +58,23 @@ export default function AdminUserManagementPage() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [roleModalUser, setRoleModalUser] = useState<AdminUser | null>(null);
   const [newRole, setNewRole] = useState<UserRole>("khach_hang");
+  const [statusModalUser, setStatusModalUser] = useState<AdminUser | null>(null);
 
-  const [statusModalUser, setStatusModalUser] = useState<AdminUser | null>(
-    null
-  );
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creatingStaff, setCreatingStaff] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateStaffForm>(defaultCreateForm);
 
-  const stats = useMemo(() => {
-    return {
+  const stats = useMemo(
+    () => ({
       total: totalUsers,
       admin: users.filter((item) => item.vai_tro === "admin").length,
       limitStaff: users.filter((item) => item.vai_tro === "nhan_vien_dinh_muc")
         .length,
       locked: users.filter((item) => item.trang_thai_tai_khoan === "khoa")
         .length,
-    };
-  }, [users, totalUsers]);
+    }),
+    [users, totalUsers]
+  );
 
   const fetchUsers = async () => {
     try {
@@ -85,7 +86,6 @@ export default function AdminUserManagementPage() {
         page,
         limit: 10,
       });
-
       setUsers(data.items || []);
       setTotalPages(data.pagination?.totalPages || 1);
       setTotalUsers(data.pagination?.total || 0);
@@ -105,7 +105,6 @@ export default function AdminUserManagementPage() {
       setPage(1);
       fetchUsers();
     }, 350);
-
     return () => clearTimeout(timeout);
   }, [search]);
 
@@ -116,13 +115,8 @@ export default function AdminUserManagementPage() {
 
   const handleUpdateRole = async () => {
     if (!roleModalUser) return;
-
     try {
-      await adminUserService.updateUserRole(
-        roleModalUser.id_nguoi_dung,
-        newRole
-      );
-
+      await adminUserService.updateUserRole(roleModalUser.id_nguoi_dung, newRole);
       setAlert("Cập nhật vai trò thành công");
       setRoleModalUser(null);
       fetchUsers();
@@ -142,7 +136,6 @@ export default function AdminUserManagementPage() {
         statusModalUser.id_nguoi_dung,
         nextStatus
       );
-
       setAlert(
         nextStatus === "khoa"
           ? "Đã khóa tài khoản người dùng"
@@ -151,9 +144,44 @@ export default function AdminUserManagementPage() {
       setStatusModalUser(null);
       fetchUsers();
     } catch (error: any) {
+      setAlert(error?.response?.data?.message || "Không thể cập nhật trạng thái");
+    }
+  };
+
+  const openCreateModal = () => {
+    setCreateForm(defaultCreateForm);
+    setShowCreateModal(true);
+  };
+
+  const handleCreateStaff = async () => {
+    if (
+      !createForm.ho_ten.trim() ||
+      !createForm.email.trim() ||
+      !createForm.mat_khau.trim()
+    ) {
+      setAlert("Vui lòng nhập đầy đủ thông tin tài khoản nhân viên");
+      return;
+    }
+
+    try {
+      setCreatingStaff(true);
+      await adminUserService.createStaffUser({
+        ho_ten: createForm.ho_ten.trim(),
+        email: createForm.email.trim(),
+        so_dien_thoai: createForm.so_dien_thoai.trim(),
+        mat_khau: createForm.mat_khau,
+        vai_tro: createForm.vai_tro,
+      });
+      setAlert("Tạo tài khoản nhân viên thành công");
+      setShowCreateModal(false);
+      setCreateForm(defaultCreateForm);
+      fetchUsers();
+    } catch (error: any) {
       setAlert(
-        error?.response?.data?.message || "Không thể cập nhật trạng thái"
+        error?.response?.data?.message || "Không thể tạo tài khoản nhân viên"
       );
+    } finally {
+      setCreatingStaff(false);
     }
   };
 
@@ -163,10 +191,7 @@ export default function AdminUserManagementPage() {
         <div>
           <p className="admin-page__eyebrow">Quản lý hệ thống</p>
           <h1>Quản lý người dùng</h1>
-          <p>
-            Theo dõi tài khoản, phân quyền nhân viên và khóa/mở tài khoản khi
-            cần.
-          </p>
+          <p>Theo dõi tài khoản, phân quyền nhân viên và khóa/mở tài khoản.</p>
         </div>
       </div>
 
@@ -185,19 +210,16 @@ export default function AdminUserManagementPage() {
           <strong>{stats.total}</strong>
           <p>Tất cả tài khoản trong hệ thống</p>
         </div>
-
         <div className="admin-user-stat-card">
           <span>Admin</span>
           <strong>{stats.admin}</strong>
           <p>Trên trang hiện tại</p>
         </div>
-
         <div className="admin-user-stat-card">
           <span>Nhân viên định mức</span>
           <strong>{stats.limitStaff}</strong>
           <p>Phụ trách hồ sơ và hạn mức</p>
         </div>
-
         <div className="admin-user-stat-card">
           <span>Tài khoản khóa</span>
           <strong>{stats.locked}</strong>
@@ -207,9 +229,18 @@ export default function AdminUserManagementPage() {
 
       <div className="admin-card admin-user-card">
         <div className="admin-user-card__top">
-          <div>
-            <h2>Danh sách người dùng</h2>
-            <p>Tìm kiếm, lọc vai trò và cập nhật phân quyền.</p>
+          <div className="admin-user-card__topbar">
+            <div>
+              <h2>Danh sách người dùng</h2>
+              <p>Tìm kiếm, lọc vai trò và cập nhật phân quyền.</p>
+            </div>
+            <button
+              type="button"
+              className="admin-primary-btn"
+              onClick={openCreateModal}
+            >
+              + Tạo tài khoản nhân viên
+            </button>
           </div>
         </div>
 
@@ -217,34 +248,30 @@ export default function AdminUserManagementPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Tìm theo tên, email hoặc số điện thoại..."
+            placeholder="Tìm tên, email, SĐT..."
           />
 
           <select
             value={roleFilter}
-            onChange={(event) => {
-              setRoleFilter(event.target.value as UserRole | "tat_ca");
-              setPage(1);
-            }}
+            onChange={(event) => setRoleFilter(event.target.value as UserRole | "tat_ca")}
           >
             <option value="tat_ca">Tất cả vai trò</option>
             <option value="admin">Admin</option>
             <option value="khach_hang">Khách hàng</option>
-            <option value="nhan_vien_dinh_muc">Nhân viên định mức</option>
             <option value="nhan_vien_giao_hang">Nhân viên giao hàng</option>
+            <option value="nhan_vien_dinh_muc">Nhân viên định mức</option>
           </select>
 
           <select
             value={statusFilter}
-            onChange={(event) => {
-              setStatusFilter(event.target.value as UserStatus | "tat_ca");
-              setPage(1);
-            }}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as UserStatus | "tat_ca")
+            }
           >
             <option value="tat_ca">Tất cả trạng thái</option>
             <option value="hoat_dong">Hoạt động</option>
-            <option value="chua_xac_thuc">Chưa xác thực</option>
             <option value="khoa">Đã khóa</option>
+            <option value="chua_xac_thuc">Chưa xác thực</option>
           </select>
         </div>
 
@@ -252,6 +279,7 @@ export default function AdminUserManagementPage() {
           <table className="admin-table admin-user-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Người dùng</th>
                 <th>Liên hệ</th>
                 <th>Vai trò</th>
@@ -260,77 +288,60 @@ export default function AdminUserManagementPage() {
                 <th>Thao tác</th>
               </tr>
             </thead>
-
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={7}>
                     <div className="admin-user-empty">Đang tải dữ liệu...</div>
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={6}>
-                    <div className="admin-user-empty">
-                      Không có người dùng phù hợp
-                    </div>
+                  <td colSpan={7}>
+                    <div className="admin-user-empty">Không có người dùng phù hợp</div>
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
                   <tr key={user.id_nguoi_dung}>
                     <td>
-                      <strong>{user.ho_ten}</strong>
-                      <span>#{user.id_nguoi_dung}</span>
+                      <strong>#{user.id_nguoi_dung}</strong>
                     </td>
-
                     <td>
-                      <strong>{user.email}</strong>
-                      <span>{user.so_dien_thoai || "Chưa cập nhật SĐT"}</span>
+                      <strong>{user.ho_ten}</strong>
+                      <span>{user.email}</span>
                     </td>
-
+                    <td>
+                      <strong>{user.so_dien_thoai || "Chưa có SĐT"}</strong>
+                      <span>{user.tinh_thanh || "Chưa cập nhật tỉnh/thành"}</span>
+                    </td>
                     <td>
                       <span className={`admin-badge role-${user.vai_tro}`}>
                         {roleLabels[user.vai_tro]}
                       </span>
                     </td>
-
                     <td>
-                      <span
-                        className={`admin-badge status-${user.trang_thai_tai_khoan}`}
-                      >
+                      <span className={`admin-badge status-${user.trang_thai_tai_khoan}`}>
                         {statusLabels[user.trang_thai_tai_khoan]}
                       </span>
                     </td>
-
                     <td>{formatDate(user.ngay_tao)}</td>
-
                     <td>
                       <div className="admin-user-actions">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedUser(user)}
-                        >
+                        <button type="button" onClick={() => setSelectedUser(user)}>
                           Chi tiết
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => openRoleModal(user)}
-                        >
-                          Đổi vai trò
+                        <button type="button" onClick={() => openRoleModal(user)}>
+                          Vai trò
                         </button>
                         <button
                           type="button"
                           className={
-                            user.trang_thai_tai_khoan === "khoa"
-                              ? ""
-                              : "danger"
+                            user.trang_thai_tai_khoan === "khoa" ? "" : "danger"
                           }
                           onClick={() => setStatusModalUser(user)}
                         >
-                          {user.trang_thai_tai_khoan === "khoa"
-                            ? "Mở khóa"
-                            : "Khóa"}
+                          {user.trang_thai_tai_khoan === "khoa" ? "Mở khóa" : "Khóa"}
                         </button>
                       </div>
                     </td>
@@ -350,7 +361,7 @@ export default function AdminUserManagementPage() {
             Trước
           </button>
           <span>
-            Trang {page} / {totalPages}
+            Trang {page}/{totalPages}
           </span>
           <button
             type="button"
@@ -368,7 +379,7 @@ export default function AdminUserManagementPage() {
             <div className="admin-modal__header">
               <div>
                 <h2>Chi tiết người dùng</h2>
-                <p>Thông tin tài khoản và phân quyền hiện tại.</p>
+                <p>{selectedUser.ho_ten}</p>
               </div>
               <button
                 type="button"
@@ -381,8 +392,12 @@ export default function AdminUserManagementPage() {
 
             <div className="admin-user-detail-grid">
               <div>
-                <span>Họ tên</span>
-                <strong>{selectedUser.ho_ten}</strong>
+                <span>ID</span>
+                <strong>#{selectedUser.id_nguoi_dung}</strong>
+              </div>
+              <div>
+                <span>Vai trò</span>
+                <strong>{roleLabels[selectedUser.vai_tro]}</strong>
               </div>
               <div>
                 <span>Email</span>
@@ -390,23 +405,11 @@ export default function AdminUserManagementPage() {
               </div>
               <div>
                 <span>Số điện thoại</span>
-                <strong>{selectedUser.so_dien_thoai || "—"}</strong>
-              </div>
-              <div>
-                <span>Tỉnh thành</span>
-                <strong>{selectedUser.tinh_thanh || "—"}</strong>
-              </div>
-              <div>
-                <span>Vai trò</span>
-                <strong>{roleLabels[selectedUser.vai_tro]}</strong>
-              </div>
-              <div>
-                <span>Trạng thái</span>
-                <strong>{statusLabels[selectedUser.trang_thai_tai_khoan]}</strong>
+                <strong>{selectedUser.so_dien_thoai || "Chưa cập nhật"}</strong>
               </div>
               <div className="admin-user-detail-grid__full">
                 <span>Địa chỉ</span>
-                <strong>{selectedUser.dia_chi || "—"}</strong>
+                <strong>{selectedUser.dia_chi || "Chưa cập nhật"}</strong>
               </div>
             </div>
           </div>
@@ -418,7 +421,7 @@ export default function AdminUserManagementPage() {
           <div className="admin-modal admin-user-confirm">
             <div className="admin-modal__header">
               <div>
-                <h2>Đổi vai trò</h2>
+                <h2>Cập nhật vai trò</h2>
                 <p>{roleModalUser.ho_ten}</p>
               </div>
               <button
@@ -431,17 +434,15 @@ export default function AdminUserManagementPage() {
             </div>
 
             <label>
-              Vai trò mới
+              Vai trò
               <select
                 value={newRole}
                 onChange={(event) => setNewRole(event.target.value as UserRole)}
               >
-                <option value="khach_hang">Khách hàng</option>
-                <option value="nhan_vien_dinh_muc">Nhân viên định mức</option>
-                <option value="nhan_vien_giao_hang">
-                  Nhân viên giao hàng
-                </option>
                 <option value="admin">Admin</option>
+                <option value="khach_hang">Khách hàng</option>
+                <option value="nhan_vien_giao_hang">Nhân viên giao hàng</option>
+                <option value="nhan_vien_dinh_muc">Nhân viên định mức</option>
               </select>
             </label>
 
@@ -453,12 +454,8 @@ export default function AdminUserManagementPage() {
               >
                 Hủy
               </button>
-              <button
-                type="button"
-                className="admin-primary-btn"
-                onClick={handleUpdateRole}
-              >
-                Cập nhật
+              <button type="button" className="admin-primary-btn" onClick={handleUpdateRole}>
+                Lưu vai trò
               </button>
             </div>
           </div>
@@ -486,10 +483,10 @@ export default function AdminUserManagementPage() {
               </button>
             </div>
 
-            <p className="admin-user-confirm-text">
+            <p>
               {statusModalUser.trang_thai_tai_khoan === "khoa"
-                ? "Tài khoản này sẽ được mở khóa và có thể đăng nhập lại."
-                : "Tài khoản này sẽ bị khóa và không thể đăng nhập vào hệ thống."}
+                ? "Xác nhận mở khóa tài khoản này?"
+                : "Xác nhận khóa tài khoản này?"}
             </p>
 
             <div className="admin-modal__actions">
@@ -500,16 +497,111 @@ export default function AdminUserManagementPage() {
               >
                 Hủy
               </button>
+              <button type="button" className="admin-primary-btn" onClick={handleToggleStatus}>
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCreateModal && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal admin-user-create-modal">
+            <div className="admin-modal__header">
+              <div>
+                <h2>Tạo tài khoản nhân viên</h2>
+                <p>Tạo mới nhân viên giao hàng hoặc nhân viên định mức.</p>
+              </div>
               <button
                 type="button"
-                className={
-                  statusModalUser.trang_thai_tai_khoan === "khoa"
-                    ? "admin-primary-btn"
-                    : "admin-primary-btn danger"
-                }
-                onClick={handleToggleStatus}
+                className="admin-modal__close"
+                onClick={() => setShowCreateModal(false)}
               >
-                Xác nhận
+                ×
+              </button>
+            </div>
+
+            <div className="admin-user-create-grid">
+              <label>
+                Họ tên
+                <input
+                  value={createForm.ho_ten}
+                  onChange={(event) =>
+                    setCreateForm((prev) => ({ ...prev, ho_ten: event.target.value }))
+                  }
+                />
+              </label>
+
+              <label>
+                Email
+                <input
+                  value={createForm.email}
+                  onChange={(event) =>
+                    setCreateForm((prev) => ({ ...prev, email: event.target.value }))
+                  }
+                />
+              </label>
+
+              <label>
+                Số điện thoại
+                <input
+                  value={createForm.so_dien_thoai}
+                  onChange={(event) =>
+                    setCreateForm((prev) => ({
+                      ...prev,
+                      so_dien_thoai: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label>
+                Mật khẩu
+                <input
+                  type="password"
+                  value={createForm.mat_khau}
+                  onChange={(event) =>
+                    setCreateForm((prev) => ({
+                      ...prev,
+                      mat_khau: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="admin-user-create-grid__full">
+                Vai trò
+                <select
+                  value={createForm.vai_tro}
+                  onChange={(event) =>
+                    setCreateForm((prev) => ({
+                      ...prev,
+                      vai_tro: event.target.value as CreateStaffForm["vai_tro"],
+                    }))
+                  }
+                >
+                  <option value="nhan_vien_giao_hang">Nhân viên giao hàng</option>
+                  <option value="nhan_vien_dinh_muc">Nhân viên định mức</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="admin-modal__actions">
+              <button
+                type="button"
+                className="admin-secondary-btn"
+                onClick={() => setShowCreateModal(false)}
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                className="admin-primary-btn"
+                onClick={handleCreateStaff}
+                disabled={creatingStaff}
+              >
+                {creatingStaff ? "Đang tạo..." : "Tạo tài khoản"}
               </button>
             </div>
           </div>

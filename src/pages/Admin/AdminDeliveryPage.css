@@ -195,7 +195,8 @@
 }
 
 .admin-delivery-form input,
-.admin-delivery-form textarea {
+.admin-delivery-form textarea,
+.admin-delivery-form select {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #dbe4ef;
@@ -212,6 +213,11 @@
   padding: 0 13px;
 }
 
+.admin-delivery-form select {
+  height: 44px;
+  padding: 0 13px;
+}
+
 .admin-delivery-form textarea {
   min-height: 100px;
   resize: vertical;
@@ -220,7 +226,8 @@
 }
 
 .admin-delivery-form input:focus,
-.admin-delivery-form textarea:focus {
+.admin-delivery-form textarea:focus,
+.admin-delivery-form select:focus {
   border-color: #0f75bc;
   background: #ffffff;
   box-shadow: 0 0 0 4px rgba(15, 117, 188, 0.12);

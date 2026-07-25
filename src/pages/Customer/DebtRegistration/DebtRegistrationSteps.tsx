@@ -303,7 +303,7 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
             </Field>
           )}
           <Field label="Nguồn thu nhập trả nợ *" full><textarea value={form.nguon_thu_nhap_tra_no} onChange={(e) => updateField("nguon_thu_nhap_tra_no", e.target.value)} placeholder="Ví dụ: tiền bán tôm sau thu hoạch" /></Field>
-          <Field label="Người mua tôm dự kiến" full><input value={form.nguoi_mua_tom_du_kien} onChange={(e) => updateField("nguoi_mua_tom_du_kien", e.target.value)} placeholder="Tên thương lái hoặc công ty thu mua" /></Field>
+          <Field label="Đơn vị thu mua dự kiến" full><input value={form.nguoi_mua_tom_du_kien} onChange={(e) => updateField("nguoi_mua_tom_du_kien", e.target.value)} placeholder="Tên đơn vị hoặc người thu mua dự kiến" /></Field>
         </div>
       </section>
     );

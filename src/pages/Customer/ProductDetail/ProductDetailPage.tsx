@@ -62,7 +62,7 @@ const ProductDetailPage = () => {
   };
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product) return false;
 
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existed = cart.find(
@@ -85,6 +85,7 @@ const ProductDetailPage = () => {
     localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("storage"));
     toastSuccess(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+    return true;
   };
 
   if (loading) {
@@ -261,8 +262,9 @@ const ProductDetailPage = () => {
               <button
                 className="btn-buy-now"
                 onClick={() => {
-                  handleAddToCart();
-                  navigate("/cart");
+                  if (handleAddToCart()) {
+                    navigate("/cart");
+                  }
                 }}
               >
                 Mua ngay

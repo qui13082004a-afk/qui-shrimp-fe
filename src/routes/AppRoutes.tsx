@@ -46,7 +46,6 @@ import AdminLimitProposalPage from "../pages/Admin/AdminLimitProposalPage";
 import AdminCustomerDebtProfilePage from "../pages/Admin/AdminCustomerDebtProfilePage";
 import AdminDebtExtensionPage from "../pages/Admin/AdminDebtExtensionPage";
 import AdminContractPage from "../pages/Admin/AdminContractPage";
-import AdminMerchantPage from "../pages/Admin/AdminMerchantPage";
 import AdminUserManagementPage from "../pages/Admin/AdminUserManagementPage";
 import AdminDeliveryPage from "../pages/Admin/AdminDeliveryPage";
 import AdminShippingConfigPage from "../pages/Admin/AdminShippingConfigPage";
@@ -54,16 +53,36 @@ import AdminCategoryPage from "../pages/Admin/AdminCategoryPage";
 import AdminProductPage from "../pages/Admin/AdminProductPage";
 import AdminOrderPage from "../pages/Admin/AdminOrderPage";
 import AdminLimitStaffAreaPage from "../pages/Admin/AdminLimitStaffAreaPage";
+import AdminDeliveryStaffPage from "../pages/Admin/AdminDeliveryStaffPage";
 
 import StaffAssessmentProfilePage from "../pages/StaffLimit/StaffAssessmentProfilePage";
 import StaffLimitProposalPage from "../pages/StaffLimit/StaffLimitProposalPage";
 import StaffCreateLimitProposalPage from "../pages/StaffLimit/StaffCreateLimitProposalPage";
 import StaffContractPage from "../layouts/StaffLimitLayout/StaffContractPage";
+import AccessRequiredCard from "../components/Auth/AccessRequiredCard";
 
 type RoleRouteProps = {
   allowedRoles: string[];
   children: React.ReactNode;
 };
+
+function RequireLoginInline({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem("accessToken");
+  const userRaw = localStorage.getItem("user");
+
+  if (!token || !userRaw) {
+    return <AccessRequiredCard />;
+  }
+
+  try {
+    JSON.parse(userRaw);
+    return children;
+  } catch {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    return <AccessRequiredCard />;
+  }
+}
 
 function RoleRoute({ allowedRoles, children }: RoleRouteProps) {
   const token = localStorage.getItem("accessToken");
@@ -113,38 +132,109 @@ export default function AppRoutes() {
 
       <Route element={<CustomerLayout />}>
         <Route path="/home" element={<CustomerHomePage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <RequireLoginInline>
+              <DashboardPage />
+            </RequireLoginInline>
+          }
+        />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/debt" element={<DebtPage />} />
+        <Route
+          path="/debt"
+          element={
+            <RequireLoginInline>
+              <DebtPage />
+            </RequireLoginInline>
+          }
+        />
         <Route path="/store" element={<StorePage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
-        <Route path="/debt/profile/:profileId" element={<DebtDetailPage />} />
+        <Route
+          path="/debt/profile/:profileId"
+          element={
+            <RequireLoginInline>
+              <DebtDetailPage />
+            </RequireLoginInline>
+          }
+        />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment-success" element={<PaymentSuccessPage />} />
         <Route path="/payment-cancel" element={<PaymentCancelPage />} />
         <Route path="/debt/payment-success" element={<PaymentSuccessPage />} />
         <Route path="/debt/payment-cancel" element={<PaymentResultPage />} />
-        <Route path="/orders" element={<OrderPage />} />
-        <Route path="/ponds" element={<PondsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/orders"
+          element={
+            <RequireLoginInline>
+              <OrderPage />
+            </RequireLoginInline>
+          }
+        />
+        <Route
+          path="/ponds"
+          element={
+            <RequireLoginInline>
+              <PondsPage />
+            </RequireLoginInline>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <RequireLoginInline>
+              <ProfilePage />
+            </RequireLoginInline>
+          }
+        />
         <Route path="/order-success" element={<OrderSuccessPage />} />
-        <Route path="/orders/:id" element={<OrderDetailPage />} />
+        <Route
+          path="/orders/:id"
+          element={
+            <RequireLoginInline>
+              <OrderDetailPage />
+            </RequireLoginInline>
+          }
+        />
 
         <Route
           path="/debt-extension/:id"
-          element={<DebtExtensionRequestPage />}
+          element={
+            <RequireLoginInline>
+              <DebtExtensionRequestPage />
+            </RequireLoginInline>
+          }
         />
 
-        <Route path="/debt/history" element={<DebtHistoryPage />} />
+        <Route
+          path="/debt/history"
+          element={
+            <RequireLoginInline>
+              <DebtHistoryPage />
+            </RequireLoginInline>
+          }
+        />
 
         <Route
           path="/ponds/crop-seasons/:id_vu_nuoi/orders"
-          element={<SeasonOrderHistoryPage />}
+          element={
+            <RequireLoginInline>
+              <SeasonOrderHistoryPage />
+            </RequireLoginInline>
+          }
         />
 
-        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route
+          path="/notifications"
+          element={
+            <RequireLoginInline>
+              <NotificationsPage />
+            </RequireLoginInline>
+          }
+        />
       </Route>
 
       <Route
@@ -163,10 +253,8 @@ export default function AppRoutes() {
         <Route path="phieu-de-xuat-han-muc" element={<AdminLimitProposalPage />} />
         <Route path="gia-han-thanh-toan" element={<AdminDebtExtensionPage />} />
         <Route path="hop-dong" element={<AdminContractPage />} />
-        <Route path="thuong-lai" element={<AdminMerchantPage />} />
-
         <Route path="nguoi-dung" element={<AdminUserManagementPage />} />
-        <Route path="nhan-vien-giao-hang" element={<AdminDeliveryPage />} />
+        <Route path="nhan-vien-giao-hang" element={<AdminDeliveryStaffPage />} />
         <Route path="nhan-vien-dinh-muc" element={<AdminLimitStaffAreaPage />} />
 
         <Route path="danh-muc" element={<AdminCategoryPage />} />

@@ -1,4 +1,5 @@
 import { LogOut, RefreshCw } from "lucide-react";
+import DeliveryAccountCard from "./DeliveryAccountCard";
 
 export interface DeliveryUserInfo {
   ho_ten?: string;
@@ -22,26 +23,23 @@ export default function DeliveryHeader({
   return (
     <header className="delivery-hero">
       <div className="delivery-hero__content">
-        <span className="delivery-kicker">NHÂN VIÊN GIAO HÀNG</span>
-        <h1>Xin chào, {user.ho_ten || "nhân viên"}</h1>
+        <span className="delivery-kicker">NHAN VIEN GIAO HANG</span>
+        <h1>Xin chao, {user.ho_ten || "nhan vien"}</h1>
         <p>
-          Theo dõi các đơn được phân công trong ngày và cập nhật tiến độ giao
-          hàng đúng lúc.
+          Theo doi cac don duoc phan cong trong ngay va cap nhat tien do giao
+          hang dung luc.
         </p>
       </div>
 
       <div className="delivery-hero__actions">
-        <div className="delivery-user-card">
-          <strong>{user.ho_ten || "Nhân viên giao hàng"}</strong>
-          <span>{user.so_dien_thoai || user.email || "Đang đăng nhập"}</span>
-        </div>
+        <DeliveryAccountCard user={user} />
 
         <button
           type="button"
           className="delivery-icon-btn"
           onClick={onRefresh}
           disabled={loading}
-          title="Tải lại"
+          title="Tai lai"
         >
           <RefreshCw size={19} className={loading ? "is-spinning" : ""} />
         </button>
@@ -50,7 +48,7 @@ export default function DeliveryHeader({
           type="button"
           className="delivery-icon-btn"
           onClick={onLogout}
-          title="Đăng xuất"
+          title="Dang xuat"
         >
           <LogOut size={20} />
         </button>

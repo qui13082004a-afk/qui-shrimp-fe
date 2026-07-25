@@ -8,6 +8,7 @@ import {
   type NotificationResponse,
   type NotificationType,
 } from "../../services/notification.service";
+import StaffLimitAccountCard from "./StaffLimitAccountCard";
 import "./StaffLimitLayout.css";
 
 const NOTIFICATION_POLLING_TIME = 30000;
@@ -67,6 +68,36 @@ const getStoredUserName = () => {
   }
 };
 
+const getStoredUserInfo = () => {
+  try {
+    const rawUser =
+      localStorage.getItem("user") ||
+      localStorage.getItem("currentUser") ||
+      localStorage.getItem("authUser");
+
+    if (!rawUser) {
+      return {
+        ho_ten: "Nhân viên định mức",
+        email: "",
+        so_dien_thoai: "",
+      };
+    }
+
+    const user = JSON.parse(rawUser);
+    return {
+      ho_ten: user?.ho_ten || user?.name || user?.email || "Nhân viên định mức",
+      email: user?.email || "",
+      so_dien_thoai: user?.so_dien_thoai || "",
+    };
+  } catch {
+    return {
+      ho_ten: "Nhân viên định mức",
+      email: "",
+      so_dien_thoai: "",
+    };
+  }
+};
+
 export default function StaffLimitLayout() {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -77,6 +108,7 @@ export default function StaffLimitLayout() {
   const [loadingNotifications, setLoadingNotifications] = useState(false);
 
   const userName = useMemo(() => getStoredUserName(), []);
+  const userInfo = useMemo(() => getStoredUserInfo(), []);
   const userInitial = useMemo(() => {
     const trimmedName = userName.trim();
     return trimmedName ? trimmedName.charAt(0).toUpperCase() : "Đ";
@@ -258,13 +290,12 @@ export default function StaffLimitLayout() {
               )}
             </div>
 
-            <div className="staff-limit-user">
-              <div className="staff-limit-user__avatar">{userInitial}</div>
-              <div>
-                <span>{userName}</span>
-                <strong>Nhân viên định mức</strong>
-              </div>
-            </div>
+            <StaffLimitAccountCard
+              userName={userName}
+              userInitial={userInitial}
+              userEmail={userInfo.email}
+              userPhone={userInfo.so_dien_thoai}
+            />
           </div>
         </header>
 

@@ -37,6 +37,7 @@ const assignDelivery = async (data: {
   const res = await axiosClient.post("/deliveries/assign", data);
   return res.data.data as AdminDelivery;
 };
+
 export type DeliveryOrderOption = {
   id_don_hang: number;
   tong_thanh_toan: number | string;
@@ -48,10 +49,18 @@ export type DeliveryOrderOption = {
 };
 
 export type DeliveryStaffOption = {
-  id_nguoi_dung: number;
-  ho_ten: string;
-  email: string;
-  so_dien_thoai?: string | null;
+  id_nhan_vien_giao_hang: number;
+  trang_thai?: string | null;
+  ngay_bat_dau?: string | null;
+  ngay_lam_viec?: string | null;
+  khu_vuc_phu_trach?: string | null;
+  ghi_chu?: string | null;
+  NguoiDung?: {
+    id_nguoi_dung: number;
+    ho_ten: string;
+    email: string;
+    so_dien_thoai?: string | null;
+  } | null;
 };
 
 const getReadyOrders = async () => {
@@ -76,21 +85,33 @@ const getReadyOrders = async () => {
 };
 
 const getDeliveryStaffs = async () => {
-  const res = await axiosClient.get("/auth/users", {
-    params: {
-      vai_tro: "nhan_vien_giao_hang",
-      trang_thai_tai_khoan: "hoat_dong",
-      page: 1,
-      limit: 100,
-    },
-  });
-
-  return res.data.data.items as DeliveryStaffOption[];
+  const res = await axiosClient.get("/deliveries/staff-options");
+  return res.data.data as DeliveryStaffOption[];
 };
+
+const getAllDeliveryStaffs = async () => {
+  const res = await axiosClient.get("/deliveries/staff");
+  return res.data.data as DeliveryStaffOption[];
+};
+
+const updateDeliveryStaffArea = async (
+  id: number | string,
+  data: {
+    id_tinh_thanh: number | string;
+    id_phuong_xa: number | string;
+    mo_ta_khu_vuc?: string;
+  }
+) => {
+  const res = await axiosClient.patch(`/deliveries/staff/${id}/area`, data);
+  return res.data.data as DeliveryStaffOption;
+};
+
 export const adminDeliveryService = {
   getAllDeliveries,
   getDeliveryById,
   assignDelivery,
   getReadyOrders,
-getDeliveryStaffs,
+  getDeliveryStaffs,
+  getAllDeliveryStaffs,
+  updateDeliveryStaffArea,
 };

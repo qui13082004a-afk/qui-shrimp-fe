@@ -40,6 +40,16 @@ export type AdminUserListResponse = {
   };
 };
 
+export type CreateStaffUserPayload = {
+  ho_ten: string;
+  email: string;
+  so_dien_thoai?: string;
+  mat_khau: string;
+  vai_tro: Extract<UserRole, "nhan_vien_giao_hang" | "nhan_vien_dinh_muc">;
+  dia_chi?: string;
+  tinh_thanh?: string;
+};
+
 const getAllUsers = async (params: AdminUserListParams = {}) => {
   const response = await axiosClient.get("/auth/users", { params });
   return response.data.data as AdminUserListResponse;
@@ -69,9 +79,15 @@ const updateUserStatus = async (
   return response.data.data as AdminUser;
 };
 
+const createStaffUser = async (payload: CreateStaffUserPayload) => {
+  const response = await axiosClient.post("/auth/users/staff", payload);
+  return response.data.data as AdminUser;
+};
+
 export const adminUserService = {
   getAllUsers,
   getUserById,
   updateUserRole,
   updateUserStatus,
+  createStaffUser,
 };

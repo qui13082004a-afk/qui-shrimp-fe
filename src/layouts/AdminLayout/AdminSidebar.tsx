@@ -4,7 +4,7 @@ import "./AdminSidebar.css";
 
 const menuGroups = [
   {
-    title: "Tổng quan",
+    title: "Tong quan",
     items: [
       {
         label: "Dashboard",
@@ -14,96 +14,90 @@ const menuGroups = [
     ],
   },
   {
-    title: "Quản lý công nợ",
+    title: "Quan ly cong no",
     items: [
       {
-        label: "Chính sách hạn mức",
+        label: "Chinh sach han muc",
         path: "/admin/chinh-sach-han-muc",
         icon: "📌",
       },
       {
-        label: "Công nợ khách hàng",
+        label: "Cong no khach hang",
         path: "/admin/ho-so-cong-no",
         icon: "👤",
       },
       {
-        label: "Phiếu đề xuất hạn mức",
+        label: "Phieu de xuat han muc",
         path: "/admin/phieu-de-xuat-han-muc",
         icon: "🧾",
       },
       {
-        label: "Gia hạn thanh toán",
+        label: "Gia han thanh toan",
         path: "/admin/gia-han-thanh-toan",
         icon: "⏳",
       },
       {
-        label: "Hợp đồng",
+        label: "Hop dong",
         path: "/admin/hop-dong",
         icon: "📄",
-      },
-      {
-        label: "Thương lái",
-        path: "/admin/thuong-lai",
-        icon: "🏪",
       },
     ],
   },
   {
-    title: "Quản lý bán hàng",
+    title: "Quan ly ban hang",
     items: [
       {
-        label: "Danh mục",
+        label: "Danh muc",
         path: "/admin/danh-muc",
         icon: "🗂️",
       },
       {
-        label: "Sản phẩm",
+        label: "San pham",
         path: "/admin/san-pham",
         icon: "📦",
       },
       {
-        label: "Đơn hàng",
+        label: "Don hang",
         path: "/admin/don-hang",
         icon: "🛒",
       },
       {
-        label: "Giao hàng",
+        label: "Giao hang",
         path: "/admin/giao-hang",
         icon: "🚚",
       },
       {
-        label: "Khu vực & vận chuyển",
+        label: "Khu vuc & van chuyen",
         path: "/admin/khu-vuc-van-chuyen",
         icon: "📍",
       },
     ],
   },
   {
-    title: "Quản lý người dùng",
+    title: "Quan ly nguoi dung",
     items: [
       {
-        label: "Người dùng",
+        label: "Nguoi dung",
         path: "/admin/nguoi-dung",
         icon: "👥",
       },
       {
-        label: "Nhân viên giao hàng",
+        label: "Nhan vien giao hang",
         path: "/admin/nhan-vien-giao-hang",
         icon: "🚛",
       },
       {
-        label: "Nhân viên định mức",
+        label: "Nhan vien dinh muc",
         path: "/admin/nhan-vien-dinh-muc",
         icon: "🧾",
       },
-      
     ],
   },
   {
-    title: "Nội dung",
+    title: "Noi dung",
     items: [
       {
-        label: "Thông báo",
+        label: "Thong bao",
         path: "/admin/thong-bao",
         icon: "🔔",
       },
@@ -130,32 +124,30 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
       })
     );
 
-    return activeGroup?.title || "Tổng quan";
+    return activeGroup?.title || "Tong quan";
   }, [location.pathname]);
 
   const [openGroup, setOpenGroup] = useState(defaultOpenGroup);
 
   return (
     <>
-      {isOpen && (
-        <div className="admin-sidebar__overlay" onClick={onClose} />
-      )}
+      {isOpen && <div className="admin-sidebar__overlay" onClick={onClose} />}
 
       <aside className={`admin-sidebar ${isOpen ? "admin-sidebar--open" : ""}`}>
         <button
           type="button"
           className="admin-sidebar__close"
           onClick={onClose}
-          aria-label="Đóng menu"
+          aria-label="Dong menu"
         >
-          ✕
+          x
         </button>
 
         <div className="admin-sidebar__brand">
           <div className="admin-sidebar__logo">LVTN</div>
           <div>
             <h2>Admin</h2>
-            <p>Quản trị hệ thống</p>
+            <p>Quan tri he thong</p>
           </div>
         </div>
 
@@ -183,7 +175,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: AdminSidebarPr
                   onClick={() => setOpenGroup(isOpenGroup ? "" : group.title)}
                 >
                   <span>{group.title}</span>
-                  <b>{isOpenGroup ? "−" : "+"}</b>
+                  <b>{isOpenGroup ? "-" : "+"}</b>
                 </button>
 
                 {isOpenGroup && (

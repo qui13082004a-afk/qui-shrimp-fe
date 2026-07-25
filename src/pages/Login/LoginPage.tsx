@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Headphones, Lock, Mail, XCircle } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import "./LoginPage.css";
 
@@ -9,6 +10,7 @@ type LoginNotice = {
 };
 
 export default function LoginPage() {
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [matKhau, setMatKhau] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,6 +37,11 @@ export default function LoginPage() {
 
     if (role === "nhan_vien_giao_hang") {
       return "/delivery";
+    }
+
+    const from = (location.state as { from?: string } | null)?.from;
+    if (from && from !== "/login") {
+      return from;
     }
 
     return "/home";

@@ -91,7 +91,7 @@ const HomePage = () => {
               Bắt đầu đăng ký
               <ArrowRight size={18} />
             </Link>
-            <Link className="home-cta home-cta--secondary" to="/login">
+            <Link className="home-cta home-cta--secondary" to="/home">
               Vào dashboard khách hàng
             </Link>
           </div>

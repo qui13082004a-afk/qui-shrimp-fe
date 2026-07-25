@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { BarChart3, Bell, History, ListChecks, LogOut } from "lucide-react";
 import type { DeliveryUserInfo } from "./DeliveryHeader";
+import DeliveryAccountCard from "./DeliveryAccountCard";
 
 interface DeliveryPageShellProps {
   title: string;
@@ -25,17 +26,14 @@ export default function DeliveryPageShell({
     <div className="delivery-page">
       <header className="delivery-shell-header">
         <div>
-          <span className="delivery-kicker">NHÂN VIÊN GIAO HÀNG</span>
+          <span className="delivery-kicker">NHAN VIEN GIAO HANG</span>
           <h1>{title}</h1>
           <p>{subtitle}</p>
         </div>
 
         <div className="delivery-shell-user">
-          <div>
-            <strong>{user.ho_ten || "Nhân viên giao hàng"}</strong>
-            <span>{user.so_dien_thoai || user.email || "Đang đăng nhập"}</span>
-          </div>
-          <button type="button" onClick={handleLogout} title="Đăng xuất">
+          <DeliveryAccountCard user={user} variant="shell" />
+          <button type="button" onClick={handleLogout} title="Dang xuat">
             <LogOut size={20} />
           </button>
         </div>
@@ -48,15 +46,15 @@ export default function DeliveryPageShell({
         </NavLink>
         <NavLink to="/delivery/orders">
           <ListChecks size={18} />
-          Đơn giao
+          Don giao
         </NavLink>
         <NavLink to="/delivery/history">
           <History size={18} />
-          Lịch sử
+          Lich su
         </NavLink>
         <NavLink to="/delivery/notifications">
           <Bell size={18} />
-          Thông báo
+          Thong bao
         </NavLink>
       </nav>
 

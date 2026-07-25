@@ -1,12 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { Bell, ShoppingCart, LogOut } from "lucide-react";
+import { Bell, ShoppingCart, LogOut, LogIn } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { notificationService, type NotificationItem } from "../../services/notification.service";
 import "./Header.css";
 
 const Header = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const token = localStorage.getItem("accessToken");
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "{}");
+    } catch {
+      return {};
+    }
+  })();
+  const isLoggedIn = Boolean(token && user?.id_nguoi_dung);
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -106,8 +114,10 @@ const Header = () => {
   };
 
   useEffect(() => {
-    fetchNotifications();
-  }, []);
+    if (isLoggedIn) {
+      fetchNotifications();
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -140,68 +150,70 @@ const Header = () => {
       </nav>
 
       <div className="customer-header__right">
-        <div className="customer-header__bell-wrapper" ref={notificationRef}>
-          <button
-            className={`customer-header__icon-btn ${showNotifications ? "active" : ""}`}
-            onClick={handleOpenNotifications}
-            type="button"
-          >
-            <Bell size={21} />
-            {unreadCount > 0 && (
-              <span className="customer-header__badge">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
-          </button>
+        {isLoggedIn && (
+          <div className="customer-header__bell-wrapper" ref={notificationRef}>
+            <button
+              className={`customer-header__icon-btn ${showNotifications ? "active" : ""}`}
+              onClick={handleOpenNotifications}
+              type="button"
+            >
+              <Bell size={21} />
+              {unreadCount > 0 && (
+                <span className="customer-header__badge">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </button>
 
-          {showNotifications && (
-            <div className="customer-header__dropdown">
-              <div className="dropdown-header">
-                <span>Thông báo</span>
-                {unreadCount > 0 && (
-                  <button type="button" onClick={handleMarkAll}>
-                    Đọc tất cả
-                  </button>
-                )}
-              </div>
-
-              <div className="dropdown-body">
-                {notifications.length === 0 ? (
-                  <div className="dropdown-empty">Chưa có thông báo nào</div>
-                ) : (
-                  notifications.slice(0, 6).map((item) => (
-                    <button
-                      key={item.id_thong_bao}
-                      className={`dropdown-item ${!item.da_doc ? "unread" : ""}`}
-                      onClick={() => handleClickNotification(item)}
-                      type="button"
-                    >
-                      <div className="dropdown-item__icon">
-                        {getNotifyIcon(item.loai)}
-                      </div>
-                      <div className="dropdown-item__content">
-                        <strong>{item.tieu_de}</strong>
-                        <p>{item.noi_dung}</p>
-                        <span>{formatTime(item.ngay_tao)}</span>
-                      </div>
+            {showNotifications && (
+              <div className="customer-header__dropdown">
+                <div className="dropdown-header">
+                  <span>Thông báo</span>
+                  {unreadCount > 0 && (
+                    <button type="button" onClick={handleMarkAll}>
+                      Đọc tất cả
                     </button>
-                  ))
-                )}
-              </div>
+                  )}
+                </div>
 
-              <button
-                className="dropdown-footer"
-                type="button"
-                onClick={() => {
-                  setShowNotifications(false);
-                  navigate("/notifications");
-                }}
-              >
-                Xem tất cả thông báo
-              </button>
-            </div>
-          )}
-        </div>
+                <div className="dropdown-body">
+                  {notifications.length === 0 ? (
+                    <div className="dropdown-empty">Chưa có thông báo nào</div>
+                  ) : (
+                    notifications.slice(0, 6).map((item) => (
+                      <button
+                        key={item.id_thong_bao}
+                        className={`dropdown-item ${!item.da_doc ? "unread" : ""}`}
+                        onClick={() => handleClickNotification(item)}
+                        type="button"
+                      >
+                        <div className="dropdown-item__icon">
+                          {getNotifyIcon(item.loai)}
+                        </div>
+                        <div className="dropdown-item__content">
+                          <strong>{item.tieu_de}</strong>
+                          <p>{item.noi_dung}</p>
+                          <span>{formatTime(item.ngay_tao)}</span>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+
+                <button
+                  className="dropdown-footer"
+                  type="button"
+                  onClick={() => {
+                    setShowNotifications(false);
+                    navigate("/notifications");
+                  }}
+                >
+                  Xem tất cả thông báo
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <button
           className="customer-header__icon-btn"
@@ -213,26 +225,39 @@ const Header = () => {
 
         <div className="customer-header__divider" />
 
-        <button
-          className="customer-header__user"
-          onClick={() => navigate("/profile")}
-          type="button"
-        >
-          <div>
-            <strong>{user?.ho_ten || "Người dùng"}</strong>
-            <span>{getRoleName()}</span>
-          </div>
-          <img src={user?.anh_dai_dien || "/shrimp-farm.jpg"} alt="avatar" />
-        </button>
+        {isLoggedIn ? (
+          <>
+            <button
+              className="customer-header__user"
+              onClick={() => navigate("/profile")}
+              type="button"
+            >
+              <div>
+                <strong>{user?.ho_ten || "Người dùng"}</strong>
+                <span>{getRoleName()}</span>
+              </div>
+              <img src={user?.anh_dai_dien || "/shrimp-farm.jpg"} alt="avatar" />
+            </button>
 
-        <button
-          className="customer-header__logout"
-          onClick={handleLogout}
-          type="button"
-          title="Đăng xuất"
-        >
-          <LogOut size={20} />
-        </button>
+            <button
+              className="customer-header__logout"
+              onClick={handleLogout}
+              type="button"
+              title="Đăng xuất"
+            >
+              <LogOut size={20} />
+            </button>
+          </>
+        ) : (
+          <button
+            className="customer-header__login"
+            onClick={() => navigate("/login")}
+            type="button"
+          >
+            <LogIn size={18} />
+            <span>Đăng nhập</span>
+          </button>
+        )}
       </div>
     </header>
   );

@@ -319,8 +319,12 @@ export default function AdminDeliveryPage() {
                 >
                   <option value="">Chọn nhân viên giao hàng</option>
                   {deliveryStaffs.map((staff) => (
-                    <option key={staff.id_nguoi_dung} value={staff.id_nguoi_dung}>
-                      {staff.ho_ten} - {staff.so_dien_thoai || staff.email}
+                    <option
+                      key={staff.id_nhan_vien_giao_hang}
+                      value={staff.id_nhan_vien_giao_hang}
+                    >
+                      {staff.NguoiDung?.ho_ten || "Nhân viên giao hàng"} -{" "}
+                      {staff.khu_vuc_phu_trach || "Chưa cập nhật khu vực"}
                     </option>
                   ))}
                 </select>

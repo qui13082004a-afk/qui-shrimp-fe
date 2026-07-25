@@ -28,6 +28,7 @@ import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import api from "../../../lib/axios";
+import AccessRequiredCard from "../../../components/Auth/AccessRequiredCard";
 import "./CheckoutPage.css";
 
 L.Icon.Default.mergeOptions({
@@ -155,6 +156,7 @@ const formatCurrency = (value: number) => `${value.toLocaleString("vi-VN")}đ`;
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState(true);
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [user, setUser] = useState<StoredUser>({});
@@ -198,6 +200,16 @@ export default function CheckoutPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const userRaw = localStorage.getItem("user");
+
+    if (!token || !userRaw) {
+      setIsAuthorized(false);
+      return;
+    }
+
+    setIsAuthorized(true);
+
     const storedCart = JSON.parse(
       localStorage.getItem("cart") || "[]"
     ) as CartItem[];
@@ -211,7 +223,7 @@ export default function CheckoutPage() {
     fetchMyPonds();
     fetchMyDeliveryAddresses(storedUser);
     fetchProvinces();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (!showAddressModal || !addressForm.id_tinh_thanh) {
@@ -599,6 +611,10 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  if (!isAuthorized) {
+    return <AccessRequiredCard />;
+  }
 
   if (cartItems.length === 0) {
     return (
