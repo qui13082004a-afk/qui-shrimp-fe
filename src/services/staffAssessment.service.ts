@@ -74,9 +74,6 @@ export type CreateLimitProposalPayload = {
   han_muc_de_xuat: number | string;
   ly_do_de_xuat: string;
   nhan_xet_khao_sat?: string;
-  ph?: number | string;
-  oxy_hoa_tan?: number | string;
-  kich_co_tom?: string;
   hinh_anh_khao_sat?: string;
   ngay_khao_sat?: string;
   minh_chung_khao_sat?: File[];
@@ -125,9 +122,6 @@ const createLimitProposal = async (data: CreateLimitProposalPayload) => {
   appendIfHasValue(formData, "han_muc_de_xuat", data.han_muc_de_xuat);
   appendIfHasValue(formData, "ly_do_de_xuat", data.ly_do_de_xuat);
   appendIfHasValue(formData, "nhan_xet_khao_sat", data.nhan_xet_khao_sat);
-  appendIfHasValue(formData, "ph", data.ph);
-  appendIfHasValue(formData, "oxy_hoa_tan", data.oxy_hoa_tan);
-  appendIfHasValue(formData, "kich_co_tom", data.kich_co_tom);
   appendIfHasValue(formData, "ngay_khao_sat", data.ngay_khao_sat);
   appendIfHasValue(formData, "hinh_anh_khao_sat", data.hinh_anh_khao_sat);
 

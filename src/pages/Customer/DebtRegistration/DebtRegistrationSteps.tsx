@@ -1,5 +1,16 @@
 ﻿import React from "react";
-import type { Province, Ward } from "../../../services/location.service";
+
+export interface SupportedProvinceOption {
+  id_tinh_thanh: string;
+  ten_tinh: string;
+}
+
+export interface SupportedWardOption {
+  id_phuong_xa: string;
+  ten_xa: string;
+  cap_xa?: string;
+  quan_huyen?: string;
+}
 
 export type FileField =
   | "anh_cccd_mat_truoc"
@@ -53,8 +64,8 @@ interface StepContentProps {
   isAreaAutoFilled: boolean;
   isHarvestDateAutoFilled: boolean;
   loadingPondCropInfo: boolean;
-  provinceOptions: Province[];
-  wardOptions: Ward[];
+  provinceOptions: SupportedProvinceOption[];
+  wardOptions: SupportedWardOption[];
   selectedProvinceId: string;
   loadingProvinces: boolean;
   loadingWards: boolean;

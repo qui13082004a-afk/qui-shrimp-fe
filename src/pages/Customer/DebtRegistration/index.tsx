@@ -1,16 +1,16 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
-import { customerProfileService } from "../../../services/customerProfile.service";
+import {
+  customerProfileService,
+  type SupportedPostpaidArea,
+} from "../../../services/customerProfile.service";
 import { pondService } from "../../../services/pond.service";
 import { cropSeasonService } from "../../../services/cropSeason.service";
-import {
-  locationService,
-  type Province,
-  type Ward,
-} from "../../../services/location.service";
 import {
   DebtRegistrationStepContent,
   type DebtRegistrationFormState,
   type FileField,
+  type SupportedProvinceOption,
+  type SupportedWardOption,
 } from "./DebtRegistrationSteps";
 import "./DebtRegistration.css";
 
@@ -198,8 +198,9 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
   const [loadingPondCropInfo, setLoadingPondCropInfo] = useState(false);
   const [isAreaAutoFilled, setIsAreaAutoFilled] = useState(true);
   const [isHarvestDateAutoFilled, setIsHarvestDateAutoFilled] = useState(true);
-  const [provinceOptions, setProvinceOptions] = useState<Province[]>([]);
-  const [wardOptions, setWardOptions] = useState<Ward[]>([]);
+  const [supportedAreas, setSupportedAreas] = useState<SupportedPostpaidArea[]>([]);
+  const [provinceOptions, setProvinceOptions] = useState<SupportedProvinceOption[]>([]);
+  const [wardOptions, setWardOptions] = useState<SupportedWardOption[]>([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState("");
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
@@ -209,24 +210,44 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
 
     let cancelled = false;
 
-    const loadProvinces = async () => {
+    const loadSupportedAreas = async () => {
       setLoadingProvinces(true);
       try {
-        const response = await locationService.getProvinces();
+        const response = await customerProfileService.getActiveSupportedAreas();
         if (!cancelled) {
-          setProvinceOptions(response.data || []);
+          const activeAreas = (response.data || []).filter(
+            (area) => area.trang_thai === "hoat_dong"
+          );
+          const provinceMap = new Map<string, SupportedProvinceOption>();
+
+          activeAreas.forEach((area) => {
+            const provinceName = String(area.tinh_thanh || "").trim();
+            if (!provinceName) return;
+            provinceMap.set(provinceName.toLowerCase(), {
+              id_tinh_thanh: provinceName,
+              ten_tinh: provinceName,
+            });
+          });
+
+          setSupportedAreas(activeAreas);
+          setProvinceOptions(
+            Array.from(provinceMap.values()).sort((a, b) =>
+              a.ten_tinh.localeCompare(b.ten_tinh, "vi")
+            )
+          );
         }
       } catch {
         if (!cancelled) {
+          setSupportedAreas([]);
           setProvinceOptions([]);
-          setError("Không thể tải danh sách tỉnh/thành. Vui lòng thử lại.");
+          setError("Không thể tải danh sách khu vực trả sau. Vui lòng thử lại.");
         }
       } finally {
         if (!cancelled) setLoadingProvinces(false);
       }
     };
 
-    void loadProvinces();
+    void loadSupportedAreas();
 
     return () => {
       cancelled = true;
@@ -239,31 +260,29 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
       return;
     }
 
-    let cancelled = false;
+    setLoadingWards(true);
 
-    const loadWards = async () => {
-      setLoadingWards(true);
-      try {
-        const response = await locationService.getWardsByProvince(selectedProvinceId);
-        if (!cancelled) {
-          setWardOptions(response.data || []);
-        }
-      } catch {
-        if (!cancelled) {
-          setWardOptions([]);
-          setError("Không thể tải danh sách phường/xã. Vui lòng thử lại.");
-        }
-      } finally {
-        if (!cancelled) setLoadingWards(false);
-      }
-    };
+    const wards = supportedAreas
+      .filter(
+        (area) =>
+          area.trang_thai === "hoat_dong" &&
+          String(area.tinh_thanh || "").trim() === selectedProvinceId
+      )
+      .map((area, index) => {
+        const wardName = String(area.phuong_xa || "").trim();
 
-    void loadWards();
+        return {
+          id_phuong_xa: String(area.id_khu_vuc || `${selectedProvinceId}-${index}`),
+          ten_xa: wardName || "Toàn khu vực được hỗ trợ",
+          cap_xa: wardName ? "" : "",
+          quan_huyen: area.quan_huyen || "Theo don vi hanh chinh 34 tinh",
+        };
+      })
+      .sort((a, b) => a.ten_xa.localeCompare(b.ten_xa, "vi"));
 
-    return () => {
-      cancelled = true;
-    };
-  }, [isOpen, selectedProvinceId]);
+    setWardOptions(wards);
+    setLoadingWards(false);
+  }, [isOpen, selectedProvinceId, supportedAreas]);
 
   useEffect(() => {
     if (!isOpen || !pondId || !cropSeasonId) return;
@@ -367,7 +386,7 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
 
   const handleSelectProvince = (provinceId: string) => {
     const province = provinceOptions.find(
-      (item) => String(item.id_tinh_thanh) === provinceId
+      (item) => item.id_tinh_thanh === provinceId
     );
 
     setSelectedProvinceId(provinceId);
@@ -385,11 +404,12 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
 
   const handleSelectWard = (wardId: string) => {
     const ward = wardOptions.find(
-      (item) => String(item.id_phuong_xa) === wardId
+      (item) => item.id_phuong_xa === wardId
     );
 
     setForm((current) => ({
       ...current,
+      quan_huyen_ao: ward?.quan_huyen || current.quan_huyen_ao,
       phuong_xa_ao: ward?.ten_xa || "",
     }));
     setAreaChecked(false);

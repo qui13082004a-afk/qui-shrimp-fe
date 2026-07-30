@@ -45,8 +45,13 @@ export const creditPolicyService = {
     return res.data;
   },
 
-  togglePolicyStatus: async (id: number | string) => {
-    const res = await axiosClient.patch(`/chinh-sach-han-muc/${id}/status`);
+  togglePolicyStatus: async (
+    id: number | string,
+    trang_thai: CreditPolicy["trang_thai"]
+  ) => {
+    const res = await axiosClient.patch(`/chinh-sach-han-muc/${id}/status`, {
+      trang_thai,
+    });
     return res.data;
   },
 };

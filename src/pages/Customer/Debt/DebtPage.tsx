@@ -83,9 +83,12 @@ const DebtPage: React.FC = () => {
   const currentDebt = Number(
     summary?.cong_no_hien_tai || summary?.tong_cong_no || 0
   );
+  const overdueInterest = Number(summary?.tong_lai_qua_han || 0);
 
   const reservedDebt = Number(summary?.dang_giu_han_muc || 0);
-  const totalPayableDebt = currentDebt;
+  const totalPayableDebt = Number(
+    summary?.tong_phai_thanh_toan ?? currentDebt + overdueInterest
+  );
 
   const usedCredit = currentDebt + reservedDebt;
   const availableCredit = Math.max(totalLimit - usedCredit, 0);
@@ -98,6 +101,8 @@ const DebtPage: React.FC = () => {
   const getPondNumbers = (item: DebtLimitByPond) => {
     const limit = Number(item.dinh_muc_cong_no || 0);
     const debt = Number(item.cong_no_hien_tai ?? item.tong_cong_no ?? 0);
+    const interest = Number(item.tien_lai_qua_han ?? 0);
+    const payable = Number(item.tong_phai_thanh_toan ?? debt + interest);
     const reserved = Number(item.dang_giu_han_muc ?? 0);
     const used = debt + reserved;
     const percent = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
@@ -105,6 +110,8 @@ const DebtPage: React.FC = () => {
     return {
       limit,
       debt,
+      interest,
+      payable,
       reserved,
       used,
       available: Math.max(limit - used, 0),
@@ -182,7 +189,7 @@ const DebtPage: React.FC = () => {
     if (!selected) return 0;
 
     const numbers = getPondNumbers(selected);
-    return numbers.debt;
+    return numbers.payable;
   }, [selectedProfileId, ponds, totalPayableDebt]);
 
   const openPayModal = () => {
@@ -192,7 +199,7 @@ const DebtPage: React.FC = () => {
     }
 
     setSelectedProfileId("");
-    setPayAmount(String(currentDebt));
+    setPayAmount(String(Math.round(totalPayableDebt)));
     setShowPayModal(true);
   };
 
@@ -256,7 +263,7 @@ const DebtPage: React.FC = () => {
       <div className="debt-overview-grid">
         <section className="debt-overview-main">
           <div>
-            <span className="overview-label">Công nợ hiện tại</span>
+            <span className="overview-label">Tổng cần thanh toán</span>
             <strong>{formatCurrency(totalPayableDebt)}</strong>
           </div>
 
@@ -293,6 +300,16 @@ const DebtPage: React.FC = () => {
             <div>
               <small>Đã thanh toán</small>
               <strong>{formatCurrency(paidAmount)}</strong>
+            </div>
+          </div>
+
+          <div className="debt-side-card due">
+            <span className="side-icon">
+              <AlertTriangle size={24} strokeWidth={2.6} />
+            </span>
+            <div>
+              <small>Lãi quá hạn</small>
+              <strong>{formatCurrency(overdueInterest)}</strong>
             </div>
           </div>
 
@@ -405,8 +422,12 @@ const DebtPage: React.FC = () => {
                 <div className="pond-card-body">
                   <div className="pond-money-row">
                     <div>
-                      <small>Công nợ hiện tại</small>
-                      <strong>{formatCurrency(numbers.debt)}</strong>
+                      <small>Cần thanh toán</small>
+                      <strong>{formatCurrency(numbers.payable)}</strong>
+                    </div>
+                    <div>
+                      <small>Lãi quá hạn</small>
+                      <strong>{formatCurrency(numbers.interest)}</strong>
                     </div>
                     <div>
                       <small>Đang giữ hạn mức</small>
@@ -425,14 +446,14 @@ const DebtPage: React.FC = () => {
 
                   <button
                     className={
-                      numbers.debt > 0
+                      numbers.payable > 0
                         ? "pond-pay-now"
                         : "pond-detail-btn"
                     }
                     type="button"
                     onClick={() => navigate(`/debt/profile/${item.id_ho_so}`)}
                   >
-                    {numbers.debt > 0 ? (
+                    {numbers.payable > 0 ? (
                       <>
                         <CreditCard size={17} strokeWidth={2.7} />
                         Thanh toán ngay
@@ -565,7 +586,7 @@ const DebtPage: React.FC = () => {
                 setSelectedProfileId(value);
 
                 if (!value) {
-                  setPayAmount(String(currentDebt));
+                  setPayAmount(String(Math.round(totalPayableDebt)));
                   return;
                 }
 
@@ -575,7 +596,7 @@ const DebtPage: React.FC = () => {
 
                 if (selected) {
                   const numbers = getPondNumbers(selected);
-                  setPayAmount(String(numbers.debt));
+                  setPayAmount(String(Math.round(numbers.payable)));
                 }
               }}
             >
@@ -584,7 +605,7 @@ const DebtPage: React.FC = () => {
               {ponds
                 .filter((item) => {
                   const numbers = getPondNumbers(item);
-                  return numbers.debt > 0;
+                  return numbers.payable > 0;
                 })
                 .map((item) => {
                   const numbers = getPondNumbers(item);
@@ -593,7 +614,7 @@ const DebtPage: React.FC = () => {
                     <option key={item.id_ho_so} value={item.id_ho_so}>
                       {item.ten_ao || `Ao #${item.id_ao}`} - Vụ #
                       {item.id_vu_nuoi || "--"} -{" "}
-                      {formatCurrency(numbers.debt)}
+                      {formatCurrency(numbers.payable)}
                     </option>
                   );
                 })}

@@ -196,7 +196,10 @@ export default function AdminShippingConfigPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("business-area");
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [postpaidWardOptions, setPostpaidWardOptions] = useState<Ward[]>([]);
+  const [departureWardOptions, setDepartureWardOptions] = useState<Ward[]>([]);
   const [selectedPostpaidProvinceId, setSelectedPostpaidProvinceId] =
+    useState<string>("");
+  const [selectedDepartureProvinceId, setSelectedDepartureProvinceId] =
     useState<string>("");
   const [businessAreas, setBusinessAreas] = useState<BusinessArea[]>([]);
   const [postpaidAreas, setPostpaidAreas] = useState<SupportedPostpaidArea[]>([]);
@@ -325,6 +328,8 @@ export default function AdminShippingConfigPage() {
     setPostpaidAreaForm(initialPostpaidAreaForm);
     setSelectedPostpaidProvinceId("");
     setPostpaidWardOptions([]);
+    setSelectedDepartureProvinceId("");
+    setDepartureWardOptions([]);
     setDeparturePointForm(initialDeparturePointForm);
     setShippingFeeForm(initialShippingFeeForm);
     setCoordinateInfo(null);
@@ -340,7 +345,11 @@ export default function AdminShippingConfigPage() {
       setSelectedPostpaidProvinceId("");
       setPostpaidWardOptions([]);
     }
-    if (type === "departure-point") setDeparturePointForm(initialDeparturePointForm);
+    if (type === "departure-point") {
+      setDeparturePointForm(initialDeparturePointForm);
+      setSelectedDepartureProvinceId("");
+      setDepartureWardOptions([]);
+    }
     if (type === "shipping-fee") setShippingFeeForm(initialShippingFeeForm);
   };
 
@@ -379,6 +388,12 @@ export default function AdminShippingConfigPage() {
   };
 
   const openDeparturePointEdit = (point: DeparturePoint) => {
+    const matchedProvince = provinces.find((province) =>
+      String(point.dia_chi || "")
+        .toLowerCase()
+        .includes(province.ten_tinh.toLowerCase())
+    );
+
     setEditingId(point.id_diem_xuat_phat);
     setDeparturePointForm({
       ten_diem: point.ten_diem,
@@ -389,6 +404,9 @@ export default function AdminShippingConfigPage() {
       dang_hoat_dong: point.dang_hoat_dong,
       la_mac_dinh: point.la_mac_dinh,
     });
+    setSelectedDepartureProvinceId(
+      matchedProvince ? String(matchedProvince.id_tinh_thanh) : ""
+    );
     setCoordinateInfo(null);
     setModalType("departure-point");
   };
@@ -478,14 +496,70 @@ export default function AdminShippingConfigPage() {
     };
   }, [selectedPostpaidProvinceId]);
 
+  useEffect(() => {
+    if (!selectedDepartureProvinceId) {
+      setDepartureWardOptions([]);
+      return;
+    }
+
+    let mounted = true;
+
+    locationService
+      .getWardsByProvince(selectedDepartureProvinceId)
+      .then((result) => {
+        if (mounted) {
+          setDepartureWardOptions(Array.isArray(result.data) ? result.data : []);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setDepartureWardOptions([]);
+          setMessage("Khong tai duoc danh sach phuong/xa cho diem xuat phat");
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [selectedDepartureProvinceId]);
+
   const handleDeparturePointChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = event.target;
     const checked = (event.target as HTMLInputElement).checked;
     setDeparturePointForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleDepartureProvinceChange = (provinceId: string) => {
+    const province = provinces.find(
+      (item) => String(item.id_tinh_thanh) === String(provinceId)
+    );
+
+    setSelectedDepartureProvinceId(provinceId);
+    setDepartureWardOptions([]);
+    setDeparturePointForm((prev) => ({
+      ...prev,
+      dia_chi: province?.ten_tinh || "",
+    }));
+  };
+
+  const handleDepartureWardChange = (wardId: string) => {
+    const ward = departureWardOptions.find(
+      (item) => String(item.id_phuong_xa) === String(wardId)
+    );
+    const province = provinces.find(
+      (item) => String(item.id_tinh_thanh) === String(selectedDepartureProvinceId)
+    );
+
+    setDeparturePointForm((prev) => ({
+      ...prev,
+      dia_chi: ward
+        ? `${ward.ten_xa}, ${province?.ten_tinh || ""}`.replace(/^,\s*/, "")
+        : province?.ten_tinh || "",
     }));
   };
 
@@ -506,6 +580,27 @@ export default function AdminShippingConfigPage() {
         kinh_do: lng,
       });
       setCoordinateInfo(result.data);
+      const boundary = result.data?.dia_gioi;
+
+      if (result.data?.tim_thay && boundary) {
+        const matchedProvince = provinces.find(
+          (province) =>
+            province.ten_tinh.toLowerCase() ===
+            boundary.ten_tinh.toLowerCase()
+        );
+
+        if (matchedProvince) {
+          setSelectedDepartureProvinceId(String(matchedProvince.id_tinh_thanh));
+        }
+
+        setDeparturePointForm((prev) => ({
+          ...prev,
+          dia_chi: `${boundary.ten_xa || ""}, ${boundary.ten_tinh || ""}`.replace(
+            /^,\s*/,
+            ""
+          ),
+        }));
+      }
     } catch (error: any) {
       setCoordinateInfo(null);
       setMessage(error?.response?.data?.message || "Khong kiem tra duoc dia gioi toa do");
@@ -1377,6 +1472,48 @@ export default function AdminShippingConfigPage() {
                     value={departurePointForm.ten_diem || ""}
                     onChange={handleDeparturePointChange}
                   />
+                </label>
+                <label>
+                  Tinh/thanh
+                  <select
+                    value={selectedDepartureProvinceId}
+                    onChange={(event) =>
+                      handleDepartureProvinceChange(event.target.value)
+                    }
+                  >
+                    <option value="">Chon tinh/thanh</option>
+                    {provinces.map((province) => (
+                      <option
+                        key={province.id_tinh_thanh}
+                        value={province.id_tinh_thanh}
+                      >
+                        {province.ma_tinh} - {province.ten_tinh}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Phuong/xa
+                  <select
+                    value={
+                      departureWardOptions.find(
+                        (ward) =>
+                          ward.ten_xa ===
+                          String(departurePointForm.dia_chi || "")
+                            .split(",")[0]
+                            ?.trim()
+                      )?.id_phuong_xa || ""
+                    }
+                    onChange={(event) => handleDepartureWardChange(event.target.value)}
+                    disabled={!selectedDepartureProvinceId}
+                  >
+                    <option value="">Chon phuong/xa</option>
+                    {departureWardOptions.map((ward) => (
+                      <option key={ward.id_phuong_xa} value={ward.id_phuong_xa}>
+                        {ward.ten_xa}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label>
                   Dia chi

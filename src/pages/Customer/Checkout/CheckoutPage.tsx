@@ -153,6 +153,7 @@ function AddressMapPicker({
 }
 
 const formatCurrency = (value: number) => `${value.toLocaleString("vi-VN")}đ`;
+const POSTPAID_SURCHARGE_RATE = 5;
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -196,6 +197,7 @@ export default function CheckoutPage() {
   const [shippingInfo, setShippingInfo] = useState<OrderPreview["van_chuyen"] | null>(
     null
   );
+  const [orderPreview, setOrderPreview] = useState<OrderPreview | null>(null);
   const [shippingMessage, setShippingMessage] = useState("");
   const [message, setMessage] = useState("");
 
@@ -257,6 +259,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!selectedDeliveryAddress) {
       setShippingInfo(null);
+      setOrderPreview(null);
       setShippingMessage("Chọn địa chỉ giao hàng có tọa độ để hệ thống tự tính phí vận chuyển.");
       return;
     }
@@ -266,6 +269,7 @@ export default function CheckoutPage() {
 
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       setShippingInfo(null);
+      setOrderPreview(null);
       setShippingMessage(
         "Địa chỉ giao hàng chưa có tọa độ. Vui lòng cập nhật vị trí để tính phí vận chuyển."
       );
@@ -291,6 +295,7 @@ export default function CheckoutPage() {
           kinh_do_giao_hang: lng,
         });
         const preview = res.data;
+        setOrderPreview(preview);
         const warehouseName =
           preview.van_chuyen?.kho_xuat?.ten_kho ||
           preview.kho_xuat_du_kien?.ten_kho;
@@ -316,6 +321,7 @@ export default function CheckoutPage() {
         );
       } catch (error: any) {
         setShippingInfo(null);
+        setOrderPreview(null);
         setShippingMessage(
           error?.response?.data?.message ||
             "Địa chỉ này chưa nằm trong khu vực phục vụ."
@@ -493,7 +499,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const subtotal = useMemo(
+  const baseSubtotal = useMemo(
     () =>
       cartItems.reduce(
         (acc, item) => acc + Number(item.gia) * Number(item.so_luong),
@@ -502,8 +508,22 @@ export default function CheckoutPage() {
     [cartItems]
   );
 
+  const localPostpaidSubtotal =
+    paymentMethod === "tra_sau"
+      ? cartItems.reduce(
+          (acc, item) =>
+            acc +
+            Math.round(Number(item.gia) * (1 + POSTPAID_SURCHARGE_RATE / 100)) *
+              Number(item.so_luong),
+          0
+        )
+      : baseSubtotal;
+
+  const subtotal = Number(orderPreview?.tong_tien ?? localPostpaidSubtotal);
+  const postpaidSurcharge = Math.max(subtotal - baseSubtotal, 0);
+
   const shippingFee = Number(shippingInfo?.phi_van_chuyen || 0);
-  const total = subtotal + shippingFee;
+  const total = Number(orderPreview?.tong_thanh_toan ?? subtotal + shippingFee);
   const totalItems = cartItems.reduce((acc, item) => acc + item.so_luong, 0);
   const shippingStatus = shippingLoading
     ? "loading"
@@ -877,7 +897,13 @@ export default function CheckoutPage() {
                   <h3>{item.ten_san_pham}</h3>
                   <p>Số lượng: {item.so_luong}</p>
                 </div>
-                <strong>{formatCurrency(item.gia * item.so_luong)}</strong>
+                <strong>
+                  {formatCurrency(
+                    paymentMethod === "tra_sau"
+                      ? Math.round(Number(item.gia) * 1.05) * item.so_luong
+                      : item.gia * item.so_luong
+                  )}
+                </strong>
               </div>
             ))}
           </div>
@@ -891,6 +917,13 @@ export default function CheckoutPage() {
             <span>Tạm tính</span>
             <strong>{formatCurrency(subtotal)}</strong>
           </div>
+
+          {paymentMethod === "tra_sau" && (
+            <div className="summary-line">
+              <span>Phụ phí trả sau 5%</span>
+              <strong>{formatCurrency(postpaidSurcharge)}</strong>
+            </div>
+          )}
 
           <div className="summary-line">
             <span>Phí vận chuyển</span>

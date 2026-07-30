@@ -210,9 +210,11 @@ const StorePage = () => {
                         className={`store-category ${
                             selectedCategory === category.id_danh_muc ? "active" : ""
                         }`}
+                        
                         onClick={() => handleSelectCategory(category.id_danh_muc)}
                     >
                         <span>{category.ten_danh_muc}</span>
+                        <span>({category.so_luong_san_pham})</span>
                         <span>›</span>
                     </button>
                 ))}
@@ -518,7 +520,7 @@ const StorePage = () => {
                             >
                                 Tất cả sản phẩm
                             </button>
-
+                        
                             {filteredCategories.map((category) => (
                                 <button
                                     type="button"
@@ -530,6 +532,7 @@ const StorePage = () => {
                                     }`}
                                     onClick={() => handleSelectCategory(category.id_danh_muc)}
                                 >
+
                                     {category.ten_danh_muc}
                                 </button>
                             ))}

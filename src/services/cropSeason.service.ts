@@ -13,14 +13,12 @@ export interface CropSeason {
 
 export interface SeasonOrderProduct {
   id_chi_tiet: number;
-  id_san_pham: number;
   ten_san_pham: string;
   hinh_anh?: string | null;
   don_vi_tinh?: string | null;
   gia_ban: number;
   so_luong_dat: number;
   thanh_tien: number;
-  trang_thai_san_pham?: string | null;
 }
 
 export interface SeasonOrderItem {
@@ -39,23 +37,15 @@ export interface SeasonOrderItem {
     | "hoan_tat"
     | "giao_that_bai"
     | "da_huy";
-  ghi_chu?: string | null;
   san_pham: SeasonOrderProduct[];
 }
 
 export interface SeasonOrderSummary {
-  id_vu_nuoi: number;
   ten_vu_nuoi: string;
-  trang_thai: string;
   ngay_tha_giong?: string;
-  so_luong_giong?: number;
-  ngay_thu_hoach_du_kien?: string;
   ao_nuoi: {
-    id_ao: number;
     ten_ao: string;
-    dien_tich: string | number;
-    dia_chi_ao?: string;
-  };
+  } | null;
   tong_so_don: number;
   tong_von: number;
   don_hoan_tat: number;

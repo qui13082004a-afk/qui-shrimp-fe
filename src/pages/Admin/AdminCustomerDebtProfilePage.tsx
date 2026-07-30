@@ -176,7 +176,9 @@ export default function AdminCustomerDebtProfilePage() {
       setLoadingDebtDetail(true);
       const res = await debtService.getAdminDebtProfileDetail(profile.id_ho_so);
       setDebtDetail(res.data);
-      const currentDebt = Number(res.data.cong_no_hien_tai || 0);
+      const currentDebt = Number(
+        res.data.tong_phai_thanh_toan ?? res.data.cong_no_hien_tai ?? 0
+      );
       setPaymentForm({
         so_tien: currentDebt > 0 ? String(Math.round(currentDebt)) : "",
       });
@@ -288,7 +290,9 @@ export default function AdminCustomerDebtProfilePage() {
       return;
     }
 
-    const payableDebt = Number(debtDetail?.cong_no_hien_tai || 0);
+    const payableDebt = Number(
+      debtDetail?.tong_phai_thanh_toan ?? debtDetail?.cong_no_hien_tai ?? 0
+    );
     if (payableDebt <= 0) {
       setPaymentError(
         "Khách hàng chưa có công nợ hiện tại để ghi nhận thanh toán. Phần đang giữ hạn mức chưa được trừ tại đây."
@@ -333,7 +337,9 @@ export default function AdminCustomerDebtProfilePage() {
     return profile.NguoiDung?.so_dien_thoai || "Chưa có SĐT";
   };
 
-  const payableDebt = Number(debtDetail?.cong_no_hien_tai || 0);
+  const payableDebt = Number(
+    debtDetail?.tong_phai_thanh_toan ?? debtDetail?.cong_no_hien_tai ?? 0
+  );
   const hasPayableDebt = payableDebt > 0;
   const payableOrders = (debtDetail?.don_hang || []).filter(
     (order) =>

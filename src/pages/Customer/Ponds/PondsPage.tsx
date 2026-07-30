@@ -126,6 +126,9 @@ const PondsPage: React.FC = () => {
   });
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isProfileDetailOpen, setIsProfileDetailOpen] = useState(false);
+  void isProfileDetailOpen;
+  void setIsProfileDetailOpen;
 
   const getErrorMessage = (error: any) => {
     return (
@@ -261,6 +264,71 @@ const PondsPage: React.FC = () => {
   ) => {
     return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
   };
+
+  const formatDate = (value?: string | null) => {
+    if (!value) return "--/--/----";
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+
+    return parsed.toLocaleDateString("vi-VN");
+  };
+
+  const getProfileStatusLabel = (status?: string | null) => {
+    const statusMap: Record<string, string> = {
+      cho_kiem_tra: "Chờ kiểm tra",
+      cho_de_xuat: "Chờ đề xuất",
+      cho_admin_duyet: "Chờ admin duyệt",
+      da_duyet: "Đã duyệt",
+      tu_choi: "Từ chối",
+    };
+
+    return status ? statusMap[status] || status : "Chưa có trạng thái";
+  };
+const ngayHienTai = new Date();
+
+const soNgayNuoi = activeCrop?.ngay_tha_giong
+  ? Math.floor(
+      (ngayHienTai.getTime() -
+        new Date(activeCrop.ngay_tha_giong).getTime()) /
+        (1000 * 60 * 60 * 24)
+    )
+  : 0;
+  const getProfileDocuments = (
+    profile: CustomerProfile | null
+  ) => {
+    if (!profile) return [];
+
+    const pondImages = Array.isArray(profile.anh_ao_nuoi)
+      ? profile.anh_ao_nuoi
+      : profile.anh_ao_nuoi
+      ? [profile.anh_ao_nuoi]
+      : [];
+
+    return [
+      {
+        label: "CCCD mặt trước",
+        url: profile.anh_cccd_mat_truoc,
+      },
+      {
+        label: "CCCD mặt sau",
+        url: profile.anh_cccd_mat_sau,
+      },
+      {
+        label: "Biên lai thả giống",
+        url: profile.anh_bien_lai_tha_giong,
+      },
+      ...pondImages.map((image, index) => ({
+        label: `Ảnh ao nuôi ${index + 1}`,
+        url: image,
+      })),
+    ].filter((item) => item.url);
+  };
+  void formatDate;
+  void getProfileStatusLabel;
+  void getProfileDocuments;
 
   const getProfileButtonText = () => {
     if (!activeCrop) {
@@ -840,6 +908,15 @@ const PondsPage: React.FC = () => {
                     style={{ fontSize: "13px" }}
                   >
                     {activeCrop?.ngay_thu_hoach_du_kien ||
+                      "--/--/----"}
+                  </strong>
+                </div>
+                  <div className="spec-box">
+                  <span>Số ngày nuôi</span>
+                  <strong
+                    style={{ fontSize: "13px" }}
+                  >
+                    { soNgayNuoi ||
                       "--/--/----"}
                   </strong>
                 </div>

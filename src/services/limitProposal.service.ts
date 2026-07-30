@@ -63,9 +63,6 @@ export interface LimitProposal {
   ly_do_de_xuat?: string | null;
   nhan_xet_khao_sat?: string | null;
 
-  ph?: number | string | null;
-  oxy_hoa_tan?: number | string | null;
-  kich_co_tom?: string | null;
   hinh_anh_khao_sat?: string | null;
 
   trang_thai?: "cho_duyet" | "da_duyet" | "tu_choi";
@@ -77,6 +74,8 @@ export interface LimitProposal {
   HoSoKhachHang?: LimitProposalCustomerProfile;
   ChinhSachHanMuc?: LimitProposalPolicy;
   NguoiDung?: LimitProposalUser;
+  nhan_vien_de_xuat?: LimitProposalUser;
+  admin_duyet?: LimitProposalUser;
 }
 
 export interface ApproveLimitProposalPayload {

@@ -82,7 +82,10 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
   const getPayableDebt = () => {
     if (!detail) return 0;
 
-    return Number(detail.cong_no_hien_tai || 0);
+    return Number(
+      detail.tong_phai_thanh_toan ??
+        Number(detail.cong_no_hien_tai || 0) + Number(detail.tong_lai_qua_han || 0)
+    );
   };
 
   const openPayModal = () => {
@@ -154,6 +157,8 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
   );
 
   const payableDebt = getPayableDebt();
+  const overdueInterest = Number(detail.tong_lai_qua_han || 0);
+  const principalDebt = Number(detail.cong_no_hien_tai || 0);
 
   return (
     <div className="debt-detail-page">
@@ -194,7 +199,7 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
 
           <div className="big-debt-number">
             {formatCurrency(payableDebt)}
-            <span>Công nợ hiện tại</span>
+            <span>Tổng cần thanh toán</span>
           </div>
 
           <div className="detail-progress">
@@ -210,6 +215,16 @@ const [extensions, setExtensions] = useState<DebtExtension[]>([]);
             <div>
               <span>Đang giữ hạn mức</span>
               <strong>{formatCurrency(detail.dang_giu_han_muc)}</strong>
+            </div>
+
+            <div>
+              <span>Nợ gốc hiện tại</span>
+              <strong>{formatCurrency(principalDebt)}</strong>
+            </div>
+
+            <div>
+              <span>Lãi quá hạn</span>
+              <strong>{formatCurrency(overdueInterest)}</strong>
             </div>
 
             <div>

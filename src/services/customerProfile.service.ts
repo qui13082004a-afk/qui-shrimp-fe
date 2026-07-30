@@ -496,6 +496,17 @@ export const customerProfileService = {
   },
 
   /* API Admin thêm khu vực */
+  /* API khach lay danh sach khu vuc tra sau dang hoat dong */
+  getActiveSupportedAreas: async (): Promise<
+    ApiResponse<SupportedPostpaidArea[]>
+  > => {
+    const res = await axiosClient.get<
+      ApiResponse<SupportedPostpaidArea[]>
+    >("/khu-vuc-ho-tro-tra-sau/active");
+
+    return res.data;
+  },
+
   createSupportedArea: async (
     payload: Omit<SupportedPostpaidArea, "id_khu_vuc">
   ): Promise<ApiResponse<SupportedPostpaidArea>> => {

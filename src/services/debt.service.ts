@@ -16,6 +16,8 @@ export interface DebtLimitByPond {
   tong_cong_no?: number;
   cong_no_hien_tai?: number;
   currentDebt?: number;
+  tien_lai_qua_han?: number;
+  tong_phai_thanh_toan?: number;
 
   dang_giu_han_muc?: number;
   reservedDebt?: number;
@@ -33,6 +35,8 @@ export interface DebtSummary {
   da_thanh_toan: number;
   tong_cong_no: number;
   cong_no_hien_tai?: number;
+  tong_lai_qua_han?: number;
+  tong_phai_thanh_toan?: number;
   dang_giu_han_muc?: number;
   da_su_dung?: number;
   con_lai: number;
@@ -73,6 +77,8 @@ export interface DebtProfileDetail {
 
   dinh_muc_cong_no: number;
   cong_no_hien_tai: number;
+  tong_lai_qua_han?: number;
+  tong_phai_thanh_toan?: number;
   dang_giu_han_muc: number;
   da_su_dung: number;
   da_thanh_toan: number;
@@ -89,6 +95,11 @@ export interface DebtProfileDetail {
     tong_thanh_toan: number;
     da_thanh_toan: number;
     con_lai: number;
+    lai_suat_qua_han_thang?: number;
+    so_ngay_qua_han?: number;
+    so_thang_tinh_lai?: number;
+    tien_lai_qua_han?: number;
+    tong_phai_thanh_toan?: number;
     trang_thai_don_hang: string;
   }[];
 }

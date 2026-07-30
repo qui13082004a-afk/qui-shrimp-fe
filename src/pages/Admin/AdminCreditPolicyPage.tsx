@@ -268,7 +268,12 @@ export default function AdminCreditPolicyPage() {
 
     try {
       setLoading(true);
-      await creditPolicyService.togglePolicyStatus(policy.id_chinh_sach);
+      const nextStatus =
+        policy.trang_thai === "hoat_dong" ? "tam_dung" : "hoat_dong";
+      await creditPolicyService.togglePolicyStatus(
+        policy.id_chinh_sach,
+        nextStatus
+      );
       setMessage("Cập nhật trạng thái thành công");
       fetchPolicies();
     } catch (error: any) {

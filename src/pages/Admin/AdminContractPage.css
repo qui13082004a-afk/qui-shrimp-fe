@@ -1,13 +1,8 @@
-/* ==========================================================================
-   Admin – Contract Page
-   Scoped to .admin-contract-page so it can't leak into other admin pages.
-   ========================================================================== */
+
 
 .admin-contract-page {
   color: #172033;
 }
-
-/* ---------------------------------- Alert -------------------------------- */
 
 .admin-contract-page .admin-alert {
   display: flex;

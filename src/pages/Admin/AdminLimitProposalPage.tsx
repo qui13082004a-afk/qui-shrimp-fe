@@ -139,6 +139,10 @@ export default function AdminLimitProposalPage() {
     return item.HoSoKhachHang?.VuNuoi?.ten_vu_nuoi || "Chưa có vụ nuôi";
   };
 
+  const getProposalStaff = (item: LimitProposal) => {
+    return item.nhan_vien_de_xuat || null;
+  };
+
   const selectedSurveyImages = parseProposalImages(
     selectedProposal?.hinh_anh_khao_sat
   );
@@ -146,6 +150,9 @@ export default function AdminLimitProposalPage() {
     selectedProposal?.ChinhSachHanMuc ||
     selectedProposal?.HoSoKhachHang?.ChinhSachHanMuc ||
     null;
+  const selectedProposalStaff = selectedProposal
+    ? getProposalStaff(selectedProposal)
+    : null;
 
   const openDetail = (proposal: LimitProposal) => {
     setSelectedProposal(proposal);
@@ -450,6 +457,34 @@ export default function AdminLimitProposalPage() {
                   </div>
                 </div>
 
+                <div className="limit-proposal-section staff-section">
+                  <h3>Nhân viên lập phiếu</h3>
+
+                  <div className="limit-proposal-staff-card">
+                    <div className="limit-proposal-staff-avatar">
+                      {(selectedProposalStaff?.ho_ten || "NV")
+                        .trim()
+                        .slice(0, 1)
+                        .toUpperCase()}
+                    </div>
+
+                    <div>
+                      <span>Người đề xuất</span>
+                      <strong>
+                        {selectedProposalStaff?.ho_ten ||
+                          "Chưa có thông tin nhân viên"}
+                      </strong>
+                      <p>
+                        {selectedProposalStaff?.so_dien_thoai ||
+                          selectedProposalStaff?.email ||
+                          `Mã NV #${
+                            selectedProposal.id_nhan_vien_de_xuat || "--"
+                          }`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="limit-proposal-section">
                   <h3>Thông tin khách hàng</h3>
 
@@ -572,27 +607,6 @@ export default function AdminLimitProposalPage() {
 
                   <div className="limit-proposal-info-grid">
                     <div>
-                      <span>pH</span>
-                      <strong>{selectedProposal.ph || "Chưa có"}</strong>
-                    </div>
-
-                    <div>
-                      <span>Oxy hòa tan</span>
-                      <strong>
-                        {selectedProposal.oxy_hoa_tan
-                          ? `${selectedProposal.oxy_hoa_tan} mg/L`
-                          : "Chưa có"}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span>Kích cỡ tôm</span>
-                      <strong>
-                        {selectedProposal.kich_co_tom || "Chưa có"}
-                      </strong>
-                    </div>
-
-                    <div>
                       <span>Hình ảnh khảo sát</span>
                       <strong>
                         {selectedSurveyImages.length > 0
@@ -664,6 +678,21 @@ export default function AdminLimitProposalPage() {
               {selectedProposal.trang_thai === "cho_duyet" && (
                 <div className="limit-proposal-approval-box">
                   <h3>Xử lý phiếu</h3>
+
+                  <div className="limit-proposal-reviewer-summary">
+                    <span>Phiếu được lập bởi</span>
+                    <strong>
+                      {selectedProposalStaff?.ho_ten ||
+                        `Nhân viên #${
+                          selectedProposal.id_nhan_vien_de_xuat || "--"
+                        }`}
+                    </strong>
+                    <p>
+                      {selectedProposalStaff?.so_dien_thoai ||
+                        selectedProposalStaff?.email ||
+                        "Chưa có thông tin liên hệ"}
+                    </p>
+                  </div>
 
                   <label>
                     Hạn mức được duyệt

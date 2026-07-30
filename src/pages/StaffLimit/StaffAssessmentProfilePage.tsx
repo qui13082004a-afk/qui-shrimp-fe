@@ -443,9 +443,6 @@ export default function StaffAssessmentProfilePage() {
     han_muc_de_xuat: "",
     ly_do_de_xuat: "",
     nhan_xet_khao_sat: "",
-    ph: "",
-    oxy_hoa_tan: "",
-    kich_co_tom: "",
     ngay_khao_sat: new Date().toISOString().slice(0, 10),
   });
   const [surveyFiles, setSurveyFiles] = useState<File[]>([]);
@@ -637,9 +634,6 @@ export default function StaffAssessmentProfilePage() {
         : "",
       ly_do_de_xuat: "",
       nhan_xet_khao_sat: profile.ghi_chu || "",
-      ph: "",
-      oxy_hoa_tan: "",
-      kich_co_tom: "",
       ngay_khao_sat: new Date().toISOString().slice(0, 10),
     });
   };
@@ -783,9 +777,6 @@ export default function StaffAssessmentProfilePage() {
         han_muc_de_xuat: proposalForm.han_muc_de_xuat,
         ly_do_de_xuat: proposalForm.ly_do_de_xuat,
         nhan_xet_khao_sat: proposalForm.nhan_xet_khao_sat,
-        ph: proposalForm.ph,
-        oxy_hoa_tan: proposalForm.oxy_hoa_tan,
-        kich_co_tom: proposalForm.kich_co_tom,
         ngay_khao_sat: proposalForm.ngay_khao_sat,
         minh_chung_khao_sat: surveyFiles,
       });
@@ -1466,48 +1457,6 @@ export default function StaffAssessmentProfilePage() {
                   đang áp dụng.
                 </div>
               )}
-
-              <label>
-                Kích cỡ tôm
-                <input
-                  value={proposalForm.kich_co_tom}
-                  onChange={(event) =>
-                    setProposalForm((prev) => ({
-                      ...prev,
-                      kich_co_tom: event.target.value,
-                    }))
-                  }
-                  placeholder="VD: 60 con/kg"
-                />
-              </label>
-
-              <label>
-                pH
-                <input
-                  value={proposalForm.ph}
-                  onChange={(event) =>
-                    setProposalForm((prev) => ({
-                      ...prev,
-                      ph: event.target.value,
-                    }))
-                  }
-                  placeholder="VD: 7.5"
-                />
-              </label>
-
-              <label>
-                Oxy hòa tan
-                <input
-                  value={proposalForm.oxy_hoa_tan}
-                  onChange={(event) =>
-                    setProposalForm((prev) => ({
-                      ...prev,
-                      oxy_hoa_tan: event.target.value,
-                    }))
-                  }
-                  placeholder="VD: 5.2"
-                />
-              </label>
 
               <label className="staff-proposal-form__full">
                 Ảnh khảo sát tại ao nuôi
