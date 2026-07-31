@@ -31,7 +31,7 @@ type OrderStatus =
   | "da_huy";
 
 type OrderItem = {
-  id_chi_tiet: number;
+  id_chi_tiet?: number;
   id_san_pham: number;
   gia_ban: string | number;
   so_luong_dat: number;
@@ -203,7 +203,7 @@ const OrderDetailPage = () => {
 
   if (!order) return null;
 
-  const items = (order.ChiTietDonHangs || []) as OrderItem[];
+  const items: OrderItem[] = order.ChiTietDonHangs || [];
   const delivery = getLatestDelivery();
   const deliveryProgress = getDeliveryProgress(delivery);
   const deliveryFailed = delivery?.trang_thai === "giao_that_bai";
@@ -396,7 +396,10 @@ const OrderDetailPage = () => {
               const imageUrl = getProductImage(product?.hinh_anh);
 
               return (
-                <div className="order-item" key={item.id_chi_tiet}>
+                <div
+                  className="order-item"
+                  key={item.id_chi_tiet || item.id_san_pham}
+                >
                   <div className="order-item-image">
                     {imageUrl ? (
                       <img

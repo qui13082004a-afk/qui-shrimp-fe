@@ -73,7 +73,6 @@ export default function AdminContractPage() {
     const [previewFile, setPreviewFile] = useState<File | null>(null);
     const [samplePdfFile, setSamplePdfFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>("");
-    const [generatingPreview, setGeneratingPreview] = useState(false);
     const [extraTerms, setExtraTerms] = useState("");
 
     const [uploadPdfFile, setUploadPdfFile] = useState<File | null>(null);
@@ -329,20 +328,6 @@ export default function AdminContractPage() {
         setPreviewUrl(URL.createObjectURL(normalizedFile));
     };
 
-    const downloadLocalPdf = () => {
-        if (!previewFile) return;
-        const url = URL.createObjectURL(previewFile);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = previewFile.name.toLowerCase().endsWith(".pdf")
-            ? previewFile.name
-            : `${previewFile.name}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-    };
-
     const createPdfFileFromProfile = async (
         profile: CustomerDebtProfile,
         terms?: string
@@ -373,7 +358,6 @@ export default function AdminContractPage() {
         }
 
         try {
-            setGeneratingPreview(true);
             setSamplePdfFile(null);
             clearPreview();
 
@@ -392,8 +376,6 @@ export default function AdminContractPage() {
             console.error("Lỗi tải PDF:", error);
             setMessage("Không thể tải file PDF hợp đồng");
             return null;
-        } finally {
-            setGeneratingPreview(false);
         }
     };
 
