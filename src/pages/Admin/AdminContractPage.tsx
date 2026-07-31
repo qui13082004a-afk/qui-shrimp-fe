@@ -389,8 +389,8 @@ export default function AdminContractPage() {
 
             return file;
         } catch (error) {
-            console.error("Lỗi tạo PDF:", error);
-            setMessage("Không thể tạo file PDF hợp đồng");
+            console.error("Lỗi tải PDF:", error);
+            setMessage("Không thể tải file PDF hợp đồng");
             return null;
         } finally {
             setGeneratingPreview(false);
@@ -415,7 +415,7 @@ export default function AdminContractPage() {
             }
 
             if (!pdfFile) {
-                throw new Error("Không thể tạo hoặc lấy file PDF hợp đồng mẫu");
+                throw new Error("Không thể tải ");
             }
 
             const uploadedPdfUrl =
@@ -432,16 +432,16 @@ export default function AdminContractPage() {
                 dieu_khoan_bo_sung: extraTerms || null,
             };
 
-            console.log("PAYLOAD TẠO HỢP ĐỒNG:", payload);
+            console.log("PAYLOAD TẢI HỢP ĐỒNG:", payload);
 
             await contractService.createContract(payload);
 
-            setMessage("Tạo hợp đồng thành công");
+            setMessage("Tải hợp đồng thành công");
             closeAllModal();
             fetchContracts();
         } catch (error: any) {
-            console.error("Lỗi tạo hợp đồng:", error);
-            setMessage(error?.response?.data?.message || "Tạo hợp đồng thất bại");
+            console.error("Lỗi tải hợp đồng:", error);
+            setMessage(error?.response?.data?.message || "Tải hợp đồng thất bại");
         } finally {
             setProcessing(false);
         }
@@ -640,12 +640,12 @@ export default function AdminContractPage() {
                     <p className="admin-page__eyebrow">Quản lý công nợ</p>
                     <h1>Quản lý hợp đồng</h1>
                     <p className="admin-page__subtitle">
-                        Tạo hợp đồng mua trả sau, upload PDF/ảnh sau ký và xác nhận hiệu lực.
+                        Tải hợp đồng mua trả sau, upload PDF/ảnh sau ký và xác nhận hiệu lực.
                     </p>
                 </div>
 
                 <button className="admin-primary-btn" onClick={openCreateModal}>
-                    + Tạo hợp đồng
+                    + Tải hợp đồng
                 </button>
             </div>
 
@@ -721,7 +721,7 @@ export default function AdminContractPage() {
                                     <th>Hồ sơ</th>
                                     <th>File hợp đồng</th>
                                     <th>Trạng thái</th>
-                                    <th>Ngày tạo</th>
+                                    <th>Ngày tải</th>
                                     <th>Ngày ký</th>
                                     <th>Thao tác</th>
                                 </tr>
@@ -839,10 +839,9 @@ export default function AdminContractPage() {
                     <div className="admin-modal admin-modal--large">
                         <div className="admin-modal__header">
                             <div>
-                                <h2>Tạo hợp đồng mua trả sau</h2>
+                                <h2>Tải hợp đồng mua trả sau</h2>
                                 <p>
-                                    Chọn hồ sơ đã duyệt, hệ thống sẽ tạo PDF hợp đồng mẫu để lưu
-                                    riêng.
+                                   
                                 </p>
                             </div>
                             <button onClick={closeAllModal}>×</button>
@@ -895,7 +894,7 @@ export default function AdminContractPage() {
                                 </label>
                             </div>
 
-                            <label>
+                            {/* <label>
                                 Điều khoản bổ sung
                                 <textarea
                                     value={extraTerms}
@@ -906,7 +905,7 @@ export default function AdminContractPage() {
                                     placeholder="Nhập điều khoản bổ sung nếu cần đưa vào PDF hợp đồng"
                                     rows={4}
                                 />
-                            </label>
+                            </label> */}
 
                             {selectedCreateProfile && (
                                 <div className="contract-create-profile">
@@ -970,8 +969,8 @@ export default function AdminContractPage() {
                                 <div>
                                     <strong>PDF hợp đồng mẫu</strong>
                                     <p>
-                                        Có thể tải PDF mẫu có sẵn lên hoặc để hệ thống tự tạo.
-                                        File được lưu riêng tại <b>file_hop_dong_mau</b>.
+                                        Có thể tải PDF mẫu có sẵn lên
+                                       
                                     </p>
 
                                     <label className="contract-sample-file-input">
@@ -991,14 +990,14 @@ export default function AdminContractPage() {
                                 </div>
 
                                 <div className="contract-pdf-preview-actions">
-                                    <button
+                                    {/* <button
                                         type="button"
                                         className="admin-secondary-btn"
                                         onClick={() => handleGeneratePreview()}
                                         disabled={generatingPreview || !selectedCreateProfile}
                                     >
-                                        {generatingPreview ? "Đang tạo..." : "Tự tạo PDF mẫu"}
-                                    </button>
+                                        {generatingPreview ? "Đang tải..." : "Tự tải PDF mẫu"}
+                                    </button> */}
 
                                     {previewUrl && (
                                         <>
@@ -1010,13 +1009,13 @@ export default function AdminContractPage() {
                                             >
                                                 Xem PDF mẫu
                                             </a>
-                                            <button
+                                            {/* <button
                                                 type="button"
                                                 className="admin-secondary-btn"
                                                 onClick={downloadLocalPdf}
                                             >
                                                 Tải PDF mẫu
-                                            </button>
+                                            </button> */}
                                         </>
                                     )}
                                 </div>
@@ -1036,7 +1035,7 @@ export default function AdminContractPage() {
                                     className="admin-primary-btn"
                                     disabled={processing}
                                 >
-                                    {processing ? "Đang tạo..." : "Tạo hợp đồng"}
+                                    {processing ? "Đang tải..." : "tải hợp đồng"}
                                 </button>
                             </div>
                         </form>
@@ -1109,7 +1108,7 @@ export default function AdminContractPage() {
                                         <strong>{renderStatusBadge(selectedContract.trang_thai)}</strong>
                                     </div>
                                     <div>
-                                        <span>Ngày tạo</span>
+                                        <span>Ngày tải</span>
                                         <strong>{formatDate(selectedContract.ngay_tao)}</strong>
                                     </div>
                                     <div>
@@ -1138,7 +1137,7 @@ export default function AdminContractPage() {
                             <div className="contract-file-card">
                                 <div>
                                     <h3>PDF hợp đồng mẫu</h3>
-                                    <p>File được hệ thống tạo trước khi khách ký.</p>
+                                   
                                 </div>
 
                                 <div className="contract-pdf-preview-actions">

@@ -16,7 +16,6 @@ export interface CategoryPayload {
   mo_ta?: string;
   anh_danh_muc?: string;
   trang_thai?: CategoryStatus;
-  so_luong_san_pham?: number;
 }
 
 export const getCategories = async () => {

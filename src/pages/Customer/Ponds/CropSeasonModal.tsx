@@ -1,101 +1,145 @@
-import React from 'react';
+import React from "react";
 
-const toDateInputValue = (date: Date) => date.toISOString().slice(0, 10);
+interface CropSeasonFormData {
+  ten_vu_nuoi: string;
+  ngay_tha_giong: string;
+  so_luong_giong: number;
+  ngay_thu_hoach_du_kien: string;
+  ghi_chu: string;
+}
 
 interface CropSeasonModalProps {
   isOpen: boolean;
   pondName: string;
-  formData: {
-    ten_vu_nuoi: string;
-    ngay_tha_giong: string;
-    so_luong_giong: number;
-    ngay_thu_hoach_du_kien: string;
-    ghi_chu: string;
-  };
-  onChange: (data: any) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  formData: CropSeasonFormData;
+  onChange: (data: CropSeasonFormData) => void;
+  onSubmit: (event: React.FormEvent) => void;
   onClose: () => void;
 }
 
-export const CropSeasonModal: React.FC<CropSeasonModalProps> = ({
-  isOpen, pondName, formData, onChange, onSubmit, onClose
+export const CropSeasonModal: React.FC<
+  CropSeasonModalProps
+> = ({
+  isOpen,
+  pondName,
+  formData,
+  onChange,
+  onSubmit,
+  onClose,
 }) => {
   if (!isOpen) return null;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const minSeedDate = new Date(today);
-  minSeedDate.setDate(minSeedDate.getDate() - 90);
-
-  const maxHarvestDate = formData.ngay_tha_giong
-    ? (() => {
-        const date = new Date(`${formData.ngay_tha_giong}T00:00:00`);
-        date.setDate(date.getDate() + 120);
-        return toDateInputValue(date);
-      })()
-    : undefined;
-
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay" lang="vi">
       <div className="modal-box">
-        <h3><i className="fa-solid fa-seedling" style={{color: '#16a34a'}}></i> Khởi tạo vụ nuôi mới</h3>
-        <p className="modal-subtitle">Thực hiện thả con giống vụ mới cho ao **{pondName}** để kích hoạt theo dõi nhật ký.</p>
-        
-        <form onSubmit={onSubmit}>
+        <h3>
+          <i
+            className="fa-solid fa-seedling"
+            style={{ color: "#16a34a" }}
+          />{" "}
+          Khởi tạo vụ nuôi mới
+        </h3>
+
+        <p className="modal-subtitle">
+          Thực hiện thả con giống vụ mới cho ao{" "}
+          <strong>{pondName}</strong> để kích hoạt theo dõi nhật ký.
+        </p>
+
+        <form onSubmit={onSubmit} noValidate>
           <div className="form-group">
             <label>Tên vụ nuôi trồng *</label>
-            <input 
-              type="text" required 
-              value={formData.ten_vu_nuoi} 
-              onChange={(e) => onChange({...formData, ten_vu_nuoi: e.target.value})} 
-              placeholder="Ví dụ: Vụ Thu Đông 2026" 
+
+            <input
+              type="text"
+              value={formData.ten_vu_nuoi}
+              onChange={(event) =>
+                onChange({
+                  ...formData,
+                  ten_vu_nuoi: event.target.value,
+                })
+              }
+              placeholder="Ví dụ: Vụ Thu Đông 2026"
             />
           </div>
+
           <div className="form-row-2">
             <div className="form-group">
-              <label>Ngày thả giống thực tế</label>
-              <input 
-                type="date" 
-                required
-                min={toDateInputValue(minSeedDate)}
-                max={toDateInputValue(today)}
-                value={formData.ngay_tha_giong} 
-                onChange={(e) => onChange({...formData, ngay_tha_giong: e.target.value})} 
+              <label>Ngày thả giống thực tế *</label>
+
+              <input
+                type="date"
+                lang="vi"
+                value={formData.ngay_tha_giong}
+                onChange={(event) =>
+                  onChange({
+                    ...formData,
+                    ngay_tha_giong: event.target.value,
+                  })
+                }
               />
             </div>
+
             <div className="form-group">
-              <label>Số lượng con giống (con)</label>
-              <input 
-                type="number" min="0" 
-                value={formData.so_luong_giong || ''} 
-                onChange={(e) => onChange({...formData, so_luong_giong: Number(e.target.value)})} 
-                placeholder="Ví dụ: 150000" 
+              <label>Số lượng con giống (con) *</label>
+
+              <input
+                type="number"
+                value={formData.so_luong_giong || ""}
+                onChange={(event) =>
+                  onChange({
+                    ...formData,
+                    so_luong_giong: Number(event.target.value),
+                  })
+                }
+                placeholder="Ví dụ: 150000"
               />
             </div>
           </div>
+
           <div className="form-group">
-            <label>Ngày hoạch tính dự kiến</label>
-            <input 
-              type="date" 
-              min={formData.ngay_tha_giong || undefined}
-              max={maxHarvestDate}
-              value={formData.ngay_thu_hoach_du_kien} 
-              onChange={(e) => onChange({...formData, ngay_thu_hoach_du_kien: e.target.value})} 
+            <label>Ngày thu hoạch dự kiến</label>
+
+            <input
+              type="date"
+              lang="vi"
+              value={formData.ngay_thu_hoach_du_kien}
+              onChange={(event) =>
+                onChange({
+                  ...formData,
+                  ngay_thu_hoach_du_kien: event.target.value,
+                })
+              }
             />
           </div>
+
           <div className="form-group">
-            <label>Ghi chú vụ giống</label>
-            <input 
-              type="text" 
-              value={formData.ghi_chu} 
-              onChange={(e) => onChange({...formData, ghi_chu: e.target.value})} 
-              placeholder="Nhập nguồn gốc con giống, độ mặn..." 
+            <label>Ghi chú vụ nuôi</label>
+
+            <input
+              type="text"
+              value={formData.ghi_chu}
+              onChange={(event) =>
+                onChange({
+                  ...formData,
+                  ghi_chu: event.target.value,
+                })
+              }
+              placeholder="Nhập nguồn gốc con giống, độ mặn..."
             />
           </div>
+
           <div className="modal-actions">
-            <button type="button" onClick={onClose} className="btn-cancel">Hủy bỏ</button>
-            <button type="submit" className="btn-save">Kích hoạt vụ nuôi</button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-cancel"
+            >
+              Hủy bỏ
+            </button>
+
+            <button type="submit" className="btn-save">
+              Kích hoạt vụ nuôi
+            </button>
           </div>
         </form>
       </div>

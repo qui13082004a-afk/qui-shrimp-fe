@@ -31,58 +31,6 @@ import { confirmDialog } from "../../../utils/notify";
 
 import "./PondsPage.css";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-const parseDateOnly = (value: string) => {
-  const date = new Date(`${value}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
-
-const diffDays = (fromDate: Date, toDate: Date) => {
-  return Math.round((toDate.getTime() - fromDate.getTime()) / DAY_MS);
-};
-
-const validateCropSeasonDates = (seedValue: string, harvestValue: string) => {
-  const seedDate = parseDateOnly(seedValue);
-
-  if (!seedDate) {
-    return "Vui lòng nhập ngày thả giống hợp lệ.";
-  }
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const daysFromSeedToToday = diffDays(seedDate, today);
-
-  if (daysFromSeedToToday < 0) {
-    return "Ngày thả giống thực tế không được lớn hơn ngày hiện tại.";
-  }
-
-  if (daysFromSeedToToday > 90) {
-    return "Ngày thả giống thực tế không được cách thời điểm hiện tại quá 90 ngày.";
-  }
-
-  if (harvestValue) {
-    const harvestDate = parseDateOnly(harvestValue);
-
-    if (!harvestDate) {
-      return "Ngày thu hoạch dự kiến không hợp lệ.";
-    }
-
-    const daysFromSeedToHarvest = diffDays(seedDate, harvestDate);
-
-    if (daysFromSeedToHarvest < 0) {
-      return "Ngày thu hoạch dự kiến không được nhỏ hơn ngày thả giống.";
-    }
-
-    if (daysFromSeedToHarvest > 120) {
-      return "Ngày thu hoạch dự kiến không được cách ngày thả giống quá 120 ngày.";
-    }
-  }
-
-  return "";
-};
-
 const PondsPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -488,16 +436,6 @@ const soNgayNuoi = activeCrop?.ngay_tha_giong
       showError(
         "Vui lòng chọn ao nuôi trước khi tạo vụ."
       );
-      return;
-    }
-
-    const cropDateError = validateCropSeasonDates(
-      cropFormData.ngay_tha_giong,
-      cropFormData.ngay_thu_hoach_du_kien
-    );
-
-    if (cropDateError) {
-      showError(cropDateError, "Dữ liệu vụ nuôi không hợp lệ");
       return;
     }
 

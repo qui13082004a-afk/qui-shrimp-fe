@@ -27,7 +27,7 @@ export interface PaymentRecord {
   id_thanh_toan: number;
   id_don_hang: number;
   so_tien: number | string;
-  phuong_thuc: "cod" | "chuyen_khoan" | "tra_sau";
+  phuong_thuc: PaymentMethod;
   ma_giao_dich?: string | null;
   trang_thai: "cho_thanh_toan" | "thanh_cong" | "that_bai";
   thong_bao_loi?: string | null;
@@ -39,6 +39,17 @@ export type DeliveryStatus =
   | "dang_giao"
   | "giao_thanh_cong"
   | "giao_that_bai";
+
+export interface OrderPreviewItem {
+  id_san_pham: number;
+  id_kho_khach_chon?: number | null;
+  id_kho_xuat_thuc_te?: number | null;
+  ten_san_pham: string;
+  gia_ban: number;
+  so_luong_dat: number;
+  thanh_tien: number;
+  trang_thai_phan_bo?: string;
+}
 
 export interface OrderDeliveryRecord {
   id_giao_hang: number;
@@ -72,6 +83,8 @@ export interface OrderRecord {
   tong_tien: string | number;
   phi_van_chuyen: string | number;
   tong_thanh_toan: string | number;
+  ty_le_phu_phi_tra_sau?: string | number;
+  lai_suat_qua_han_thang?: string | number;
   hinh_thuc_thanh_toan: PaymentMethod;
   trang_thai_don_hang: string;
   dia_chi_giao_hang: string;
@@ -86,7 +99,7 @@ export interface OrderRecord {
   ngay_giao?: string | null;
   ThanhToans?: PaymentRecord[];
   GiaoHangs?: OrderDeliveryRecord[];
-  ChiTietDonHangs?: any[];
+  ChiTietDonHangs?: OrderPreviewItem[];
   NguoiDung?: {
     id_nguoi_dung?: number;
     ho_ten?: string;
@@ -95,7 +108,7 @@ export interface OrderRecord {
     dia_chi?: string;
     tinh_thanh?: string;
   };
-  HoSoKhachHang?: any;
+  HoSoKhachHang?: unknown;
 }
 
 export interface OrderPreview {
@@ -112,6 +125,8 @@ export interface OrderPreview {
   phi_van_chuyen: number;
   tong_tien: number;
   tong_thanh_toan: number;
+  ty_le_phu_phi_tra_sau: number;
+  chi_tiet: OrderPreviewItem[];
   van_chuyen?: {
     id_khu_vuc?: number;
     id_diem_xuat_phat?: number | null;
@@ -152,7 +167,6 @@ export const orderService = {
     return response.data;
   },
 
-  // Tạo đơn hàng
   createOrder: async (payload: CreateOrderPayload) => {
     const response = await api.post<ApiResponse<OrderRecord>>(
       "/orders",
@@ -161,13 +175,12 @@ export const orderService = {
     return response.data;
   },
 
-  // Danh sách đơn hàng của tôi
   getMyOrders: async () => {
-    const response = await api.get<ApiResponse<OrderRecord[]>>("/orders/my");
+    const response =
+      await api.get<ApiResponse<OrderRecord[]>>("/orders/my");
     return response.data;
   },
 
-  // Chi tiết đơn hàng
   getOrderById: async (orderId: string | number) => {
     const response = await api.get<ApiResponse<OrderRecord>>(
       `/orders/${orderId}`
@@ -176,7 +189,8 @@ export const orderService = {
   },
 
   getAdminOrders: async () => {
-    const response = await api.get<ApiResponse<OrderRecord[]>>("/orders/admin");
+    const response =
+      await api.get<ApiResponse<OrderRecord[]>>("/orders/admin");
     return response.data;
   },
 
@@ -191,12 +205,10 @@ export const orderService = {
     return response.data;
   },
 
-  // Hủy đơn hàng
   cancelOrder: async (orderId: string | number) => {
     const response = await api.put<ApiResponse<OrderRecord>>(
       `/orders/${orderId}/cancel`
     );
-
     return response.data;
   },
 };

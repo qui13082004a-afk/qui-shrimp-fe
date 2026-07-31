@@ -48,6 +48,16 @@ interface CartItem {
   id_kho_khach_chon?: number;
 }
 
+type CheckoutOrderPreview = OrderPreview & {
+  ty_le_phu_phi_tra_sau?: number;
+  chi_tiet?: {
+    id_san_pham: number;
+    gia_ban: number;
+    so_luong_dat: number;
+    thanh_tien: number;
+  }[];
+};
+
 interface StoredUser {
   ho_ten?: string;
   so_dien_thoai?: string;
@@ -153,7 +163,6 @@ function AddressMapPicker({
 }
 
 const formatCurrency = (value: number) => `${value.toLocaleString("vi-VN")}đ`;
-const POSTPAID_SURCHARGE_RATE = 5;
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -197,7 +206,8 @@ export default function CheckoutPage() {
   const [shippingInfo, setShippingInfo] = useState<OrderPreview["van_chuyen"] | null>(
     null
   );
-  const [orderPreview, setOrderPreview] = useState<OrderPreview | null>(null);
+  const [orderPreview, setOrderPreview] =
+    useState<CheckoutOrderPreview | null>(null);
   const [shippingMessage, setShippingMessage] = useState("");
   const [message, setMessage] = useState("");
 
@@ -508,22 +518,41 @@ export default function CheckoutPage() {
     [cartItems]
   );
 
-  const localPostpaidSubtotal =
+  const postpaidSurchargeRate = Number(
+    orderPreview?.ty_le_phu_phi_tra_sau || 0
+  );
+
+  const previewSubtotal =
     paymentMethod === "tra_sau"
       ? cartItems.reduce(
           (acc, item) =>
             acc +
-            Math.round(Number(item.gia) * (1 + POSTPAID_SURCHARGE_RATE / 100)) *
+            Math.round(
+              Number(item.gia) * (1 + postpaidSurchargeRate / 100)
+            ) *
               Number(item.so_luong),
           0
         )
       : baseSubtotal;
 
-  const subtotal = Number(orderPreview?.tong_tien ?? localPostpaidSubtotal);
-  const postpaidSurcharge = Math.max(subtotal - baseSubtotal, 0);
+  // tong_tien tu Backend da bao gom phu phi tra sau.
+  const subtotalWithSurcharge = Number(
+    orderPreview?.tong_tien ?? previewSubtotal
+  );
+  const postpaidSurcharge = Math.max(
+    subtotalWithSurcharge - baseSubtotal,
+    0
+  );
 
-  const shippingFee = Number(shippingInfo?.phi_van_chuyen || 0);
-  const total = Number(orderPreview?.tong_thanh_toan ?? subtotal + shippingFee);
+  const shippingFee = Number(
+    orderPreview?.phi_van_chuyen ??
+      shippingInfo?.phi_van_chuyen ??
+      0
+  );
+  const total = Number(
+    orderPreview?.tong_thanh_toan ??
+      subtotalWithSurcharge + shippingFee
+  );
   const totalItems = cartItems.reduce((acc, item) => acc + item.so_luong, 0);
   const shippingStatus = shippingLoading
     ? "loading"
@@ -899,9 +928,7 @@ export default function CheckoutPage() {
                 </div>
                 <strong>
                   {formatCurrency(
-                    paymentMethod === "tra_sau"
-                      ? Math.round(Number(item.gia) * 1.05) * item.so_luong
-                      : item.gia * item.so_luong
+                    Number(item.gia) * Number(item.so_luong)
                   )}
                 </strong>
               </div>
@@ -915,12 +942,12 @@ export default function CheckoutPage() {
 
           <div className="summary-line">
             <span>Tạm tính</span>
-            <strong>{formatCurrency(subtotal)}</strong>
+            <strong>{formatCurrency(baseSubtotal)}</strong>
           </div>
 
           {paymentMethod === "tra_sau" && (
             <div className="summary-line">
-              <span>Phụ phí trả sau 5%</span>
+              <span>Phụ phí trả sau {postpaidSurchargeRate}%</span>
               <strong>{formatCurrency(postpaidSurcharge)}</strong>
             </div>
           )}
