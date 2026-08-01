@@ -960,7 +960,7 @@ export default function AdminShippingConfigPage() {
               {activeTab === "departure-point" && "Danh sach diem xuat phat"}
               {activeTab === "shipping-fee" && "Danh sach muc phi van chuyen"}
             </h2>
-            <p>Tim kiem, loc va cap nhat cau hinh theo dung contract backend.</p>
+           
           </div>
 
           <button
