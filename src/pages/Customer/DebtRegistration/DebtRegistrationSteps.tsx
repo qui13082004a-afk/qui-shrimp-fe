@@ -30,17 +30,10 @@ export interface DebtRegistrationFormState {
   dia_chi_chi_tiet_ao: string;
   dien_tich_ao: string;
   don_vi_dien_tich: string;
-  so_vu_nuoi_moi_nam: string;
-  san_luong_du_kien: string;
-  don_vi_san_luong: string;
-  kinh_nghiem_nuoi_nam: string;
-  nguon_thu_nhap_tra_no: string;
-  nguoi_mua_tom_du_kien: string;
   ngay_thu_hoach_du_kien: string;
   han_muc_mong_muon: string;
   thoi_han_tra_mong_muon: string;
   don_vi_thoi_han: string;
-  mat_hang_du_kien: string;
   nguoi_bao_lanh_ho_ten: string;
   nguoi_bao_lanh_sdt: string;
   nguoi_bao_lanh_cccd: string;
@@ -266,6 +259,18 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
           <Field label="Địa chỉ chi tiết ao *" full>
             <textarea value={form.dia_chi_chi_tiet_ao} onChange={(e) => updateField("dia_chi_chi_tiet_ao", e.target.value)} placeholder="Số nhà, ấp/khóm, tuyến đường, mốc nhận diện gần nhất..." />
           </Field>
+          {isHarvestDateAutoFilled || loadingPondCropInfo ? (
+            <LockedField
+              label="Ngày thu hoạch dự kiến *"
+              source="(lấy từ vụ nuôi)"
+              loading={loadingPondCropInfo}
+              value={form.ngay_thu_hoach_du_kien || "Chưa có dữ liệu vụ nuôi"}
+            />
+          ) : (
+            <Field label="Ngày thu hoạch dự kiến *" hint="Không lấy được từ vụ nuôi, vui lòng nhập tay">
+              <input type="date" value={form.ngay_thu_hoach_du_kien} onChange={(e) => updateField("ngay_thu_hoach_du_kien", e.target.value)} />
+            </Field>
+          )}
         </div>
         {isAreaAutoFilled && (
           <p className="debt-register-hint">
@@ -294,40 +299,10 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
   if (step === 3) {
     return (
       <section className="debt-register-section">
-        <div className="debt-register-section__heading"><span>03</span><div><h3>Hoạt động nuôi tôm</h3><p>Thông tin dùng để đánh giá quy mô vụ nuôi và nguồn trả nợ.</p></div></div>
-        <div className="debt-register-grid">
-          <Field label="Số vụ nuôi mỗi năm *"><input type="number" min="1" value={form.so_vu_nuoi_moi_nam} onChange={(e) => updateField("so_vu_nuoi_moi_nam", e.target.value)} /></Field>
-          <Field label="Kinh nghiệm nuôi (năm) *"><input type="number" min="0" value={form.kinh_nghiem_nuoi_nam} onChange={(e) => updateField("kinh_nghiem_nuoi_nam", e.target.value)} /></Field>
-          <Field label="Sản lượng dự kiến *">
-            <div className="debt-register-combo"><input type="number" min="1" value={form.san_luong_du_kien} onChange={(e) => updateField("san_luong_du_kien", e.target.value)} /><select value={form.don_vi_san_luong} onChange={(e) => updateField("don_vi_san_luong", e.target.value)}><option value="kg">kg</option><option value="tan">tấn</option></select></div>
-          </Field>
-          {isHarvestDateAutoFilled || loadingPondCropInfo ? (
-            <LockedField
-              label="Ngày thu hoạch dự kiến *"
-              source="(lấy từ vụ nuôi)"
-              loading={loadingPondCropInfo}
-              value={form.ngay_thu_hoach_du_kien || "Chưa có dữ liệu vụ nuôi"}
-            />
-          ) : (
-            <Field label="Ngày thu hoạch dự kiến *" hint="Không lấy được từ vụ nuôi, vui lòng nhập tay">
-              <input type="date" value={form.ngay_thu_hoach_du_kien} onChange={(e) => updateField("ngay_thu_hoach_du_kien", e.target.value)} />
-            </Field>
-          )}
-          <Field label="Nguồn thu nhập trả nợ *" full><textarea value={form.nguon_thu_nhap_tra_no} onChange={(e) => updateField("nguon_thu_nhap_tra_no", e.target.value)} placeholder="Ví dụ: tiền bán tôm sau thu hoạch" /></Field>
-          <Field label="Đơn vị thu mua dự kiến" full><input value={form.nguoi_mua_tom_du_kien} onChange={(e) => updateField("nguoi_mua_tom_du_kien", e.target.value)} placeholder="Tên đơn vị hoặc người thu mua dự kiến" /></Field>
-        </div>
-      </section>
-    );
-  }
-
-  if (step === 4) {
-    return (
-      <section className="debt-register-section">
-        <div className="debt-register-section__heading"><span>04</span><div><h3>Nhu cầu mua trả sau</h3><p>Hạn mức thực tế sẽ do nhân viên đề xuất và Admin phê duyệt.</p></div></div>
+        <div className="debt-register-section__heading"><span>03</span><div><h3>Nhu cầu mua trả sau</h3><p>Hạn mức thực tế sẽ do nhân viên đề xuất và Admin phê duyệt.</p></div></div>
         <div className="debt-register-grid">
           <Field label="Hạn mức mong muốn *"><div className="debt-register-money"><input inputMode="numeric" value={formatMoney(form.han_muc_mong_muon)} onChange={(e) => updateField("han_muc_mong_muon", e.target.value.replace(/\D/g, ""))} placeholder="50.000.000" /><span>VNĐ</span></div></Field>
           <Field label="Thời hạn mong muốn *"><div className="debt-register-combo"><input type="number" min="1" value={form.thoi_han_tra_mong_muon} onChange={(e) => updateField("thoi_han_tra_mong_muon", e.target.value)} /><select value={form.don_vi_thoi_han} onChange={(e) => updateField("don_vi_thoi_han", e.target.value)}><option value="thang">Tháng</option><option value="ngay">Ngày</option></select></div></Field>
-          <Field label="Mặt hàng dự kiến mua *" full><textarea value={form.mat_hang_du_kien} onChange={(e) => updateField("mat_hang_du_kien", e.target.value)} placeholder="Thức ăn, thuốc, hóa chất..." /></Field>
         </div>
 
         <div className="debt-register-subheading"><h4>Người bảo lãnh / liên hệ khẩn cấp</h4><p>Không bắt buộc, nhưng nên bổ sung khi đề nghị hạn mức lớn.</p></div>
@@ -392,7 +367,7 @@ export const DebtRegistrationStepContent: React.FC<StepContentProps> = ({
 
   return (
     <section className="debt-register-section">
-      <div className="debt-register-section__heading"><span>05</span><div><h3>Minh chứng và cam kết</h3><p>Ảnh rõ nét, đủ góc và không bị che khuất.</p></div></div>
+      <div className="debt-register-section__heading"><span>04</span><div><h3>Minh chứng và cam kết</h3><p>Ảnh rõ nét, đủ góc và không bị che khuất.</p></div></div>
       <div className="debt-upload-grid">
         <FileCard title="CCCD mặt trước *" description="Ảnh rõ số và thông tin trên CCCD" file={files.anh_cccd_mat_truoc} onChange={(file) => setFile("anh_cccd_mat_truoc", file)} />
         <FileCard title="CCCD mặt sau *" description="Ảnh rõ ngày cấp và mã QR" file={files.anh_cccd_mat_sau} onChange={(file) => setFile("anh_cccd_mat_sau", file)} />

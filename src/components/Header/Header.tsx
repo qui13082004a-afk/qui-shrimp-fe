@@ -109,6 +109,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     navigate("/login");
   };
@@ -145,6 +146,7 @@ const Header = () => {
         <NavLink to="/store">Cửa hàng</NavLink>
         <NavLink to="/ponds">Ao nuôi</NavLink>
         <NavLink to="/debt">Công nợ</NavLink>
+        <NavLink to="/postpaid-profiles">Hồ sơ trả sau</NavLink>
         <NavLink to="/about">Giới thiệu</NavLink>
         <NavLink to="/contact">Liên hệ</NavLink>
       </nav>

@@ -46,17 +46,10 @@ type StaffCustomerProfile = {
   dia_chi_chi_tiet_ao?: string | null;
   dien_tich_ao?: number | string | null;
   don_vi_dien_tich?: "m2" | "ha" | string | null;
-  so_vu_nuoi_moi_nam?: number | string | null;
-  san_luong_du_kien?: number | string | null;
-  don_vi_san_luong?: "kg" | "tan" | string | null;
-  kinh_nghiem_nuoi_nam?: number | string | null;
-  nguon_thu_nhap_tra_no?: string | null;
-  nguoi_mua_tom_du_kien?: string | null;
   ngay_thu_hoach_du_kien?: string | null;
   han_muc_mong_muon?: number | string | null;
   thoi_han_tra_mong_muon?: number | string | null;
   don_vi_thoi_han?: "ngay" | "thang" | "sau_thu_hoach" | string | null;
-  mat_hang_du_kien?: string | null;
   nguoi_bao_lanh_ho_ten?: string | null;
   nguoi_bao_lanh_sdt?: string | null;
   nguoi_bao_lanh_cccd?: string | null;
@@ -1123,21 +1116,6 @@ export default function StaffAssessmentProfilePage() {
                     </strong>
                   </div>
                   <div>
-                    <span>Số vụ nuôi mỗi năm</span>
-                    <strong>{displayText(selectedProfile.so_vu_nuoi_moi_nam)}</strong>
-                  </div>
-                  <div>
-                    <span>Sản lượng dự kiến</span>
-                    <strong>
-                      {displayText(selectedProfile.san_luong_du_kien)}{" "}
-                      {selectedProfile.don_vi_san_luong || "kg"}
-                    </strong>
-                  </div>
-                  <div>
-                    <span>Kinh nghiệm nuôi</span>
-                    <strong>{displayText(selectedProfile.kinh_nghiem_nuoi_nam)} năm</strong>
-                  </div>
-                  <div>
                     <span>Ngày thả giống</span>
                     <strong>{formatDate(selectedProfile.VuNuoi?.ngay_tha_giong)}</strong>
                   </div>
@@ -1158,14 +1136,6 @@ export default function StaffAssessmentProfilePage() {
                           selectedProfile.VuNuoi?.ngay_thu_hoach_du_kien
                       )}
                     </strong>
-                  </div>
-                  <div>
-                    <span>Người mua tôm dự kiến</span>
-                    <strong>{displayText(selectedProfile.nguoi_mua_tom_du_kien)}</strong>
-                  </div>
-                  <div className="staff-info-grid__full">
-                    <span>Nguồn thu nhập trả nợ</span>
-                    <strong>{displayText(selectedProfile.nguon_thu_nhap_tra_no)}</strong>
                   </div>
                 </div>
               </div>
@@ -1199,10 +1169,6 @@ export default function StaffAssessmentProfilePage() {
                   <div>
                     <span>Bị khóa trả sau</span>
                     <strong>{booleanLabel(selectedProfile.bi_khoa_tra_sau)}</strong>
-                  </div>
-                  <div className="staff-info-grid__full">
-                    <span>Mặt hàng dự kiến mua</span>
-                    <strong>{displayText(selectedProfile.mat_hang_du_kien)}</strong>
                   </div>
                   {selectedProfile.ly_do_tu_choi && (
                     <div className="staff-info-grid__full danger">

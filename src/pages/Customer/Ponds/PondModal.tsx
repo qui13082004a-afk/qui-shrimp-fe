@@ -366,34 +366,6 @@ export const PondModal: React.FC<PondModalProps> = ({
             </div>
           </div>
 
-          <div className="form-row-2">
-            <div className="form-group">
-              <label>Vi do</label>
-              <input
-                type="number"
-                step="0.000001"
-                value={formData.vi_do ?? ""}
-                onChange={(e) =>
-                  onChange({ ...formData, vi_do: e.target.value })
-                }
-                placeholder="Click tren ban do"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Kinh do</label>
-              <input
-                type="number"
-                step="0.000001"
-                value={formData.kinh_do ?? ""}
-                onChange={(e) =>
-                  onChange({ ...formData, kinh_do: e.target.value })
-                }
-                placeholder="Click tren ban do"
-              />
-            </div>
-          </div>
-
           <div className="pond-map-box">
             <MapContainer center={position} zoom={11} scrollWheelZoom>
               <TileLayer

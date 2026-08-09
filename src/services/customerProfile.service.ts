@@ -119,19 +119,12 @@ export interface CustomerDebtProfile {
   /* Thông tin hoạt động nuôi */
   dien_tich_ao?: number | string | null;
   don_vi_dien_tich?: string | null;
-  so_vu_nuoi_moi_nam?: number | string | null;
-  san_luong_du_kien?: number | string | null;
-  don_vi_san_luong?: string | null;
-  kinh_nghiem_nuoi_nam?: number | string | null;
-  nguon_thu_nhap_tra_no?: string | null;
-  nguoi_mua_tom_du_kien?: string | null;
   ngay_thu_hoach_du_kien?: string | null;
 
   /* Nhu cầu trả sau */
   han_muc_mong_muon?: number | string | null;
   thoi_han_tra_mong_muon?: number | string | null;
   don_vi_thoi_han?: string | null;
-  mat_hang_du_kien?: string | null;
 
   /* Người bảo lãnh */
   nguoi_bao_lanh_ho_ten?: string | null;
@@ -223,18 +216,11 @@ export interface CreatePostpaidProfileFormPayload {
 
   dien_tich_ao: number | string;
   don_vi_dien_tich?: string;
-  so_vu_nuoi_moi_nam: number | string;
-  san_luong_du_kien: number | string;
-  don_vi_san_luong?: string;
-  kinh_nghiem_nuoi_nam: number | string;
-  nguon_thu_nhap_tra_no: string;
-  nguoi_mua_tom_du_kien?: string;
   ngay_thu_hoach_du_kien: string;
 
   han_muc_mong_muon: number | string;
   thoi_han_tra_mong_muon: number | string;
   don_vi_thoi_han?: string;
-  mat_hang_du_kien: string;
 
   nguoi_bao_lanh_ho_ten?: string;
   nguoi_bao_lanh_sdt?: string;
@@ -270,14 +256,11 @@ export interface UpdateCustomerProfilePayload {
   so_dien_thoai?: string;
   dia_chi_thuong_tru?: string;
 
-  nguon_thu_nhap_tra_no?: string;
-  nguoi_mua_tom_du_kien?: string;
   ngay_thu_hoach_du_kien?: string;
 
   han_muc_mong_muon?: number | string;
   thoi_han_tra_mong_muon?: number | string;
   don_vi_thoi_han?: string;
-  mat_hang_du_kien?: string;
 
   nguoi_bao_lanh_ho_ten?: string;
   nguoi_bao_lanh_sdt?: string;

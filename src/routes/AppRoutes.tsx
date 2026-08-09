@@ -21,6 +21,7 @@ import CustomerHomePage from "../pages/Customer/Home/CustomerHomePage";
 import AboutPage from "../pages/Customer/About/AboutPage";
 import ContactPage from "../pages/Customer/Contact/ContactPage";
 import ProfilePage from "../pages/Customer/Profile/ProfilePage";
+import PostpaidProfilesPage from "../pages/Customer/PostpaidProfiles/PostpaidProfilesPage";
 
 
 import CustomerLayout from "../layouts/CustomerLayout/CustomerLayout";
@@ -79,6 +80,7 @@ function RequireLoginInline({ children }: { children: React.ReactNode }) {
     return children;
   } catch {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     return <AccessRequiredCard />;
   }
@@ -114,6 +116,7 @@ function RoleRoute({ allowedRoles, children }: RoleRouteProps) {
     return children;
   } catch {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     return <Navigate to="/login" replace />;
   }
@@ -147,6 +150,14 @@ export default function AppRoutes() {
           element={
             <RequireLoginInline>
               <DebtPage />
+            </RequireLoginInline>
+          }
+        />
+        <Route
+          path="/postpaid-profiles"
+          element={
+            <RequireLoginInline>
+              <PostpaidProfilesPage />
             </RequireLoginInline>
           }
         />

@@ -25,4 +25,34 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
+    const authCodes = [
+      "TOKEN_EXPIRED",
+      "INVALID_TOKEN",
+      "INVALID_TOKEN_TYPE",
+      "ACCOUNT_NOT_FOUND",
+      "ACCOUNT_LOCKED",
+    ];
+
+    if ((status === 401 || status === 403) && authCodes.includes(code)) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+
+      const currentPath = `${window.location.pathname}${window.location.search}`;
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.href = `/login?reason=${code}&from=${encodeURIComponent(
+          currentPath
+        )}`;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;

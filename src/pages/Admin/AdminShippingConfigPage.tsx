@@ -1125,7 +1125,6 @@ export default function AdminShippingConfigPage() {
                 <tr>
                   <th>Ten diem</th>
                   <th>Dia chi</th>
-                  <th>Toa do</th>
                   <th>Ban kinh</th>
                   <th>Trang thai</th>
                   <th>Mac dinh</th>
@@ -1135,13 +1134,13 @@ export default function AdminShippingConfigPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7}>
+                    <td colSpan={6}>
                       <div className="shipping-empty">Dang tai du lieu...</div>
                     </td>
                   </tr>
                 ) : filteredDeparturePoints.length === 0 ? (
                   <tr>
-                    <td colSpan={7}>
+                    <td colSpan={6}>
                       <div className="shipping-empty">
                         <strong>Chua co diem xuat phat phu hop</strong>
                         <span>Hay them kho/cua hang hoac thay doi bo loc.</span>
@@ -1155,10 +1154,6 @@ export default function AdminShippingConfigPage() {
                         <strong>{point.ten_diem}</strong>
                       </td>
                       <td>{point.dia_chi}</td>
-                      <td>
-                        <span>{point.vi_do}</span>
-                        <span>{point.kinh_do}</span>
-                      </td>
                       <td>{formatDistance(point.ban_kinh_toi_da_km)}</td>
                       <td>
                         {renderToggle(point.dang_hoat_dong, "Trang thai", () =>
@@ -1523,29 +1518,11 @@ export default function AdminShippingConfigPage() {
                     onChange={handleDeparturePointChange}
                   />
                 </label>
-                <label>
-                  Vi do
-                  <input
-                    type="number"
-                    name="vi_do"
-                    value={departurePointForm.vi_do || ""}
-                    onChange={handleDeparturePointChange}
-                  />
-                </label>
-                <label>
-                  Kinh do
-                  <input
-                    type="number"
-                    name="kinh_do"
-                    value={departurePointForm.kinh_do || ""}
-                    onChange={handleDeparturePointChange}
-                  />
-                </label>
                 <div className="shipping-form-grid__full">
                   <div className="shipping-map-header">
                     <div>
-                      <strong>Chon toa do tren ban do</strong>
-                      <span>Click vao ban do hoac keo marker de tu dien vi do, kinh do.</span>
+                      <strong>Chon vi tri tren ban do</strong>
+                      <span>Click vao ban do hoac keo marker de chon vi tri luu cho diem xuat phat.</span>
                     </div>
                     <button
                       type="button"
@@ -1562,17 +1539,17 @@ export default function AdminShippingConfigPage() {
                   />
                   <div className="shipping-coordinate-result">
                     {resolvingCoordinate ? (
-                      <span>Dang kiem tra toa do...</span>
+                      <span>Dang kiem tra vi tri...</span>
                     ) : coordinateInfo?.tim_thay && coordinateInfo.dia_gioi ? (
                       <span>
-                        Toa do thuoc {coordinateInfo.dia_gioi.cap_xa}{" "}
+                        Vi tri thuoc {coordinateInfo.dia_gioi.cap_xa}{" "}
                         <strong>{coordinateInfo.dia_gioi.ten_xa}</strong>, tinh/thanh{" "}
                         <strong>{coordinateInfo.dia_gioi.ten_tinh}</strong>
                       </span>
                     ) : coordinateInfo ? (
-                      <span>Chua xac dinh duoc xa/tinh tu toa do nay.</span>
+                      <span>Chua xac dinh duoc xa/tinh tu vi tri nay.</span>
                     ) : (
-                      <span>Click tren ban do de kiem tra toa do thuoc xa/tinh nao.</span>
+                      <span>Click tren ban do de kiem tra vi tri thuoc xa/tinh nao.</span>
                     )}
                   </div>
                 </div>

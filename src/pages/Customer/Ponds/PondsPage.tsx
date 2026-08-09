@@ -789,8 +789,8 @@ const soNgayNuoi = activeCrop?.ngay_tha_giong
                     }}
                   >
                     {selectedPond.vi_do && selectedPond.kinh_do
-                      ? "Đã có tọa độ"
-                      : "Chưa có tọa độ"}
+                      ? "Đã có vị trí"
+                      : "Chưa có vị trí"}
                   </strong>
                 </div>
 

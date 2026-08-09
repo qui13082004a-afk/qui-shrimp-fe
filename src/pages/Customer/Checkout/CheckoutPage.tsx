@@ -1101,16 +1101,6 @@ export default function CheckoutPage() {
                 />
               </label>
 
-              <label>
-                Vĩ độ
-                <input value={addressForm.vi_do} readOnly />
-              </label>
-
-              <label>
-                Kinh độ
-                <input value={addressForm.kinh_do} readOnly />
-              </label>
-
               <div className="full">
                 <div className="checkout-map-toolbar">
                   <div>
@@ -1186,4 +1176,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

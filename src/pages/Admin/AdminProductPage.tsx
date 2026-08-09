@@ -73,6 +73,7 @@ export default function AdminProductPage() {
   const [form, setForm] = useState<ProductPayload>(emptyForm);
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [showWarehouseModal, setShowWarehouseModal] = useState(false);
+  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
   const [stockForm, setStockForm] = useState({
     id_kho_hang: "",
     so_luong: "",
@@ -162,6 +163,28 @@ export default function AdminProductPage() {
     setEditingProduct(null);
     setForm(emptyForm);
     setShowModal(true);
+  };
+
+  const openCreateWarehouse = () => {
+    setEditingWarehouse(null);
+    setWarehouseForm({
+      ten_kho: "",
+      id_diem_xuat_phat: "",
+      ghi_chu: "",
+      trang_thai: "hoat_dong",
+    });
+    setShowWarehouseModal(true);
+  };
+
+  const openEditWarehouse = (warehouse: Warehouse) => {
+    setEditingWarehouse(warehouse);
+    setWarehouseForm({
+      ten_kho: warehouse.ten_kho || "",
+      id_diem_xuat_phat: String(warehouse.id_diem_xuat_phat || ""),
+      ghi_chu: warehouse.ghi_chu || "",
+      trang_thai: warehouse.trang_thai || "hoat_dong",
+    });
+    setShowWarehouseModal(true);
   };
 
   const openEdit = (product: Product) => {
@@ -325,9 +348,19 @@ export default function AdminProductPage() {
     }
 
     try {
-      await warehouseService.createWarehouse(warehouseForm);
-      setAlert("Tạo kho hàng thành công.");
+      if (editingWarehouse) {
+        await warehouseService.updateWarehouse(
+          editingWarehouse.id_kho_hang,
+          warehouseForm
+        );
+        setAlert("Cập nhật kho hàng thành công.");
+      } else {
+        await warehouseService.createWarehouse(warehouseForm);
+        setAlert("Tạo kho hàng thành công.");
+      }
+
       setShowWarehouseModal(false);
+      setEditingWarehouse(null);
       setWarehouseForm({
         ten_kho: "",
         id_diem_xuat_phat: "",
@@ -336,7 +369,34 @@ export default function AdminProductPage() {
       });
       await loadData();
     } catch (error: any) {
-      setAlert(error?.response?.data?.message || "Không thể tạo kho hàng.");
+      setAlert(error?.response?.data?.message || "Không thể lưu kho hàng.");
+    }
+  };
+
+  const toggleWarehouseStatus = async (warehouse: Warehouse) => {
+    const nextStatus =
+      warehouse.trang_thai === "tam_ngung" ? "hoat_dong" : "tam_ngung";
+
+    const confirmed = await confirmDialog(
+      nextStatus === "tam_ngung"
+        ? `Tạm ngưng kho "${warehouse.ten_kho}"?`
+        : `Mở lại kho "${warehouse.ten_kho}"?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await warehouseService.updateWarehouse(warehouse.id_kho_hang, {
+        trang_thai: nextStatus,
+      });
+      setAlert(
+        nextStatus === "tam_ngung"
+          ? "Đã tạm ngưng kho hàng."
+          : "Đã mở lại kho hàng."
+      );
+      await loadData();
+    } catch (error: any) {
+      setAlert(error?.response?.data?.message || "Không thể cập nhật kho hàng.");
     }
   };
 
@@ -379,7 +439,7 @@ export default function AdminProductPage() {
           <p>Quản lý vật tư, tồn kho, hình ảnh và trạng thái bán hàng.</p>
         </div>
         <div className="admin-actions">
-          <button className="admin-secondary-btn" type="button" onClick={() => setShowWarehouseModal(true)}>
+          <button className="admin-secondary-btn" type="button" onClick={openCreateWarehouse}>
             + Thêm kho
           </button>
           <button className="admin-primary-btn" type="button" onClick={openCreate}>
@@ -410,6 +470,89 @@ export default function AdminProductPage() {
           <span>Không bán</span>
           <strong>{stats.hidden}</strong>
           <p>Ngừng bán hoặc hết hàng</p>
+        </div>
+      </div>
+
+      <div className="admin-card admin-sales-list-card">
+        <div className="admin-sales-card__top">
+          <div>
+            <h2>Danh sách kho hàng</h2>
+            <p>Quản lý kho phục vụ nhập tồn, phân bổ sản phẩm và ngừng sử dụng khi cần.</p>
+          </div>
+        </div>
+
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Kho</th>
+                <th>Địa chỉ kinh doanh</th>
+                <th>Trạng thái</th>
+                <th>Ghi chú</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {warehouses.length === 0 ? (
+                <tr>
+                  <td colSpan={5}>
+                    <div className="admin-empty">Chưa có kho hàng nào</div>
+                  </td>
+                </tr>
+              ) : (
+                warehouses.map((warehouse) => (
+                  <tr key={warehouse.id_kho_hang}>
+                    <td>
+                      <strong>{warehouse.ten_kho}</strong>
+                      <span>#{warehouse.id_kho_hang}</span>
+                    </td>
+                    <td>
+                      {warehouse.dia_chi ||
+                        warehouse.CauHinhDiemXuatPhat?.dia_chi ||
+                        "Chưa có địa chỉ"}
+                    </td>
+                    <td>
+                      <span
+                        className={`admin-badge ${
+                          warehouse.trang_thai === "hoat_dong"
+                            ? "green"
+                            : "gray"
+                        }`}
+                      >
+                        {warehouse.trang_thai === "hoat_dong"
+                          ? "Hoạt động"
+                          : "Tạm ngưng"}
+                      </span>
+                    </td>
+                    <td>{warehouse.ghi_chu || "—"}</td>
+                    <td>
+                      <div className="admin-actions">
+                        <button
+                          type="button"
+                          onClick={() => openEditWarehouse(warehouse)}
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          type="button"
+                          className={
+                            warehouse.trang_thai === "tam_ngung"
+                              ? ""
+                              : "danger"
+                          }
+                          onClick={() => toggleWarehouseStatus(warehouse)}
+                        >
+                          {warehouse.trang_thai === "tam_ngung"
+                            ? "Mở lại"
+                            : "Tạm ngưng"}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -917,13 +1060,16 @@ export default function AdminProductPage() {
           <div className="admin-modal">
             <div className="admin-modal__header">
               <div>
-                <h2>Thêm kho hàng</h2>
+                <h2>{editingWarehouse ? "Cập nhật kho hàng" : "Thêm kho hàng"}</h2>
                 <p>Kho dùng để phân bổ tồn kho sản phẩm.</p>
               </div>
               <button
                 className="admin-modal__close"
                 type="button"
-                onClick={() => setShowWarehouseModal(false)}
+                onClick={() => {
+                  setShowWarehouseModal(false);
+                  setEditingWarehouse(null);
+                }}
               >
                 ×
               </button>
@@ -999,9 +1145,7 @@ export default function AdminProductPage() {
                     return (
                       <>
                         <strong>{selectedPoint.dia_chi}</strong>
-                        <span>
-                          {selectedPoint.vi_do}, {selectedPoint.kinh_do}
-                        </span>
+                        <span>Đã có vị trí phục vụ</span>
                       </>
                     );
                   })()}
@@ -1025,7 +1169,10 @@ export default function AdminProductPage() {
               <button
                 className="admin-secondary-btn"
                 type="button"
-                onClick={() => setShowWarehouseModal(false)}
+                onClick={() => {
+                  setShowWarehouseModal(false);
+                  setEditingWarehouse(null);
+                }}
               >
                 Hủy
               </button>

@@ -32,7 +32,6 @@ interface DebtRegistrationModalProps {
 const stepMeta = [
   { label: "Cá nhân", short: "Thông tin" },
   { label: "Ao nuôi", short: "Khu vực" },
-  { label: "Hoạt động", short: "Năng lực" },
   { label: "Nhu cầu", short: "Hạn mức" },
   { label: "Minh chứng", short: "Hoàn tất" },
 ];
@@ -142,19 +141,12 @@ const createInitialForm = (
   // để tránh dữ liệu ao nuôi và hồ sơ khách hàng bị lệch nhau.
   dien_tich_ao: String(pondArea || ""),
   don_vi_dien_tich: "m2",
-  so_vu_nuoi_moi_nam: "",
-  san_luong_du_kien: "",
-  don_vi_san_luong: "kg",
-  kinh_nghiem_nuoi_nam: "",
-  nguon_thu_nhap_tra_no: "",
-  nguoi_mua_tom_du_kien: "",
   // Ngày thu hoạch dự kiến lấy trực tiếp từ VuNuoi (id_vu_nuoi), không cho
   // khách nhập tay vì đây là cùng một dữ liệu với vụ nuôi đã chọn.
   ngay_thu_hoach_du_kien: harvestDate,
   han_muc_mong_muon: "",
   thoi_han_tra_mong_muon: "",
   don_vi_thoi_han: "thang",
-  mat_hang_du_kien: "",
   nguoi_bao_lanh_ho_ten: "",
   nguoi_bao_lanh_sdt: "",
   nguoi_bao_lanh_cccd: "",
@@ -436,25 +428,22 @@ export const DebtRegistrationModal: React.FC<DebtRegistrationModalProps> = ({
     if (step === 2 && (!areaChecked || !areaSupported)) {
       return "Bạn cần kiểm tra và xác nhận khu vực được hỗ trợ.";
     }
-    if (step === 3 && (Number(form.so_vu_nuoi_moi_nam) <= 0 || Number(form.san_luong_du_kien) <= 0 || Number(form.kinh_nghiem_nuoi_nam) < 0 || !form.nguon_thu_nhap_tra_no.trim())) {
-      return "Vui lòng nhập đầy đủ thông tin hoạt động nuôi tôm.";
-    }
-    if (step === 3 && !form.ngay_thu_hoach_du_kien) {
+    if (step === 2 && !form.ngay_thu_hoach_du_kien) {
       return isHarvestDateAutoFilled
         ? "Không lấy được ngày thu hoạch dự kiến. Vui lòng đóng form và chọn lại vụ nuôi."
         : "Vui lòng nhập ngày thu hoạch dự kiến.";
     }
-    if (step === 4 && (Number(form.han_muc_mong_muon) <= 0 || Number(form.thoi_han_tra_mong_muon) <= 0 || !form.mat_hang_du_kien.trim())) {
+    if (step === 3 && (Number(form.han_muc_mong_muon) <= 0 || Number(form.thoi_han_tra_mong_muon) <= 0)) {
       return "Vui lòng nhập đầy đủ nhu cầu mua trả sau.";
     }
-    if (step === 4) {
+    if (step === 3) {
       const guarantorError = validateGuarantorInfo(form);
       if (guarantorError) return guarantorError;
     }
-    if (step === 5 && Object.values(files).some((file) => !file)) {
+    if (step === 4 && Object.values(files).some((file) => !file)) {
       return "Vui lòng tải đủ CCCD và biên lai thả giống.";
     }
-    if (step === 5 && (!form.cam_ket_thong_tin || !form.dong_y_xac_minh || !form.dong_y_dieu_khoan)) {
+    if (step === 4 && (!form.cam_ket_thong_tin || !form.dong_y_xac_minh || !form.dong_y_dieu_khoan)) {
       return "Bạn cần đồng ý đầy đủ các cam kết trước khi gửi.";
     }
     return "";

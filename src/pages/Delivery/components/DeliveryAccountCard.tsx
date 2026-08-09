@@ -17,6 +17,7 @@ const defaultPasswordForm = {
 
 const handleLogout = () => {
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
   localStorage.removeItem("user");
   window.location.href = "/login";
 };

@@ -1,0 +1,369 @@
+.postpaid-profiles-page {
+  width: min(1320px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 32px 0 56px;
+  color: #062b4f;
+}
+
+.postpaid-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 32px;
+  border: 1px solid #d6e6f5;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #eef8ff 100%);
+  box-shadow: 0 18px 45px rgba(6, 43, 79, 0.08);
+}
+
+.postpaid-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: #0067b1;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.postpaid-hero h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.postpaid-hero p {
+  max-width: 760px;
+  margin: 12px 0 0;
+  color: #5d6f88;
+  line-height: 1.6;
+}
+
+.postpaid-hero button,
+.postpaid-empty button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #00508f;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.postpaid-hero button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.postpaid-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.postpaid-summary-card {
+  min-height: 128px;
+  padding: 22px;
+  border: 1px solid #dbe8f5;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(6, 43, 79, 0.06);
+}
+
+.postpaid-summary-card svg {
+  color: #0076c8;
+}
+
+.postpaid-summary-card span {
+  display: block;
+  margin-top: 14px;
+  color: #667891;
+  font-weight: 700;
+}
+
+.postpaid-summary-card strong {
+  display: block;
+  margin-top: 8px;
+  color: #001f3f;
+  font-size: 30px;
+}
+
+.postpaid-loading,
+.postpaid-empty,
+.postpaid-detail-placeholder {
+  margin-top: 24px;
+  padding: 44px 24px;
+  border: 1px dashed #b8d5ef;
+  border-radius: 18px;
+  background: #ffffff;
+  text-align: center;
+  color: #5f7188;
+}
+
+.postpaid-empty {
+  min-height: 300px;
+}
+
+.postpaid-empty svg {
+  color: #0076c8;
+}
+
+.postpaid-empty h2 {
+  margin: 18px 0 8px;
+  color: #062b4f;
+}
+
+.postpaid-empty p {
+  margin: 0 auto 22px;
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+.postpaid-content-grid {
+  display: grid;
+  grid-template-columns: minmax(380px, 0.9fr) minmax(460px, 1.1fr);
+  gap: 22px;
+  margin-top: 24px;
+  align-items: start;
+}
+
+.postpaid-list-card,
+.postpaid-detail-card {
+  border: 1px solid #dbe8f5;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 14px 32px rgba(6, 43, 79, 0.07);
+}
+
+.postpaid-list-card {
+  padding: 24px;
+}
+
+.postpaid-detail-card {
+  padding: 26px;
+  min-height: 420px;
+}
+
+.postpaid-section-title,
+.postpaid-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.postpaid-section-title h2,
+.postpaid-detail-header h2 {
+  margin: 0;
+  color: #001f3f;
+  font-size: 22px;
+}
+
+.postpaid-section-title span,
+.postpaid-detail-header span:first-child {
+  color: #6a7b91;
+  font-weight: 700;
+}
+
+.postpaid-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.postpaid-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #dce9f6;
+  border-radius: 14px;
+  background: #f9fcff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.postpaid-row:hover,
+.postpaid-row.active {
+  border-color: #0b82d8;
+  background: #eff8ff;
+}
+
+.postpaid-row__main strong,
+.postpaid-row__main span,
+.postpaid-row__meta span {
+  display: block;
+}
+
+.postpaid-row__main strong {
+  color: #001f3f;
+}
+
+.postpaid-row__main span,
+.postpaid-row__meta span:last-child {
+  margin-top: 6px;
+  color: #63748b;
+  font-size: 14px;
+}
+
+.profile-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.status-wait {
+  background: #eef4ff;
+  color: #1b5fb7;
+}
+
+.status-progress {
+  background: #fff7dd;
+  color: #ab6700;
+}
+
+.status-review {
+  background: #e7f5ff;
+  color: #0067a8;
+}
+
+.status-approved {
+  background: #dcfce7;
+  color: #08763d;
+}
+
+.status-rejected {
+  background: #ffe4e6;
+  color: #b42335;
+}
+
+.postpaid-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.detail-box {
+  min-height: 94px;
+  padding: 18px;
+  border: 1px solid #dbe8f5;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.detail-box.highlight {
+  border-color: #9ed2ff;
+  background: #eff8ff;
+}
+
+.detail-box span {
+  display: block;
+  color: #6c7d92;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.detail-box strong {
+  display: block;
+  margin-top: 10px;
+  color: #001f3f;
+  line-height: 1.35;
+}
+
+.postpaid-detail-info {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.postpaid-detail-info > div {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f4f8fc;
+  color: #44576f;
+}
+
+.postpaid-detail-info svg {
+  flex: 0 0 auto;
+  color: #0067b1;
+}
+
+.postpaid-detail-info p,
+.postpaid-note p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.postpaid-note {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid #f4c7c7;
+  border-radius: 14px;
+  background: #fff5f5;
+  color: #8a1f1f;
+}
+
+.postpaid-note strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.postpaid-detail-placeholder.error {
+  border-color: #f4c7c7;
+  color: #a11d2a;
+}
+
+@media (max-width: 1100px) {
+  .postpaid-summary-grid,
+  .postpaid-content-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .postpaid-detail-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .postpaid-profiles-page {
+    width: min(100% - 24px, 1320px);
+    padding-top: 20px;
+  }
+
+  .postpaid-hero {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 22px;
+  }
+
+  .postpaid-summary-grid,
+  .postpaid-content-grid,
+  .postpaid-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .postpaid-row {
+    grid-template-columns: 1fr;
+  }
+}

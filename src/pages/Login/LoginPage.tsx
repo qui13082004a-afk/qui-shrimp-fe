@@ -39,6 +39,11 @@ export default function LoginPage() {
       return "/delivery";
     }
 
+    const queryFrom = new URLSearchParams(location.search).get("from");
+    if (queryFrom && queryFrom !== "/login") {
+      return queryFrom;
+    }
+
     const from = (location.state as { from?: string } | null)?.from;
     if (from && from !== "/login") {
       return from;
@@ -61,9 +66,13 @@ export default function LoginPage() {
       });
 
       const token = res.data.data.token;
+      const refreshToken = res.data.data.refreshToken;
       const user = res.data.data.user;
 
       localStorage.setItem("accessToken", token);
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+      }
       localStorage.setItem("user", JSON.stringify(user));
 
       setNotice({
