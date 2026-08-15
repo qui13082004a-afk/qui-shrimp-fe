@@ -334,3 +334,79 @@
     width: 100%;
   }
 }
+
+@media (max-width: 560px) {
+  .delivery-shell-header {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .delivery-shell-header h1 {
+    font-size: 22px;
+    line-height: 1.18;
+  }
+
+  .delivery-shell-header p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .delivery-shell-user {
+    gap: 8px;
+  }
+
+  .delivery-shell-user button {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  .delivery-orders-card {
+    border-radius: 16px;
+  }
+
+  .delivery-orders-card__head {
+    padding: 16px 14px 10px;
+  }
+
+  .delivery-orders-card__head h2 {
+    font-size: 19px;
+  }
+
+  .delivery-orders-toolbar {
+    padding: 0 14px 14px;
+    gap: 10px;
+  }
+
+  .delivery-orders-toolbar input,
+  .delivery-orders-toolbar select {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .delivery-table {
+    min-width: 760px;
+  }
+
+  .delivery-table th,
+  .delivery-table td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .delivery-detail-btn {
+    min-height: 36px;
+    padding: 0 11px;
+  }
+}
+
+@media (max-width: 430px) {
+  .delivery-pagination span {
+    text-align: center;
+  }
+
+  .delivery-pagination div {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

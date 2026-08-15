@@ -1,0 +1,336 @@
+/* Responsive overrides for phone and small tablet screens. */
+@media (max-width: 900px) {
+  html,
+  body,
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .app-container {
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  .app-content {
+    overflow-x: hidden;
+  }
+
+  .customer-header {
+    position: sticky;
+    top: 0;
+    height: auto;
+    min-height: 64px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .customer-header__logo {
+    min-width: 0;
+    flex: 1 1 auto;
+    font-size: 22px;
+    white-space: nowrap;
+  }
+
+  .customer-header__right {
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+
+  .customer-header__divider {
+    display: none;
+  }
+
+  .customer-header__icon-button {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+  }
+
+  .customer-header__login {
+    height: 40px;
+    padding: 0 14px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .customer-header__user {
+    min-width: 0;
+    max-width: 132px;
+    padding: 5px;
+    gap: 8px;
+  }
+
+  .customer-header__user-info {
+    min-width: 0;
+  }
+
+  .customer-header__user-name,
+  .customer-header__user-role {
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .customer-header__user-avatar {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+  }
+
+  .customer-header__nav {
+    order: 3;
+    flex: 1 0 100%;
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    gap: 18px;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 2px 4px;
+    scrollbar-width: none;
+  }
+
+  .customer-header__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .customer-header__nav a {
+    height: 38px;
+    flex: 0 0 auto;
+    font-size: 14px;
+  }
+
+  .customer-header__dropdown {
+    position: fixed;
+    top: 70px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100dvh - 92px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  :where(
+      .home-intro-grid,
+      .home-feature-grid,
+      .contact-grid,
+      .store-layout,
+      .product-detail-layout,
+      .checkout-layout,
+      .debt-layout,
+      .debt-detail-layout,
+      .ponds-layout,
+      .profile-layout,
+      .order-detail-layout,
+      .admin-dashboard-grid,
+      .admin-stats-grid,
+      .admin-content-grid,
+      .admin-sales-grid,
+      .staff-contract-layout,
+      .staff-contract-info-grid,
+      .staff-info-grid,
+      .staff-media-grid,
+      .delivery-dashboard-grid,
+      .delivery-stats-grid
+    ) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  :where(
+      .admin-page,
+      .staff-assessment-page,
+      .staff-contract-page,
+      .delivery-page,
+      .home-page,
+      .contact-page
+    ) {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  :where(
+      .admin-card,
+      .admin-sales-card,
+      .checkout-card,
+      .checkout-summary,
+      .debt-card,
+      .pond-card,
+      .profile-card,
+      .store-card,
+      .product-card,
+      .delivery-orders-card,
+      .staff-assessment-card,
+      .staff-assessment-stat-card,
+      .staff-contract-list-card,
+      .staff-contract-detail-card
+    ) {
+    border-radius: 16px !important;
+  }
+
+  :where(
+      .admin-page__header,
+      .admin-sales-card__top,
+      .delivery-orders-card__head,
+      .staff-assessment-card__top
+    ) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  :where(
+      .admin-table-wrap,
+      .staff-assessment-table-wrap,
+      .delivery-table-wrap,
+      .table-wrapper,
+      .orders-table-wrap,
+      .inventory-table-wrap,
+      .product-table-wrap,
+      .debt-table-wrap
+    ) {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :where(.admin-main, .app-content, .staff-limit-main, .delivery-main) table {
+    min-width: 720px;
+  }
+
+  :where(
+      .admin-modal-overlay,
+      .staff-modal-overlay,
+      .modal-overlay,
+      .checkout-modal-overlay,
+      .profile-modal-overlay,
+      .debt-modal-overlay,
+      .pond-modal-overlay
+    ) {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 12px !important;
+    overflow-y: auto !important;
+  }
+
+  :where(
+      .admin-modal,
+      .staff-modal,
+      .checkout-address-modal,
+      .profile-modal,
+      .debt-modal,
+      .pond-modal,
+      .modal,
+      .staff-limit-account-modal
+    ) {
+    width: min(100%, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow-y: auto !important;
+  }
+
+  :where(
+      .admin-sales-form,
+      .admin-form-grid,
+      .staff-proposal-form,
+      .staff-limit-account-modal__grid,
+      .staff-limit-account-modal__form,
+      .checkout-address-form,
+      .form-grid,
+      .profile-form-grid,
+      .debt-form-grid,
+      .pond-form-grid
+    ) {
+    grid-template-columns: 1fr !important;
+  }
+
+  :where(.checkout-summary, .store-sidebar, .debt-sidebar, .profile-sidebar) {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  :where(.checkout-submit, .submit-btn, .primary-btn, .btn-primary) {
+    width: 100%;
+  }
+
+  :where(.admin-page__header h1, .home-page h1, .contact-page h1) {
+    font-size: clamp(24px, 8vw, 34px) !important;
+    line-height: 1.15 !important;
+  }
+
+  :where(.admin-page__header h2, .checkout-card h2, .debt-card h2) {
+    font-size: clamp(20px, 6vw, 28px) !important;
+    line-height: 1.2 !important;
+  }
+
+  .checkout-address-map,
+  .leaflet-container {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-header {
+    padding: 8px 10px;
+  }
+
+  .customer-header__logo {
+    font-size: 19px;
+  }
+
+  .customer-header__right {
+    gap: 6px;
+  }
+
+  .customer-header__icon-button {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .customer-header__login {
+    height: 36px;
+    padding: 0 10px;
+  }
+
+  .customer-header__login svg {
+    display: none;
+  }
+
+  .customer-header__user {
+    max-width: 92px;
+  }
+
+  .customer-header__user-info {
+    display: none;
+  }
+
+  .customer-header__nav {
+    gap: 14px;
+  }
+
+  .customer-header__nav a {
+    font-size: 13px;
+  }
+
+  :where(.admin-page, .staff-assessment-page, .staff-contract-page, .delivery-page) {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  :where(.admin-modal__actions, .staff-modal__footer, .staff-limit-account-modal__actions) {
+    flex-direction: column-reverse !important;
+  }
+
+  :where(.admin-modal__actions button, .staff-modal__footer button, .staff-limit-account-modal__actions button) {
+    width: 100%;
+  }
+}

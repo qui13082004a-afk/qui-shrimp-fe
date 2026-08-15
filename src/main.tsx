@@ -5,6 +5,7 @@ import "./styles/global.css";
 import "./styles/layout.css";
 import App from "./App";
 import "./index.css";
+import "./styles/responsive.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <BrowserRouter>

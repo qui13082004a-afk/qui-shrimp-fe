@@ -816,10 +816,7 @@ export default function StaffAssessmentProfilePage() {
                 : "Chưa có hồ sơ nào tới mốc chính sách mới"}
             </h2>
           </div>
-          <span>
-            Hệ thống đối chiếu ngày thả giống với chính sách hạn mức. Job backend
-            sẽ gửi thông báo cho nhân viên định mức mỗi ngày lúc 07:00.
-          </span>
+         
         </div>
 
         {policyReminderProfiles.length > 0 ? (

@@ -359,3 +359,58 @@
     text-align: left;
   }
 }
+
+@media (max-width: 520px) {
+  .delivery-account-modal__overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .delivery-account-modal {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .delivery-account-modal__header {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .delivery-account-modal__identity-mark {
+    width: 54px;
+    height: 54px;
+    border-radius: 17px;
+    font-size: 20px;
+  }
+
+  .delivery-account-modal__identity-meta h3 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .delivery-account-modal__section {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .delivery-account-modal__grid div {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .delivery-account-modal__grid strong {
+    overflow-wrap: anywhere;
+  }
+
+  .delivery-account-modal__actions {
+    position: sticky;
+    bottom: -16px;
+    margin: 12px -16px -16px;
+    padding: 12px 16px 16px;
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid #edf2f7;
+    backdrop-filter: blur(10px);
+  }
+}

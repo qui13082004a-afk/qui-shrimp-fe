@@ -21,6 +21,9 @@ Font.register({
   ],
 });
 
+const POSTPAID_SURCHARGE_RATE = 5;
+const OVERDUE_INTEREST_RATE_MONTHLY = 1.2;
+
 const styles = StyleSheet.create({
   page: {
     padding: 36,
@@ -35,22 +38,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 16,
-    marginBottom: 10,
+    marginTop: 14,
+    marginBottom: 8,
     textTransform: "uppercase",
   },
   subtitle: {
     fontSize: 11,
     textAlign: "center",
-    marginBottom: 18,
+    marginBottom: 16,
   },
   section: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: "bold",
-    marginBottom: 6,
+    marginBottom: 5,
     textTransform: "uppercase",
   },
   row: {
@@ -66,14 +69,14 @@ const styles = StyleSheet.create({
   signatureWrap: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 34,
+    marginTop: 28,
   },
   signatureBox: {
     width: "45%",
     textAlign: "center",
   },
   signatureSpace: {
-    height: 70,
+    height: 68,
   },
 });
 
@@ -151,19 +154,22 @@ export default function ContractPdfDocument({
         <Text style={styles.center}>CÔNG TY VẬT TƯ NUÔI TÔM LVTN</Text>
         <Text style={styles.center}>Độc lập - Tự do - Hạnh phúc</Text>
 
-        <Text style={styles.title}>Hợp đồng mua bán trả sau</Text>
-        <Text style={styles.subtitle}>Số hợp đồng: {contractCode}</Text>
+        <Text style={styles.title}>Hợp đồng mua vật tư trả sau</Text>
+        <Text style={styles.subtitle}>
+          Số hợp đồng: {contractCode} | Hồ sơ mua trả sau #{profile.id_ho_so}
+        </Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>1. Thông tin bên bán</Text>
-          <Text style={styles.row}>Bên A: Công ty vật tư nuôi tôm LVTN</Text>
-          <Text style={styles.row}>Địa chỉ: ....................................................</Text>
-          <Text style={styles.row}>Đại diện: ...................................................</Text>
-          <Text style={styles.row}>Chức vụ: ....................................................</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>2. Thông tin khách hàng</Text>
+          <Text style={styles.sectionTitle}>1. Thông tin các bên</Text>
+          <Text style={styles.row}>
+            Bên A: Công ty vật tư nuôi tôm LVTN
+          </Text>
+          <Text style={styles.row}>
+            Địa chỉ: ............................................................
+          </Text>
+          <Text style={styles.row}>
+            Đại diện: ..........................................................
+          </Text>
           <Text style={styles.row}>
             Bên B: {profile.NguoiDung?.ho_ten || "Chưa có thông tin"}
           </Text>
@@ -179,13 +185,12 @@ export default function ContractPdfDocument({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>3. Thông tin ao nuôi và vụ nuôi</Text>
-          <Text style={styles.row}>Hồ sơ mua trả sau: #{profile.id_ho_so}</Text>
+          <Text style={styles.sectionTitle}>2. Căn cứ cấp quyền mua trả sau</Text>
           <Text style={styles.row}>
             Ao nuôi: {profile.AoNuoi?.ten_ao || "Chưa có"}
           </Text>
           <Text style={styles.row}>
-            Diện tích: {profile.AoNuoi?.dien_tich || "Chưa có"}
+            Diện tích ao: {profile.AoNuoi?.dien_tich || "Chưa có"}
           </Text>
           <Text style={styles.row}>
             Địa chỉ ao: {profile.AoNuoi?.dia_chi_ao || "Chưa có"}
@@ -196,63 +201,98 @@ export default function ContractPdfDocument({
           <Text style={styles.row}>
             Ngày thả giống: {formatDate(profile.VuNuoi?.ngay_tha_giong)}
           </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>4. Chính sách hạn mức áp dụng</Text>
           <Text style={styles.row}>
-            Chính sách: {policy?.ten_chinh_sach || "Chưa có chính sách"}
-          </Text>
-          <Text style={styles.row}>
-            Giai đoạn áp dụng: {formatPolicyStage(policy?.giai_doan)}
-            {policy?.tu_ngay || policy?.den_ngay
-              ? ` (${policy?.tu_ngay || 0} - ${policy?.den_ngay || 0} ngày nuôi)`
-              : ""}
-          </Text>
-          <Text style={styles.row}>
-            Hạn mức tối đa theo chính sách: {formatCurrency(policy?.han_muc_toi_da)}
-          </Text>
-          <Text style={styles.row}>
-            Ghi chú chính sách: {policy?.ghi_chu || "Không có"}
+            Ngày thu hoạch dự kiến:{" "}
+            {formatDate(profile.VuNuoi?.ngay_thu_hoach_du_kien)}
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>5. Hạn mức được duyệt và thời hạn thanh toán</Text>
+          <Text style={styles.sectionTitle}>3. Hạn mức và chính sách áp dụng</Text>
           <Text style={styles.row}>
-            Hạn mức công nợ được duyệt: {formatCurrency(profile.dinh_muc_cong_no)}
+            Hạn mức công nợ được duyệt:{" "}
+            {formatCurrency(profile.dinh_muc_cong_no)}
           </Text>
           <Text style={styles.row}>
             Hạn thanh toán: {formatDate(profile.han_thanh_toan)}
           </Text>
           <Text style={styles.row}>
-            Khách hàng chỉ được mua trả sau trong phạm vi hạn mức đã được doanh nghiệp phê duyệt.
+            Chính sách hạn mức: {policy?.ten_chinh_sach || "Chưa có chính sách"}
+          </Text>
+          <Text style={styles.row}>
+            Giai đoạn áp dụng: {formatPolicyStage(policy?.giai_doan)}
+            {policy?.tu_ngay || policy?.den_ngay
+              ? ` (${policy?.tu_ngay || 0} - ${
+                  policy?.den_ngay || 0
+                } ngày nuôi)`
+              : ""}
+          </Text>
+          <Text style={styles.row}>
+            Hạn mức tối đa theo chính sách:{" "}
+            {formatCurrency(policy?.han_muc_toi_da)}
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>6. Điều khoản thực hiện</Text>
+          <Text style={styles.sectionTitle}>4. Giá bán, phụ phí và lãi quá hạn</Text>
           <Text style={styles.clause}>
-            Bên B chỉ được mua vật tư trả sau trong phạm vi hạn mức đã được duyệt và trong giai đoạn chính sách nêu tại hợp đồng này.
+            Các đơn hàng phát sinh theo hình thức mua trả sau được tính theo giá
+            bán trả sau của hệ thống. Giá bán trả sau có thể cao hơn giá thanh
+            toán trực tiếp với tỷ lệ phụ phí hiện hành là {POSTPAID_SURCHARGE_RATE}%.
           </Text>
           <Text style={styles.clause}>
-            Bên B cam kết sử dụng vật tư đúng mục đích cho ao nuôi, vụ nuôi đã đăng ký; không chuyển nhượng, sử dụng sai mục đích hoặc phát sinh giao dịch ngoài phạm vi hồ sơ.
-          </Text>
-          <Text style={styles.clause}>
-            Bên B có trách nhiệm thanh toán đầy đủ công nợ phát sinh trong thời hạn thanh toán đã được phê duyệt. Các đơn hàng chưa hoàn tất chỉ được xem là phần giữ hạn mức, chưa phải công nợ thực tế cho đến khi đủ điều kiện ghi nhận.
-          </Text>
-          <Text style={styles.clause}>
-            Bên A có quyền rà soát, điều chỉnh hoặc tạm dừng quyền mua trả sau nếu thông tin khảo sát, tình trạng ao nuôi hoặc năng lực thanh toán của Bên B thay đổi so với chính sách đã duyệt.
+            Trường hợp Bên B thanh toán sau hạn thanh toán đã được phê duyệt,
+            hệ thống tạm tính lãi quá hạn theo tỷ lệ{" "}
+            {OVERDUE_INTEREST_RATE_MONTHLY}%/tháng trên phần công nợ gốc còn
+            lại. Lãi quá hạn được tính theo từng tháng phát sinh quá hạn cho
+            đến khi Bên B hoàn tất nghĩa vụ thanh toán.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>7. Xử lý vi phạm</Text>
+          <Text style={styles.sectionTitle}>5. Quyền và nghĩa vụ của Bên B</Text>
           <Text style={styles.clause}>
-            Nếu Bên B chậm thanh toán, cung cấp thông tin sai lệch, không hợp tác trong quá trình thu hồi công nợ hoặc sử dụng vật tư sai mục đích, Bên A có quyền tạm khóa quyền mua trả sau, dừng cấp hạn mức mới, yêu cầu thanh toán toàn bộ công nợ còn lại và áp dụng biện pháp quản lý rủi ro phù hợp theo chính sách của doanh nghiệp.
+            Bên B chỉ được mua vật tư trả sau trong phạm vi hạn mức đã được Bên
+            A phê duyệt và chỉ áp dụng cho hồ sơ, ao nuôi, vụ nuôi nêu trong
+            hợp đồng này.
           </Text>
           <Text style={styles.clause}>
-            Trường hợp vi phạm nghiêm trọng, Bên A có quyền hủy bỏ quyền mua trả sau và chuyển hồ sơ sang diện quản lý rủi ro cao.
+            Bên B có trách nhiệm cung cấp thông tin trung thực, sử dụng vật tư
+            đúng mục đích sản xuất, theo dõi công nợ trên hệ thống và thanh toán
+            đầy đủ các khoản nợ phát sinh đúng hạn.
+          </Text>
+          <Text style={styles.clause}>
+            Bên B phải phối hợp với Bên A, nhân viên thẩm định hoặc nhân viên
+            giao hàng trong quá trình xác minh hồ sơ, giao nhận vật tư, đối
+            chiếu hợp đồng và xử lý công nợ.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>6. Quyền và nghĩa vụ của Bên A</Text>
+          <Text style={styles.clause}>
+            Bên A cung cấp vật tư theo đơn hàng được xác nhận trên hệ thống,
+            theo dõi hạn mức, công nợ, lịch sử thanh toán và hỗ trợ Bên B tra
+            cứu thông tin liên quan đến hồ sơ mua trả sau.
+          </Text>
+          <Text style={styles.clause}>
+            Bên A có quyền tạm dừng hoặc khóa quyền mua trả sau khi Bên B quá
+            hạn thanh toán, cung cấp thông tin sai lệch, vượt hạn mức được duyệt
+            hoặc có dấu hiệu rủi ro trong quá trình sử dụng hạn mức.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>7. Thanh toán và xử lý vi phạm</Text>
+          <Text style={styles.clause}>
+            Các khoản công nợ phát sinh được ghi nhận theo từng đơn hàng trả sau
+            đã hoàn tất. Bên B có thể thanh toán một phần hoặc toàn bộ công nợ
+            theo quy định của hệ thống.
+          </Text>
+          <Text style={styles.clause}>
+            Nếu Bên B không thanh toán đúng hạn, Bên A có quyền gửi thông báo
+            nhắc nợ, áp dụng lãi quá hạn, tạm giữ hoặc khóa hạn mức, từ chối đơn
+            trả sau mới và thực hiện các biện pháp thu hồi công nợ phù hợp.
           </Text>
         </View>
 
@@ -262,6 +302,15 @@ export default function ContractPdfDocument({
             <Text style={styles.clause}>{extraTerms}</Text>
           </View>
         )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>8. Hiệu lực hợp đồng</Text>
+          <Text style={styles.clause}>
+            Hợp đồng có hiệu lực kể từ ngày hai bên ký xác nhận. Hợp đồng là căn
+            cứ để hệ thống kích hoạt, theo dõi và quản lý các giao dịch mua vật
+            tư trả sau của Bên B trong phạm vi hạn mức được duyệt.
+          </Text>
+        </View>
 
         <View style={styles.signatureWrap}>
           <View style={styles.signatureBox}>

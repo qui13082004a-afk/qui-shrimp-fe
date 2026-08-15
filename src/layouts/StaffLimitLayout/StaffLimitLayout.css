@@ -838,3 +838,181 @@
     padding: 16px;
   }
 }
+
+@media (max-width: 640px) {
+  .staff-limit-shell {
+    min-height: 100dvh;
+    display: block;
+  }
+
+  .staff-limit-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 35;
+    padding: 10px 12px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 28px rgba(6, 59, 93, 0.2);
+  }
+
+  .staff-limit-sidebar__brand {
+    padding: 0 0 10px;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+
+  .staff-limit-sidebar__logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .staff-limit-sidebar__brand h2 {
+    font-size: 16px;
+  }
+
+  .staff-limit-sidebar__brand p {
+    font-size: 12px;
+  }
+
+  .staff-limit-sidebar__nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .staff-limit-sidebar__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .staff-limit-sidebar__link {
+    min-width: 128px;
+    min-height: 42px;
+    border-radius: 13px;
+    padding: 0 10px;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .staff-limit-sidebar__link span {
+    width: 22px;
+    font-size: 16px;
+  }
+
+  .staff-limit-header {
+    position: sticky;
+    top: 105px;
+    z-index: 25;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .staff-limit-header__title span {
+    font-size: 11px;
+  }
+
+  .staff-limit-header__title strong {
+    font-size: 16px;
+  }
+
+  .staff-limit-header__actions {
+    gap: 8px;
+  }
+
+  .staff-limit-notification__bell {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  .staff-limit-user {
+    min-width: 0;
+    padding: 5px;
+    border-radius: 15px;
+  }
+
+  .staff-limit-user__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 13px;
+  }
+
+  .staff-limit-notification__dropdown {
+    position: fixed;
+    top: 150px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 164px);
+  }
+
+  .staff-limit-main {
+    padding: 12px;
+  }
+
+  .staff-limit-account-modal__overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .staff-limit-account-modal {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    padding: 16px;
+    border-radius: 22px;
+    margin: 0;
+  }
+
+  .staff-limit-account-modal__header {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .staff-limit-account-modal__identity-mark {
+    width: 54px;
+    height: 54px;
+    border-radius: 17px;
+    font-size: 20px;
+  }
+
+  .staff-limit-account-modal__identity-meta h3 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .staff-limit-account-modal__section {
+    padding: 14px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 420px) {
+  .staff-limit-sidebar__link {
+    min-width: 112px;
+    font-size: 12px;
+  }
+
+  .staff-limit-header {
+    top: 101px;
+  }
+
+  .staff-limit-header__actions {
+    justify-content: flex-start;
+  }
+
+  .staff-limit-notification__dropdown {
+    top: 146px;
+  }
+
+  .staff-limit-account-modal__chips {
+    gap: 6px;
+  }
+
+  .staff-limit-account-modal__chip {
+    max-width: 100%;
+  }
+}

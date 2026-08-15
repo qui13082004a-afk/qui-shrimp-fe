@@ -953,3 +953,187 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .staff-assessment-page,
+  .staff-proposal-page {
+    min-width: 0;
+  }
+
+  .staff-assessment-header {
+    padding: 16px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+  }
+
+  .staff-assessment-header p {
+    font-size: 11px;
+  }
+
+  .staff-assessment-header h1 {
+    font-size: 22px;
+    line-height: 1.18;
+  }
+
+  .staff-assessment-header span {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .staff-policy-reminder {
+    padding: 14px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+  }
+
+  .staff-policy-reminder__head h2 {
+    font-size: 17px;
+  }
+
+  .staff-policy-reminder__head > span {
+    max-width: none;
+    text-align: left;
+  }
+
+  .staff-assessment-stats {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .staff-assessment-stat-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .staff-assessment-stat-card strong {
+    font-size: 24px;
+  }
+
+  .staff-assessment-card {
+    border-radius: 18px;
+  }
+
+  .staff-assessment-card__top {
+    padding: 16px 14px 6px;
+  }
+
+  .staff-assessment-card__top h2 {
+    font-size: 18px;
+  }
+
+  .staff-assessment-toolbar {
+    padding: 12px 14px 14px;
+    gap: 10px;
+  }
+
+  .staff-assessment-toolbar input,
+  .staff-assessment-toolbar select,
+  .staff-proposal-form input,
+  .staff-proposal-form select,
+  .staff-proposal-form textarea {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .staff-assessment-table {
+    min-width: 780px;
+  }
+
+  .staff-assessment-table th,
+  .staff-assessment-table td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .staff-assessment-actions {
+    gap: 8px;
+  }
+
+  .staff-assessment-actions button {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .staff-modal-overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .staff-modal,
+  .staff-modal--large {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - 20px);
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .staff-modal__header {
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .staff-modal__header h2 {
+    font-size: 21px;
+    line-height: 1.2;
+  }
+
+  .staff-modal__header p {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .staff-info-grid {
+    gap: 10px;
+  }
+
+  .staff-info-grid div {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .staff-info-grid strong {
+    overflow-wrap: anywhere;
+  }
+
+  .staff-proposal-form {
+    gap: 12px;
+  }
+
+  .staff-proposal-policy-hint,
+  .staff-proposal-warning-inline,
+  .staff-proposal-upload-note,
+  .staff-proposal-confirm {
+    border-radius: 14px;
+    font-size: 13px;
+  }
+
+  .staff-modal__footer {
+    position: sticky;
+    bottom: -16px;
+    margin: 12px -16px -16px;
+    padding: 12px 16px 16px;
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid #e5edf5;
+    backdrop-filter: blur(10px);
+  }
+}
+
+@media (max-width: 420px) {
+  .staff-assessment-header h1 {
+    font-size: 20px;
+  }
+
+  .staff-policy-reminder__list button,
+  .staff-assessment-stat-card,
+  .staff-info-grid div {
+    padding: 12px;
+  }
+
+  .staff-modal__header button {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+  }
+}
